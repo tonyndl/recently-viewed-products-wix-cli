@@ -1,6 +1,6 @@
 # Phase 4 Cart Pages — Ecom
 
-Scope: `cart-checkout` (the ecom `pages` scope) — the **pages** portion of the ecom **merged build agent** (the build wave), written *after* its `components`. Mounts `CartView` island on the cart page, wires the thank-you page, and mounts `CartBadge` in `Navigation.astro` (at the `<!-- nav:actions -->` marker). **Because it patches the shared `Navigation.astro` shell, the ecom build agent runs in the build wave's serialized shell chain** — never concurrent with the other Navigation/index patchers (stores `pages-home-and-nav`, gift-cards, blog), so concurrent marker edits can't collide (`BUILD-astro.md` § "Step 4.5").
+Scope: `cart-checkout` (the ecom `pages` scope) — the **pages** portion of the ecom **merged build agent** (the build wave), written _after_ its `components`. Mounts `CartView` island on the cart page, wires the thank-you page, and mounts `CartBadge` in `Navigation.astro` (at the `<!-- nav:actions -->` marker). **Because it patches the shared `Navigation.astro` shell, the ecom build agent runs in the build wave's serialized shell chain** — never concurrent with the other Navigation/index patchers (stores `pages-home-and-nav`, gift-cards, blog), so concurrent marker edits can't collide (`BUILD-astro.md` § "Step 4.5").
 
 ## Scope
 
@@ -14,6 +14,7 @@ Files this agent PATCHES (does NOT rewrite) — only at its own marker:
 - `src/components/Navigation.astro` — mount `CartBadge` in the `nav-actions` area (`<!-- nav:actions -->`). Stores `pages-home-and-nav` patches the same file at `<!-- nav:links -->`; the serialized shell chain keeps these from colliding.
 
 Files this agent MUST NOT touch:
+
 - `src/components/CartView.tsx`, `src/components/CartBadge.tsx` — the ecom islands; written earlier in this same merged agent (the `components` scope)
 - Any product page, home page, or stores-specific component
 - `global.css`, any designed component
@@ -84,12 +85,13 @@ Cart page → "Proceed to Checkout"
 ```
 
 **Going-live note** (emitted by the skill, not this agent):
+
 > Checkout is hosted by Wix and will show "we aren't accepting payments" until: (1) upgrade to premium eCommerce plan, (2) connect a payment provider.
 
 ## Analytics fired from this scope
 
-| Event | Fires from | When | Payload |
-|-------|------------|------|---------|
+| Event      | Fires from        | When                                 | Payload                                     |
+| ---------- | ----------------- | ------------------------------------ | ------------------------------------------- |
 | `Purchase` | `thank-you.astro` | On mount when `?orderId=` is present | `{ id: orderId, origin: "Thank You Page" }` |
 
 `RemoveFromCart` and `InitiateCheckout` fire from `CartView.tsx` (owned by `ecom-shared`).

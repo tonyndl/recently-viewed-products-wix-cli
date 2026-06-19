@@ -3,6 +3,7 @@ name: "Setup: Discount Rules"
 description: Configures automatic discount rules using the eCommerce Discount Rules API. Covers percentage and fixed-amount discounts, scope targeting (catalog-wide, specific collections, or individual products), scheduling active periods, and the find-by-name + update pattern.
 layer: config
 ---
+
 # Setup Discount Rules
 
 ## Prerequisites
@@ -56,6 +57,7 @@ When updating a rule, always use the `discounts` array as returned from the quer
 > **Paging**: This API uses **cursor paging** (`cursorPaging`), not offset paging. Using `paging` instead of `cursorPaging` will fail.
 
 **Request** — list all rules:
+
 ```json
 {
   "query": {
@@ -67,6 +69,7 @@ When updating a rule, always use the `discounts` array as returned from the quer
 ```
 
 **Request** — find by name (exact match):
+
 ```json
 {
   "query": {
@@ -81,6 +84,7 @@ When updating a rule, always use the `discounts` array as returned from the quer
 Filterable fields: `id`, `name`, `active`, `revision`, `created_date`, `updated_date`, `active_time_info.start`, `active_time_info.end`
 
 **Response**:
+
 ```json
 {
   "discountRules": [
@@ -131,6 +135,7 @@ Note existing rules and their scopes to avoid stacking conflicts.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/discount-rules`
 
 **Request** — 20% off all products:
+
 ```json
 {
   "discountRule": {
@@ -168,6 +173,7 @@ Note existing rules and their scopes to avoid stacking conflicts.
 ```
 
 **Request** — 15% off a specific collection:
+
 ```json
 {
   "discountRule": {
@@ -208,6 +214,7 @@ Note existing rules and their scopes to avoid stacking conflicts.
 ## Step 3: Create a fixed-amount discount rule
 
 **Request** — $5 off specific products:
+
 ```json
 {
   "discountRule": {
@@ -252,6 +259,7 @@ Always fetch the rule first (via Get or Query), then modify only the fields you 
 **Required**: `discountRule.id`, `discountRule.revision` (must match current revision)
 
 **Request** — change percentage on an existing rule (full discounts replacement):
+
 ```json
 {
   "discountRule": {
@@ -283,6 +291,7 @@ Always fetch the rule first (via Get or Query), then modify only the fields you 
 ```
 
 **Request** — change only `active` status (field mask for partial update):
+
 ```json
 {
   "discountRule": {
@@ -305,6 +314,7 @@ The safe pattern for "find a rule by name and update its percentage":
 3. PATCH with the modified `discounts` and `mask: { paths: ["discounts"] }`
 
 **Step 5a — Query by name**:
+
 ```json
 POST https://www.wixapis.com/ecom/v1/discount-rules/query
 {
@@ -320,6 +330,7 @@ Extract from response: `discountRules[0].id`, `discountRules[0].revision`, `disc
 **Step 5b — Update percentage** (modify the returned discounts in-place):
 
 Take the `discounts` array from the query response and update only `discount.percentage` on each entry:
+
 ```json
 PATCH https://www.wixapis.com/ecom/v1/discount-rules/{id}
 {
@@ -348,6 +359,7 @@ PATCH https://www.wixapis.com/ecom/v1/discount-rules/{id}
 ## Step 6: Deactivate or delete a discount rule
 
 To deactivate without deleting:
+
 ```json
 {
   "discountRule": {
@@ -367,28 +379,28 @@ To delete permanently:
 
 ## Key field rules
 
-| Field | Required | Notes |
-|---|---|---|
-| `name` | Yes | Internal name for the rule. Filterable in query. |
-| `active` | Yes | Whether the rule is currently applied |
-| `activeTimeInfo.start` | No | ISO 8601 start time. Omit for immediate activation |
-| `activeTimeInfo.end` | No | ISO 8601 end time. Omit for no expiration |
-| `discounts[].targetType` | Yes | Always `"SPECIFIC_ITEMS"` for standard rules |
-| `discounts[].specificItemsInfo.scopes[]` | Yes | Array of scope objects — see Scope types below |
-| `discounts[].discount.discountType` | Yes | `"PERCENTAGE"` or `"FIXED_AMOUNT"` or `"FIXED_PRICE"` |
-| `discounts[].discount.percentage` | If PERCENTAGE | Integer 1-100 |
-| `discounts[].discount.fixedAmount` | If FIXED_AMOUNT | Decimal string (e.g., `"5.00"`) |
-| `settings.appliesTo` | Yes on create | Always `"ALL_ITEMS"` |
-| `revision` | On update/delete | Must match current value — fetch first |
-| `mask.paths[]` | On update | Recommended — list fields being changed (e.g., `["discounts"]`, `["active"]`) |
+| Field                                    | Required         | Notes                                                                         |
+| ---------------------------------------- | ---------------- | ----------------------------------------------------------------------------- |
+| `name`                                   | Yes              | Internal name for the rule. Filterable in query.                              |
+| `active`                                 | Yes              | Whether the rule is currently applied                                         |
+| `activeTimeInfo.start`                   | No               | ISO 8601 start time. Omit for immediate activation                            |
+| `activeTimeInfo.end`                     | No               | ISO 8601 end time. Omit for no expiration                                     |
+| `discounts[].targetType`                 | Yes              | Always `"SPECIFIC_ITEMS"` for standard rules                                  |
+| `discounts[].specificItemsInfo.scopes[]` | Yes              | Array of scope objects — see Scope types below                                |
+| `discounts[].discount.discountType`      | Yes              | `"PERCENTAGE"` or `"FIXED_AMOUNT"` or `"FIXED_PRICE"`                         |
+| `discounts[].discount.percentage`        | If PERCENTAGE    | Integer 1-100                                                                 |
+| `discounts[].discount.fixedAmount`       | If FIXED_AMOUNT  | Decimal string (e.g., `"5.00"`)                                               |
+| `settings.appliesTo`                     | Yes on create    | Always `"ALL_ITEMS"`                                                          |
+| `revision`                               | On update/delete | Must match current value — fetch first                                        |
+| `mask.paths[]`                           | On update        | Recommended — list fields being changed (e.g., `["discounts"]`, `["active"]`) |
 
 ## Scope types
 
-| Scope | `type` | `id` prefix | When to use |
-|---|---|---|---|
-| All products | `"CATALOG_ITEM"` | `all_<appId>` | `catalogItemFilter.catalogAppId` only, no `catalogItemIds` |
-| Specific products | `"CATALOG_ITEM"` | `specific_<appId>` | `catalogItemFilter.catalogAppId` + `catalogItemFilter.catalogItemIds` |
-| Collection | `"CUSTOM_FILTER"` | `collections_<appId>` | `customFilter.appId` + `customFilter.params.collectionIds` |
+| Scope             | `type`            | `id` prefix           | When to use                                                           |
+| ----------------- | ----------------- | --------------------- | --------------------------------------------------------------------- |
+| All products      | `"CATALOG_ITEM"`  | `all_<appId>`         | `catalogItemFilter.catalogAppId` only, no `catalogItemIds`            |
+| Specific products | `"CATALOG_ITEM"`  | `specific_<appId>`    | `catalogItemFilter.catalogAppId` + `catalogItemFilter.catalogItemIds` |
+| Collection        | `"CUSTOM_FILTER"` | `collections_<appId>` | `customFilter.appId` + `customFilter.params.collectionIds`            |
 
 **Store catalog app ID** (required in all scopes): `215238eb-22a5-4c36-9e7b-e7c08025e04e`
 
@@ -405,13 +417,14 @@ When creating a discount rule from a recommendation output, use this mapping to 
 
 The recommendation's `scope` field maps to the API's internal scope structure. The scope ID uses a prefix convention:
 
-| Recommendation scope | API scope type | Scope ID prefix | How to build |
-|---|---|---|---|
-| `SITE` | `CATALOG_ITEM` | `all_` | Set `catalogItemFilter.catalogAppId` to the store catalog app ID. No item IDs. |
-| `ITEMS` | `CATALOG_ITEM` | `specific_` | Set `catalogItemFilter.catalogAppId` + `catalogItemFilter.catalogItemIds` to the product UUIDs from `productIds`. |
-| `CATEGORY` | `CUSTOM_FILTER` | `collections_` | Set `customFilter.appId` to the store catalog app ID + `customFilter.params.collectionIds` to the category UUIDs from `categoryIds`. |
+| Recommendation scope | API scope type  | Scope ID prefix | How to build                                                                                                                         |
+| -------------------- | --------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `SITE`               | `CATALOG_ITEM`  | `all_`          | Set `catalogItemFilter.catalogAppId` to the store catalog app ID. No item IDs.                                                       |
+| `ITEMS`              | `CATALOG_ITEM`  | `specific_`     | Set `catalogItemFilter.catalogAppId` + `catalogItemFilter.catalogItemIds` to the product UUIDs from `productIds`.                    |
+| `CATEGORY`           | `CUSTOM_FILTER` | `collections_`  | Set `customFilter.appId` to the store catalog app ID + `customFilter.params.collectionIds` to the category UUIDs from `categoryIds`. |
 
 **Example — SITE scope**:
+
 ```json
 {
   "scope": {
@@ -425,6 +438,7 @@ The recommendation's `scope` field maps to the API's internal scope structure. T
 ```
 
 **Example — ITEMS scope** (with product IDs):
+
 ```json
 {
   "scope": {
@@ -439,6 +453,7 @@ The recommendation's `scope` field maps to the API's internal scope structure. T
 ```
 
 **Example — CATEGORY scope** (with collection IDs):
+
 ```json
 {
   "scope": {
@@ -456,11 +471,11 @@ The recommendation's `scope` field maps to the API's internal scope structure. T
 
 ### Discount type mapping
 
-| Recommendation `discountType` | API field to set | Value format |
-|---|---|---|
-| `PERCENTAGE` | `discount.percentage` | Integer (e.g., `15`) |
-| `FIXED_AMOUNT` | `discount.fixedAmount` | String (e.g., `"5.00"`) |
-| `FIXED_PRICE` | `discount.fixedPrice` | String (e.g., `"29.99"`) |
+| Recommendation `discountType` | API field to set       | Value format             |
+| ----------------------------- | ---------------------- | ------------------------ |
+| `PERCENTAGE`                  | `discount.percentage`  | Integer (e.g., `15`)     |
+| `FIXED_AMOUNT`                | `discount.fixedAmount` | String (e.g., `"5.00"`)  |
+| `FIXED_PRICE`                 | `discount.fixedPrice`  | String (e.g., `"29.99"`) |
 
 All discount entries use `targetType: "SPECIFIC_ITEMS"` with the scope wrapped in `specificItemsInfo.scopes[]`.
 
@@ -468,14 +483,15 @@ All discount entries use `targetType: "SPECIFIC_ITEMS"` with the scope wrapped i
 
 Triggers determine WHEN the discount activates. They are built from the recommendation's `conditions` fields. **If no conditions exist (both minSubTotal and minItemQuantity are 0), do NOT set a trigger — the discount applies unconditionally.**
 
-| Condition | Trigger type | How to build |
-|---|---|---|
+| Condition                  | Trigger type          | How to build                                                                                              |
+| -------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------- |
 | `minItemQuantity > 0` only | `ITEM_QUANTITY_RANGE` | Set `itemQuantityRange.from` to the value. No upper bound. Include the same scope as the discount target. |
-| `minSubTotal > 0` only | `SUBTOTAL_RANGE` | Set `subtotalRange.from` to the value as a string. No upper bound. Include the same scope. |
-| Both conditions > 0 | `AND` | Combine both triggers in `and.triggers[]` array. |
-| Neither condition | No trigger | Leave trigger field unset entirely. |
+| `minSubTotal > 0` only     | `SUBTOTAL_RANGE`      | Set `subtotalRange.from` to the value as a string. No upper bound. Include the same scope.                |
+| Both conditions > 0        | `AND`                 | Combine both triggers in `and.triggers[]` array.                                                          |
+| Neither condition          | No trigger            | Leave trigger field unset entirely.                                                                       |
 
 **Example — minSubTotal trigger** (upsell boost: spend $200+):
+
 ```json
 {
   "trigger": {
@@ -497,6 +513,7 @@ Triggers determine WHEN the discount activates. They are built from the recommen
 ```
 
 **Example — minItemQuantity trigger** (bundle: buy 3+):
+
 ```json
 {
   "trigger": {
@@ -521,6 +538,7 @@ Triggers determine WHEN the discount activates. They are built from the recommen
 ```
 
 **Example — AND trigger** (both conditions):
+
 ```json
 {
   "trigger": {
@@ -529,11 +547,21 @@ Triggers determine WHEN the discount activates. They are built from the recommen
       "triggers": [
         {
           "triggerType": "ITEM_QUANTITY_RANGE",
-          "itemQuantityRange": { "from": 2, "scopes": [/* same scope */] }
+          "itemQuantityRange": {
+            "from": 2,
+            "scopes": [
+              /* same scope */
+            ]
+          }
         },
         {
           "triggerType": "SUBTOTAL_RANGE",
-          "subtotalRange": { "from": "100", "scopes": [/* same scope */] }
+          "subtotalRange": {
+            "from": "100",
+            "scopes": [
+              /* same scope */
+            ]
+          }
         }
       ]
     }
@@ -543,16 +571,17 @@ Triggers determine WHEN the discount activates. They are built from the recommen
 
 ### Date handling
 
-| Recommendation field | API mapping |
-|---|---|
+| Recommendation field                                | API mapping                                           |
+| --------------------------------------------------- | ----------------------------------------------------- |
 | `startDate` is a date string (e.g., `"2026-06-01"`) | Convert to ISO 8601 timestamp: `activeTimeInfo.start` |
-| `startDate` is empty `""` | Default to current time (now) |
-| `endDate` is a date string | Convert to ISO 8601 timestamp: `activeTimeInfo.end` |
-| `endDate` is empty `""` | Omit `activeTimeInfo.end` — rule has no expiration |
+| `startDate` is empty `""`                           | Default to current time (now)                         |
+| `endDate` is a date string                          | Convert to ISO 8601 timestamp: `activeTimeInfo.end`   |
+| `endDate` is empty `""`                             | Omit `activeTimeInfo.end` — rule has no expiration    |
 
 ### Settings
 
 All recommendation-created rules use these fixed settings:
+
 ```json
 {
   "settings": {
@@ -566,14 +595,14 @@ All recommendation-created rules use these fixed settings:
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| `DISCOUNT_RULE_NOT_FOUND` | The discount rule ID doesn't exist | Re-query discount rules to get current IDs |
-| `REVISION_MISMATCH` | The `revision` doesn't match the current version | Re-fetch the rule to get the latest revision, then retry |
-| `INVALID_DISCOUNT_TYPE` | Unsupported discount type | Use `PERCENTAGE` or `FIXED_AMOUNT` |
-| Both `productIds` and `categoryIds` set | Scope mutual exclusivity violation | Use only one: ITEMS with productIds OR CATEGORY with categoryIds |
-| `productIds` empty when scope is ITEMS | Missing required IDs | Query products and provide at least 1 product UUID |
-| `categoryIds` empty when scope is CATEGORY | Missing required IDs | Call getCategoryIds to convert category names to GUIDs |
+| Error                                      | Cause                                            | Fix                                                              |
+| ------------------------------------------ | ------------------------------------------------ | ---------------------------------------------------------------- |
+| `DISCOUNT_RULE_NOT_FOUND`                  | The discount rule ID doesn't exist               | Re-query discount rules to get current IDs                       |
+| `REVISION_MISMATCH`                        | The `revision` doesn't match the current version | Re-fetch the rule to get the latest revision, then retry         |
+| `INVALID_DISCOUNT_TYPE`                    | Unsupported discount type                        | Use `PERCENTAGE` or `FIXED_AMOUNT`                               |
+| Both `productIds` and `categoryIds` set    | Scope mutual exclusivity violation               | Use only one: ITEMS with productIds OR CATEGORY with categoryIds |
+| `productIds` empty when scope is ITEMS     | Missing required IDs                             | Query products and provide at least 1 product UUID               |
+| `categoryIds` empty when scope is CATEGORY | Missing required IDs                             | Call getCategoryIds to convert category names to GUIDs           |
 
 ## References
 

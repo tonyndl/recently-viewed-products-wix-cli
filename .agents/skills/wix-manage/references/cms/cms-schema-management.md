@@ -2,6 +2,7 @@
 name: "CMS Schema Management"
 description: Create and modify CMS collection structures. Covers listing collections, creating collections with fields, adding/removing fields, and updating collection settings.
 ---
+
 # CMS Schema Management
 
 > **Standard call shape (every curl below).** The `<AUTH>` placeholder is shorthand for `Authorization: Bearer <TOKEN>` only. Body-bearing requests also need `Content-Type: application/json`.
@@ -20,6 +21,7 @@ This recipe covers managing the structure (schema) of Wix CMS collections using 
 ## List All Collections
 
 **Lightweight listing (recommended for existence checks)**:
+
 ```bash
 curl -X GET \
 'https://www.wixapis.com/wix-data/v2/collections?fields=displayName' \
@@ -27,6 +29,7 @@ curl -X GET \
 ```
 
 **Full listing (includes all field schemas)**:
+
 ```bash
 curl -X GET \
 'https://www.wixapis.com/wix-data/v2/collections' \
@@ -55,10 +58,15 @@ curl -X GET \
     "id": "Products",
     "displayName": "Products",
     "fields": [
-      {"key": "title", "displayName": "Title", "type": "TEXT", "required": true},
-      {"key": "price", "displayName": "Price", "type": "NUMBER"},
-      {"key": "description", "displayName": "Description", "type": "TEXT"},
-      {"key": "inStock", "displayName": "In Stock", "type": "BOOLEAN"}
+      {
+        "key": "title",
+        "displayName": "Title",
+        "type": "TEXT",
+        "required": true
+      },
+      { "key": "price", "displayName": "Price", "type": "NUMBER" },
+      { "key": "description", "displayName": "Description", "type": "TEXT" },
+      { "key": "inStock", "displayName": "In Stock", "type": "BOOLEAN" }
     ],
     "permissions": {
       "insert": "ADMIN",
@@ -114,31 +122,31 @@ curl -X GET \
 
 ## Field Types Reference
 
-| Type | Description | Example Value |
-|------|-------------|---------------|
-| `TEXT` | String | `"Hello World"` |
-| `NUMBER` | Numeric | `99.99` |
-| `BOOLEAN` | True/false | `true` |
-| `DATE` | Date only | `"2024-01-15"` |
-| `DATETIME` | Date and time | `{ "$date": "2024-01-15T10:00:00.000Z" }` |
-| `IMAGE` | Image reference | `"wix:image://v1/..."` |
-| `MEDIA_IMAGE` | Wix Media Image | `{ "url": "http://...", "height": 640, "width": 480, "alt": "Picture" }` |
+| Type               | Description          | Example Value                                                                                                        |
+| ------------------ | -------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `TEXT`             | String               | `"Hello World"`                                                                                                      |
+| `NUMBER`           | Numeric              | `99.99`                                                                                                              |
+| `BOOLEAN`          | True/false           | `true`                                                                                                               |
+| `DATE`             | Date only            | `"2024-01-15"`                                                                                                       |
+| `DATETIME`         | Date and time        | `{ "$date": "2024-01-15T10:00:00.000Z" }`                                                                            |
+| `IMAGE`            | Image reference      | `"wix:image://v1/..."`                                                                                               |
+| `MEDIA_IMAGE`      | Wix Media Image      | `{ "url": "http://...", "height": 640, "width": 480, "alt": "Picture" }`                                             |
 | `MEDIA_VECTOR_ART` | Wix Media Vector Art | `{ "uri": "wix:vector://v1/...", "viewBox": "0 0 100 100", "contentType": "shape", "svgContent": "<svg>...</svg>" }` |
-| `URL` | Web URL | `"https://example.com"` |
-| `RICH_TEXT` | HTML content | `"<p>Rich text</p>"` |
-| `ARRAY_STRING` | Array of strings | `["tag1", "tag2"]` |
-| `OBJECT` | JSON object | `{"key": "value"}` |
-| `REFERENCE` | Single reference | Item ID string |
-| `MULTI_REFERENCE` | Multiple references | Array of IDs |
+| `URL`              | Web URL              | `"https://example.com"`                                                                                              |
+| `RICH_TEXT`        | HTML content         | `"<p>Rich text</p>"`                                                                                                 |
+| `ARRAY_STRING`     | Array of strings     | `["tag1", "tag2"]`                                                                                                   |
+| `OBJECT`           | JSON object          | `{"key": "value"}`                                                                                                   |
+| `REFERENCE`        | Single reference     | Item ID string                                                                                                       |
+| `MULTI_REFERENCE`  | Multiple references  | Array of IDs                                                                                                         |
 
 ## Permission Levels
 
-| Role | Description |
-|------|-------------|
-| `ANYONE` | All visitors (including anonymous) |
-| `SITE_MEMBER` | Logged-in site members |
-| `SITE_MEMBER_AUTHOR` | Members who created the item |
-| `ADMIN` | Site admins only |
+| Role                 | Description                        |
+| -------------------- | ---------------------------------- |
+| `ANYONE`             | All visitors (including anonymous) |
+| `SITE_MEMBER`        | Logged-in site members             |
+| `SITE_MEMBER_AUTHOR` | Members who created the item       |
+| `ADMIN`              | Site admins only                   |
 
 ## Related Documentation
 

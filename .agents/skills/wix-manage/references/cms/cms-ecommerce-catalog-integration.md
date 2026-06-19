@@ -2,6 +2,7 @@
 name: "CMS eCommerce Catalog Integration"
 description: The recommended way to sell existing CMS collection items (tickets, bookings, memberships) through Wix checkout. Add the CATALOG plugin to convert any CMS collection into purchasable products with cart and payment integration.
 ---
+
 # CMS eCommerce Catalog Integration
 
 This recipe documents how to convert CMS collections into sellable product catalogs that integrate with Wix eCommerce (cart, checkout, orders).
@@ -9,6 +10,7 @@ This recipe documents how to convert CMS collections into sellable product catal
 ## Overview
 
 Converting a CMS collection to a catalog enables:
+
 - Items in the collection become purchasable products
 - Integration with Wix Cart and Checkout APIs
 - Real-time price and availability from your CMS data
@@ -16,10 +18,12 @@ Converting a CMS collection to a catalog enables:
 ## Prerequisites
 
 Your collection needs these fields (or mappable equivalents):
+
 - **Name field** (TEXT) - Product display name
 - **Price field** (NUMBER) - Product price
 
 Optional catalog fields:
+
 - **Description** (TEXT) - Product description
 - **Image** (IMAGE) - Product image
 - **URL** (URL) - Product link
@@ -119,13 +123,13 @@ POST https://www.wixapis.com/wix-data/v2/collections/delete-plugin
 
 ## Differences from Wix Stores
 
-| Feature | CMS Catalog | Wix Stores |
-|---------|-------------|------------|
-| Product management | CMS collections | Stores dashboard |
-| Variants | Manual (separate items) | Built-in variant system |
-| Inventory tracking | Manual via quantity field | Automatic |
-| Product options | Not supported | Full support |
-| Discounts | Manual price changes | Built-in discount system |
+| Feature            | CMS Catalog               | Wix Stores               |
+| ------------------ | ------------------------- | ------------------------ |
+| Product management | CMS collections           | Stores dashboard         |
+| Variants           | Manual (separate items)   | Built-in variant system  |
+| Inventory tracking | Manual via quantity field | Automatic                |
+| Product options    | Not supported             | Full support             |
+| Discounts          | Manual price changes      | Built-in discount system |
 
 CMS Catalogs are best for simple product catalogs. For complex eCommerce needs, consider Wix Stores.
 

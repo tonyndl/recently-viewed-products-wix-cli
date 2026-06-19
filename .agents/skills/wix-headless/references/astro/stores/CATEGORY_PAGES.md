@@ -1,8 +1,8 @@
 # Phase 4 Category Pages — Stores
 
-Scope: `pages-categories` — written by the stores **merged build agent** (the build wave) *before* its `pages-products` scope, so `<CategoryRail/>` is on disk before that scope mounts it. This scope writes the dedicated category landing route and the shared `<CategoryRail/>`. The `categories.ts` helper is **pre-copied by the orchestrator in the build-wave pre-batch** (BUILD-astro.md § "Step 4.5") — do NOT write it here.
+Scope: `pages-categories` — written by the stores **merged build agent** (the build wave) _before_ its `pages-products` scope, so `<CategoryRail/>` is on disk before that scope mounts it. This scope writes the dedicated category landing route and the shared `<CategoryRail/>`. The `categories.ts` helper is **pre-copied by the orchestrator in the build-wave pre-batch** (BUILD-astro.md § "Step 4.5") — do NOT write it here.
 
-**Within-agent order:** the merged stores agent writes `components` → `pages-categories` (this scope) → `pages-products`. `pages-home-and-nav` is a *separate* serialized agent (it patches the shared shells) and resolves `<CategoryRail/>` at build time (Step 8). Each scope only needs its own declared files to exist by the time `astro build` runs.
+**Within-agent order:** the merged stores agent writes `components` → `pages-categories` (this scope) → `pages-products`. `pages-home-and-nav` is a _separate_ serialized agent (it patches the shared shells) and resolves `<CategoryRail/>` at build time (Step 8). Each scope only needs its own declared files to exist by the time `astro build` runs.
 
 ## Scope
 
@@ -12,9 +12,11 @@ Files this agent OWNS (writes):
 - `src/components/CategoryRail.astro` — shared rail + Prev/Next pagination, persisted across `<ClientRouter />` swaps
 
 Files this agent imports but MUST NOT write:
+
 - `src/utils/categories.ts` — TTL-cached helpers (`listStoreCategories`, `getCategoryBySlug`, `listProductsInCategory`). **Pre-copied by the orchestrator** before this phase (it's a static, brand-agnostic SDK wrapper); import the helpers, never author the file. Writing it races `pages-products`/`pages-home-and-nav`, which import the same path.
 
 Files this agent MUST NOT touch:
+
 - `src/pages/products/index.astro`, `[slug].astro`, `src/components/ProductCard.astro` — owned by `pages-products`
 - `src/pages/index.astro`, `src/components/Navigation.astro` — owned by `pages-home-and-nav`
 - `src/layouts/Layout.astro`, `global.css` — owned by designer (View Transitions + loading bar live there)
@@ -42,10 +44,10 @@ Files this agent MUST NOT touch:
 
 Read each template at `references/astro/templates/stores/` and write it verbatim to the corresponding `src/` path, with three small adjustments. (`categories.ts` is **not** in this list — the orchestrator pre-copies it; you only import its helpers.)
 
-| Template path | Site path |
-|---|---|
-| `templates/CategoryRail.astro` | `src/components/CategoryRail.astro` |
-| `templates/category/[slug].astro` | `src/pages/category/[slug].astro` |
+| Template path                     | Site path                           |
+| --------------------------------- | ----------------------------------- |
+| `templates/CategoryRail.astro`    | `src/components/CategoryRail.astro` |
+| `templates/category/[slug].astro` | `src/pages/category/[slug].astro`   |
 
 Adjustments at the call site:
 

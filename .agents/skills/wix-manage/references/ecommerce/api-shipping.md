@@ -3,6 +3,7 @@ name: "API: Shipping Delivery"
 description: REST API reference for Shipping Options and Delivery Profiles. Covers CRUD operations, region/carrier management, and query patterns for both services. Internal reference — these APIs are not yet published in public docs.
 layer: config
 ---
+
 # API: Shipping Delivery
 
 Two services govern the shipping configuration of a Wix eCommerce store:
@@ -25,6 +26,7 @@ Retrieves all shipping options for the site. Up to 1,000 per request (cursor pag
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/shipping-options/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -36,6 +38,7 @@ Retrieves all shipping options for the site. Up to 1,000 per request (cursor pag
 **Filterable fields**: `id`, `delivery_region_id`, `delivery_region_ids`, `estimated_delivery_time`, `created_date`, `updated_date`
 
 **Response**:
+
 ```json
 {
   "shippingOptions": [
@@ -74,6 +77,7 @@ Creates a new shipping option and associates it with one or more delivery region
 **Required fields**: `shippingOption.deliveryRegionId` (or `deliveryRegionIds`), `shippingOption.title`, `shippingOption.rates[]`
 
 **Request**:
+
 ```json
 {
   "shippingOption": {
@@ -125,6 +129,7 @@ Updates a shipping option. Requires `id` and the current `revision`. Each update
 **Required fields**: `shippingOption.id`, `shippingOption.revision`
 
 **Request**:
+
 ```json
 {
   "shippingOption": {
@@ -171,6 +176,7 @@ Associates an additional delivery region with an existing shipping option.
 **Required fields**: `deliveryRegionId`, `revision`
 
 **Request**:
+
 ```json
 {
   "deliveryRegionId": "region-guid",
@@ -194,13 +200,13 @@ Removes a delivery region association from a shipping option.
 
 Rate types are determined by the `conditions` array, not an explicit field:
 
-| Rate Type | `amount` | `conditions` |
-|-----------|---------|-------------|
-| Flat rate | any | empty `[]` |
-| Free shipping | `"0"` | optional `BY_TOTAL_PRICE GTE <threshold>` |
-| Price-based tiers | any | one or more `BY_TOTAL_PRICE` conditions |
-| Weight-based tiers | any | `BY_TOTAL_WEIGHT` conditions |
-| Quantity-based | any | `BY_TOTAL_QUANTITY` conditions |
+| Rate Type          | `amount` | `conditions`                              |
+| ------------------ | -------- | ----------------------------------------- |
+| Flat rate          | any      | empty `[]`                                |
+| Free shipping      | `"0"`    | optional `BY_TOTAL_PRICE GTE <threshold>` |
+| Price-based tiers  | any      | one or more `BY_TOTAL_PRICE` conditions   |
+| Weight-based tiers | any      | `BY_TOTAL_WEIGHT` conditions              |
+| Quantity-based     | any      | `BY_TOTAL_QUANTITY` conditions            |
 
 **Condition operators**: `EQ`, `GT`, `GTE`, `LT`, `LTE`
 
@@ -221,6 +227,7 @@ Retrieves all delivery profiles for the site. Typically one default profile exis
 **Request**: `{}`
 
 **Response**:
+
 ```json
 {
   "deliveryProfiles": [
@@ -234,9 +241,7 @@ Retrieves all delivery profiles for the site. Typically one default profile exis
           "id": "region-guid",
           "name": "United States",
           "active": true,
-          "destinations": [
-            { "countryCode": "US", "subdivisions": [] }
-          ],
+          "destinations": [{ "countryCode": "US", "subdivisions": [] }],
           "deliveryCarriers": [
             {
               "appId": "45c44b27-ca7b-4891-8c0d-1747d588b835",
@@ -300,14 +305,13 @@ Adds a geographic region to a delivery profile. Returns the updated profile with
 **Required fields**: `deliveryRegion.name`, `deliveryRegion.destinations[]`, `revision`
 
 **Request**:
+
 ```json
 {
   "deliveryRegion": {
     "name": "United States",
     "active": true,
-    "destinations": [
-      { "countryCode": "US" }
-    ]
+    "destinations": [{ "countryCode": "US" }]
   },
   "revision": "3"
 }
@@ -342,6 +346,7 @@ Returns all carriers installed on the site (both built-in and third-party apps).
 **Endpoint**: `GET https://www.wixapis.com/ecom/v1/delivery-profiles/installed-carriers`
 
 **Response**:
+
 ```json
 {
   "installedDeliveryCarriers": [
@@ -379,6 +384,7 @@ Adds a carrier to a delivery region within a profile. The carrier appears as a s
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/delivery-profiles/add-delivery-carrier`
 
 **Request**:
+
 ```json
 {
   "deliveryRegionId": "region-guid",
@@ -410,6 +416,7 @@ Removes a carrier from a delivery region.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/delivery-profiles/remove-delivery-carrier`
 
 **Request**:
+
 ```json
 {
   "deliveryRegionId": "region-guid",
@@ -437,7 +444,7 @@ Activates or deactivates a carrier in a delivery region.
 
 ## Known Carrier IDs
 
-| Carrier | App ID |
-|---------|--------|
+| Carrier        | App ID                                 |
+| -------------- | -------------------------------------- |
 | Basic Shipping | `45c44b27-ca7b-4891-8c0d-1747d588b835` |
-| Pickup | `50d8c12f-715e-41ad-be25-d0f61375dbee` |
+| Pickup         | `50d8c12f-715e-41ad-be25-d0f61375dbee` |

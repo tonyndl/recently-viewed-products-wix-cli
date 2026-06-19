@@ -128,6 +128,7 @@ body: {
 **Prompt templates** — each use-case reference defines its own prompt template (see the "Seed with Images" section in `../astro/cms/TEAM_DIRECTORY.md`, `../astro/cms/PORTFOLIO.md`, `../astro/cms/RESOURCE_LIBRARY.md`). Always incorporate brand context from the discovery/design phases.
 
 **Constraints:**
+
 - Never block the main flow on image failures — text data is already seeded
 - Runware image URLs are short-lived — import to Wix Media immediately after generation
 - If image generation or import fails for a single item, skip that item and continue with others

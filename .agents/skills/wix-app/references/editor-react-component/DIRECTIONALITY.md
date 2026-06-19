@@ -22,7 +22,9 @@ const subComponentDirection = elementProps?.subComponent?.direction;
 
 ```scss
 /* ❌ Don't use CSS variables for direction */
-.component { direction: var(--component-direction, ltr); }
+.component {
+  direction: var(--component-direction, ltr);
+}
 ```
 
 ```tsx
@@ -64,7 +66,7 @@ Apply on main component only:
 **Imports:**
 
 ```typescript
-import type { Direction } from '@wix/editor-react-types';
+import type { Direction } from "@wix/editor-react-types";
 ```
 
 ### Child Element Direction
@@ -86,18 +88,18 @@ const labelDirection = elementProps?.label?.direction;
 Use service when direction drives JavaScript behavior (keyboard navigation, animation logic, conditional rendering).
 
 ```typescript
-import { useService } from '@wix/services-manager-react';
-import { EnvironmentDefinition } from '@wix/environment-service/definition';
+import { useService } from "@wix/services-manager-react";
+import { EnvironmentDefinition } from "@wix/environment-service/definition";
 
 const environmentService = useService(EnvironmentDefinition);
 const siteDirection = environmentService.getLanguageDirection();
-const isRTL = siteDirection === 'rtl';
+const isRTL = siteDirection === "rtl";
 ```
 
 **Fallback chain (for child components):**
 
 ```typescript
-const isRTL = (direction || parentDirection || siteDirection) === 'rtl';
+const isRTL = (direction || parentDirection || siteDirection) === "rtl";
 ```
 
 **CSS Variable**
@@ -128,7 +130,7 @@ Use css variable `--wix-opt-in-direction-multiplier` when direction only affects
 ```scss
 .element {
   padding-left: 8px;
-  [dir='rtl'] & {
+  [dir="rtl"] & {
     padding-right: 8px; // Manual RTL - avoid
   }
 }
@@ -145,7 +147,7 @@ Use logical CSS properties (e.g., `margin-inline-start` not `margin-left`) for R
 ```scss
 .element {
   padding-left: 8px;
-  [dir='rtl'] & {
+  [dir="rtl"] & {
     padding-right: 8px; // Manual overrides
   }
 }

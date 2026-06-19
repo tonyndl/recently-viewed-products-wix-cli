@@ -54,7 +54,9 @@ body[data-navigating="true"] .service-grid {
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: transform 280ms ease, box-shadow 280ms ease;
+  transition:
+    transform 280ms ease,
+    box-shadow 280ms ease;
   box-shadow: var(--shadow-card, 0 4px 16px -8px rgba(0, 0, 0, 0.15));
 }
 .service-card:hover {
@@ -67,7 +69,10 @@ body[data-navigating="true"] .service-grid {
 .service-card-image {
   aspect-ratio: 3 / 2;
   overflow: hidden;
-  background: var(--color-paper-warm, var(--color-surface-secondary, var(--color-cream)));
+  background: var(
+    --color-paper-warm,
+    var(--color-surface-secondary, var(--color-cream))
+  );
 }
 .service-card-image img {
   width: 100%;
@@ -155,7 +160,9 @@ body[data-navigating="true"] .service-grid {
   font-family: var(--font-body);
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
 }
 .availability-nav-btn:hover:not(:disabled) {
   background: var(--color-paper-warm, var(--color-cream));
@@ -199,7 +206,10 @@ body[data-navigating="true"] .service-grid {
   font-size: 0.875rem;
   text-align: center;
   cursor: pointer;
-  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
 }
 .time-slot--available {
   border-color: var(--color-ink);
@@ -318,7 +328,9 @@ body[data-navigating="true"] .service-grid {
   cursor: pointer;
   width: 100%;
   margin-top: var(--spacing-sm);
-  transition: background-color 150ms ease, box-shadow 150ms ease;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 .booking-submit:hover:not(:disabled) {
   background: var(--color-ink-soft, var(--color-ink));

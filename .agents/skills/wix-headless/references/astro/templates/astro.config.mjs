@@ -21,7 +21,7 @@ import tailwindcss from "@tailwindcss/vite"; // (1) added by Composer
 // (2) `process.env` guarded so strict `tsc --noEmit` does not fail with
 //     "Cannot find name 'process'" without an @types/node dependency.
 const isBuild =
-  (/** @type {any} */ (globalThis)).process?.env?.NODE_ENV === "production";
+  /** @type {any} */ (globalThis).process?.env?.NODE_ENV === "production";
 
 // https://astro.build/config
 export default defineConfig({

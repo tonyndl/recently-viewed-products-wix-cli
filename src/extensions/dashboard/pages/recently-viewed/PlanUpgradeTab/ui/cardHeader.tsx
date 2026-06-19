@@ -1,6 +1,6 @@
-import { type FC } from 'react';
-import { Text, Badge } from '@wix/design-system';
-import { styles } from './styles/cardHeader';
+import { type FC } from "react";
+import { Text, Badge } from "@wix/design-system";
+import { styles } from "./styles/cardHeader";
 
 type Props = {
   plansLoading: boolean;
@@ -31,7 +31,7 @@ const PricingCardHeader: FC<Props> = ({
             style={isYearly ? styles.pill : styles.pillActive}
             onClick={() => onSetYearly(false)}
           >
-            <Text size="small" weight={isYearly ? 'normal' : 'bold'}>
+            <Text size="small" weight={isYearly ? "normal" : "bold"}>
               Monthly
             </Text>
           </div>
@@ -39,13 +39,13 @@ const PricingCardHeader: FC<Props> = ({
             style={{
               ...styles.pill,
               ...(isYearly ? styles.pillActive : {}),
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
             }}
             onClick={() => onSetYearly(true)}
           >
-            <Text size="small" weight={isYearly ? 'bold' : 'normal'}>
+            <Text size="small" weight={isYearly ? "bold" : "normal"}>
               Yearly
             </Text>
             {savingsPercent !== undefined && (

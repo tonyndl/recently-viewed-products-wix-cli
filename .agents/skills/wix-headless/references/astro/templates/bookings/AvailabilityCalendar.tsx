@@ -57,8 +57,10 @@ const fetchSlots = async (
   serviceType: "APPOINTMENT" | "CLASS",
   date: Date,
 ): Promise<{ slots: SelectedSlot[]; timezone: string }> => {
-  const start = new Date(date); start.setHours(0, 0, 0, 0);
-  const end = new Date(date); end.setHours(23, 59, 59, 0);
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 0);
   const timeZone = tz();
 
   if (serviceType === "CLASS") {
@@ -87,14 +89,15 @@ const fetchSlots = async (
   }
 
   // APPOINTMENT
-  const result = await wixClient.availabilityTimeSlots.listAvailabilityTimeSlots({
-    serviceId, // a single GUID STRING — NOT an array (the array form is the CLASS `serviceIds` field)
-    fromLocalDate: localDateString(start),
-    toLocalDate: localDateString(end),
-    timeZone,
-    bookable: true,
-    cursorPaging: { limit: 50 },
-  });
+  const result =
+    await wixClient.availabilityTimeSlots.listAvailabilityTimeSlots({
+      serviceId, // a single GUID STRING — NOT an array (the array form is the CLASS `serviceIds` field)
+      fromLocalDate: localDateString(start),
+      toLocalDate: localDateString(end),
+      timeZone,
+      bookable: true,
+      cursorPaging: { limit: 50 },
+    });
   const z = result.timeZone ?? timeZone;
   const slots: SelectedSlot[] = (result.timeSlots ?? []).map((s: any) => ({
     serviceType: "APPOINTMENT",
@@ -112,9 +115,12 @@ const fetchSlots = async (
 
 // CLASS instructor lives on the event's resources, which the LIST call omits —
 // only getEventTimeSlot returns them. Resolve for the picked slot.
-const fetchInstructor = async (eventId: string): Promise<string | undefined> => {
+const fetchInstructor = async (
+  eventId: string,
+): Promise<string | undefined> => {
   try {
-    const { timeSlot } = await wixClient.eventTimeSlots.getEventTimeSlot(eventId);
+    const { timeSlot } =
+      await wixClient.eventTimeSlots.getEventTimeSlot(eventId);
     const names = (timeSlot?.availableResources ?? [])
       .flatMap((g: any) => g.resources ?? [])
       .map((r: any) => r.name)
@@ -129,7 +135,11 @@ const dayLabel = (d: Date) =>
   d.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" });
 const timeLabel = (iso: string) =>
   new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-const startOfToday = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+const startOfToday = () => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
 
 const capacityLabel = (s: SelectedSlot): string | null => {
   if (s.serviceType !== "CLASS") return null;
@@ -139,61 +149,119 @@ const capacityLabel = (s: SelectedSlot): string | null => {
   return `${left} spots`;
 };
 
-export default function AvailabilityCalendar({ serviceId, serviceName, serviceType, onSlotSelected }: Props) {
+export default function AvailabilityCalendar({
+  serviceId,
+  serviceName,
+  serviceType,
+  onSlotSelected,
+}: Props) {
   const [date, setDate] = useState<Date>(() => startOfToday());
   const [slots, setSlots] = useState<SelectedSlot[]>([]);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const today = useMemo(() => startOfToday(), []);
   const atToday = date.getTime() <= today.getTime();
 
-  const load = useCallback(async (target: Date) => {
-    setStatus("loading"); setSelectedKey(null);
-    try {
-      const { slots: fetched } = await fetchSlots(serviceId, serviceType, target);
-      setSlots(fetched); setStatus("ready");
-    } catch (err) {
-      console.error("[availability] list failed:", err);
-      setStatus("error");
-    }
-  }, [serviceId, serviceType]);
+  const load = useCallback(
+    async (target: Date) => {
+      setStatus("loading");
+      setSelectedKey(null);
+      try {
+        const { slots: fetched } = await fetchSlots(
+          serviceId,
+          serviceType,
+          target,
+        );
+        setSlots(fetched);
+        setStatus("ready");
+      } catch (err) {
+        console.error("[availability] list failed:", err);
+        setStatus("error");
+      }
+    },
+    [serviceId, serviceType],
+  );
 
-  useEffect(() => { void load(date); }, [date, load]);
+  useEffect(() => {
+    void load(date);
+  }, [date, load]);
 
   const shiftDay = (delta: number) =>
-    setDate((prev) => { const n = new Date(prev); n.setDate(n.getDate() + delta); n.setHours(0, 0, 0, 0); return n; });
+    setDate((prev) => {
+      const n = new Date(prev);
+      n.setDate(n.getDate() + delta);
+      n.setHours(0, 0, 0, 0);
+      return n;
+    });
 
-  const keyOf = (s: SelectedSlot) => `${s.localStartDate}|${s.eventId ?? s.scheduleId ?? ""}`;
+  const keyOf = (s: SelectedSlot) =>
+    `${s.localStartDate}|${s.eventId ?? s.scheduleId ?? ""}`;
 
   const handleSelect = async (s: SelectedSlot) => {
     // Guard on the type-appropriate id — CLASS slots have no scheduleId.
     const id = s.serviceType === "CLASS" ? s.eventId : s.scheduleId;
     if (!s.localStartDate || !id) return;
     setSelectedKey(keyOf(s));
-    const instructorName = s.serviceType === "CLASS" && s.eventId ? await fetchInstructor(s.eventId) : undefined;
+    const instructorName =
+      s.serviceType === "CLASS" && s.eventId
+        ? await fetchInstructor(s.eventId)
+        : undefined;
     onSlotSelected({ ...s, instructorName });
   };
 
   return (
     <div className="availability-calendar">
       <div className="availability-date-nav">
-        <button type="button" className="availability-nav-btn" onClick={() => shiftDay(-1)} disabled={atToday} aria-label="Previous day">← Prev</button>
+        <button
+          type="button"
+          className="availability-nav-btn"
+          onClick={() => shiftDay(-1)}
+          disabled={atToday}
+          aria-label="Previous day"
+        >
+          ← Prev
+        </button>
         <span className="availability-date-label">{dayLabel(date)}</span>
-        <button type="button" className="availability-nav-btn" onClick={() => shiftDay(1)} aria-label="Next day">Next →</button>
+        <button
+          type="button"
+          className="availability-nav-btn"
+          onClick={() => shiftDay(1)}
+          aria-label="Next day"
+        >
+          Next →
+        </button>
       </div>
 
-      {status === "loading" && <p className="availability-loading">Checking availability…</p>}
+      {status === "loading" && (
+        <p className="availability-loading">Checking availability…</p>
+      )}
       {status === "error" && (
         <>
-          <p className="availability-error">Could not load availability — please try again.</p>
-          <button type="button" className="availability-nav-btn" onClick={() => void load(date)}>Retry</button>
+          <p className="availability-error">
+            Could not load availability — please try again.
+          </p>
+          <button
+            type="button"
+            className="availability-nav-btn"
+            onClick={() => void load(date)}
+          >
+            Retry
+          </button>
         </>
       )}
       {status === "ready" && slots.length === 0 && (
-        <p className="availability-empty">No availability on this date — try another day.</p>
+        <p className="availability-empty">
+          No availability on this date — try another day.
+        </p>
       )}
       {status === "ready" && slots.length > 0 && (
-        <div className="availability-slots" role="group" aria-label={`Available times for ${serviceName}`}>
+        <div
+          className="availability-slots"
+          role="group"
+          aria-label={`Available times for ${serviceName}`}
+        >
           {slots.map((s) => {
             const key = keyOf(s);
             const isSelected = key === selectedKey;
@@ -202,11 +270,19 @@ export default function AvailabilityCalendar({ serviceId, serviceName, serviceTy
               <button
                 key={key}
                 type="button"
-                className={["time-slot", isSelected ? "time-slot--selected" : "time-slot--available", s.isFull ? "time-slot--full" : ""].filter(Boolean).join(" ")}
+                className={[
+                  "time-slot",
+                  isSelected ? "time-slot--selected" : "time-slot--available",
+                  s.isFull ? "time-slot--full" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
                 aria-pressed={isSelected}
                 onClick={() => void handleSelect(s)}
               >
-                <span className="time-slot-time">{timeLabel(s.localStartDate)}</span>
+                <span className="time-slot-time">
+                  {timeLabel(s.localStartDate)}
+                </span>
                 {cap && <span className="time-slot-capacity">{cap}</span>}
               </button>
             );

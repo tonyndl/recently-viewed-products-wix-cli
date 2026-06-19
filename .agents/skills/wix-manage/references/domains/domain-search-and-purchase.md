@@ -2,9 +2,11 @@
 name: "Domain Search and Purchase"
 description: Help users buy a domain through Wix. Check availability, suggest alternatives if taken, collect registration details (cycle, privacy, contact info), create a pre-configured cart, and provide a checkout link where the user just pays.
 ---
+
 # Domain Search and Purchase
 
 Use this recipe when a user wants to:
+
 - Buy / purchase a domain
 - Register a domain through Wix
 - Get a custom domain for their Wix site
@@ -22,6 +24,7 @@ You help the user find an available domain, then collect registration details (c
 Domain purchase does NOT require a site. Do NOT call `ListWixSites` unless the user specifically mentions a site or asks to connect the domain to one.
 
 However, after finding an available domain (Step 1), you should ask the user if they want to connect it to a Wix site. This unlocks two benefits:
+
 - If the user has a **premium site**, the domain can be connected to it after purchase
 - If the user has **no premium site**, they can get the domain **free for the first year** by upgrading to a premium plan (bundle deal)
 
@@ -49,6 +52,7 @@ Check if it's available using:
 The `domain` parameter **must** include the TLD (e.g., `mybusiness.com`, not just `mybusiness`). If the user gives a name without a TLD, default to `.com` first.
 
 **Response when available**:
+
 ```json
 {
   "availability": {
@@ -60,6 +64,7 @@ The `domain` parameter **must** include the TLD (e.g., `mybusiness.com`, not jus
 ```
 
 **Response when taken**:
+
 ```json
 {
   "availability": {
@@ -91,21 +96,25 @@ This API accepts **free-text queries** -- it works with business descriptions, k
 | `tlds` | Filter by specific TLDs (repeatable, no dots) | `com`, `net` |
 
 **Example -- alternatives for a taken domain**:
+
 ```
 GET https://www.wixapis.com/domain-search/v2/suggest-domains?query=mybusiness&paging.limit=10
 ```
 
 **Example -- brainstorming from a business idea**:
+
 ```
 GET https://www.wixapis.com/domain-search/v2/suggest-domains?query=pancakes+business&paging.limit=10
 ```
 
 **Example -- filtered by TLDs**:
+
 ```
 GET https://www.wixapis.com/domain-search/v2/suggest-domains?query=mybusiness&paging.limit=5&tlds=com&tlds=net
 ```
 
 **Example Response**:
+
 ```json
 {
   "suggestions": [
@@ -124,6 +133,7 @@ GET https://www.wixapis.com/domain-search/v2/suggest-domains?query=mybusiness&pa
 ```
 
 When presenting suggestions:
+
 - List the domain names clearly
 - All returned suggestions are already available for purchase -- no need to re-check availability
 - Do NOT show a "Premium" column or flag premium domains -- it confuses users
@@ -146,6 +156,7 @@ The response includes each site's `id` and `name`. If the user has multiple site
 Once a site is selected, remember the `siteId` (also called `msid`) -- you'll use it in the checkout link (Step 4d).
 
 **Based on the site's plan status**, you can offer different guidance:
+
 - **Site has a premium plan**: "Great, after purchasing the domain you can connect it to your site."
 - **Site has no premium plan**: "I notice your site doesn't have a premium plan yet. If you upgrade to a premium plan, you can get this domain free for the first year! Want me to generate a link for the bundle deal instead?" If yes, generate: `[Get domain free with a site plan](https://manage.wix.com/premium-domains/split-page?domainName={DOMAIN_NAME})` -- this page shows the bundle option.
 - **No sites at all**: "No problem, we'll proceed with a standalone domain purchase."
@@ -163,10 +174,13 @@ Once the user picks a domain, collect the details needed for purchase.
 Get available cycles and pricing for the chosen TLD:
 
 **Request** (via `ManageWixSite`):
+
 ```
 POST https://manage.wix.com/_api/premium-purchase-platform-serverless/v1/offering/72af0602-1321-4897-8299-f507480b2bb8
 ```
+
 Body:
+
 ```json
 {
   "purchaseContext": {
@@ -178,14 +192,15 @@ Body:
 Replace `.com` with the actual TLD (include the leading dot).
 
 **Response** contains `products[0]` with:
+
 - `productId` -- save this, you'll need it for the cart
 - `pricingDetails[]` -- array of pricing per cycle
 
 Present the pricing to the user as a table, for example:
 
-| Period | Price |
-|--------|-------|
-| 1 year | $14.95 |
+| Period  | Price  |
+| ------- | ------ |
+| 1 year  | $14.95 |
 | 2 years | $27.90 |
 | 3 years | $40.85 |
 
@@ -208,6 +223,7 @@ All three options use the addon product type ID `b3d86a1d-9db3-4f69-bd54-c132808
 First, check if the user already has contact info on file:
 
 **Request** (via `ManageWixSite`):
+
 ```
 GET https://manage.wix.com/v1/domain-registration-intents/preview/{domain}
 ```
@@ -215,6 +231,7 @@ GET https://manage.wix.com/v1/domain-registration-intents/preview/{domain}
 Replace `{domain}` with the chosen domain (e.g. `mybakery.com`).
 
 **Response** contains `domainRegistrationIntent` with existing contacts:
+
 ```json
 {
   "domainRegistrationIntent": {
@@ -240,10 +257,13 @@ Replace `{domain}` with the chosen domain (e.g. `mybakery.com`).
 Generate a random UUID to use as a session ID (`wsess`). This links the contact info to the cart.
 
 **Request** (via `ManageWixSite`):
+
 ```
 POST https://manage.wix.com/v1/domain-registration-intents/upsert
 ```
+
 Body:
+
 ```json
 {
   "domainRegistrationIntent": {
@@ -270,6 +290,7 @@ Use the same contact info for registrant, admin, and tech contacts (standard pra
 Phone format: `+{countryCode}.{number}` (e.g. `+1.5551234567`, `+972.544738293`).
 
 If the API returns a validation error:
+
 - Show the user exactly which fields have issues (missing, invalid format, etc.)
 - Ask them to provide corrected values for those specific fields
 - Retry the upsert with the corrected data
@@ -286,6 +307,7 @@ If the API returns a validation error:
 ```
 POST https://manage.wix.com/_api/premium-cart/v1/carts/active/cancel
 ```
+
 Body: `{}`
 
 This clears any leftover cart. If there's no active cart, this returns successfully anyway.
@@ -303,7 +325,9 @@ This creates a new cart if none exists and returns it.
 ```
 PATCH https://manage.wix.com/_api/premium-cart/v1/carts/active/add-items
 ```
+
 Body:
+
 ```json
 {
   "lineItems": [
@@ -362,13 +386,13 @@ This opens the checkout page with the pre-filled cart. The user only needs to co
 
 ## Error Handling
 
-| Error Code | Description | Action |
-|------------|-------------|--------|
-| `DOMAINS_UNSUPPORTED_TLD` | TLD not supported by Wix | Suggest alternatives using Suggest Domains API |
-| `access_denied` or `403` on domain search APIs | Auth issue | These are public APIs -- do not add extra auth headers |
-| Offering API returns no products | TLD not supported by Wix | Tell user to try a different TLD (.com, .net, .org) |
-| Intent API validation error | Missing/invalid contact fields | Show the error, ask user to correct, retry |
-| Cart add-items fails | Product ID or format issue | Verify product ID came from offering API response |
+| Error Code                                     | Description                    | Action                                                 |
+| ---------------------------------------------- | ------------------------------ | ------------------------------------------------------ |
+| `DOMAINS_UNSUPPORTED_TLD`                      | TLD not supported by Wix       | Suggest alternatives using Suggest Domains API         |
+| `access_denied` or `403` on domain search APIs | Auth issue                     | These are public APIs -- do not add extra auth headers |
+| Offering API returns no products               | TLD not supported by Wix       | Tell user to try a different TLD (.com, .net, .org)    |
+| Intent API validation error                    | Missing/invalid contact fields | Show the error, ask user to correct, retry             |
+| Cart add-items fails                           | Product ID or format issue     | Verify product ID came from offering API response      |
 
 ---
 

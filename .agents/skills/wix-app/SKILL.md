@@ -39,13 +39,13 @@ Helps build extensions for Wix CLI applications. Covers all extension types: das
 
 ## ❌ ANTI-PATTERNS (DO NOT DO)
 
-| ❌ WRONG                                    | ✅ CORRECT                                     |
-| ------------------------------------------- | ---------------------------------------------- |
+| ❌ WRONG                                                              | ✅ CORRECT                                        |
+| --------------------------------------------------------------------- | ------------------------------------------------- |
 | Hand-writing builder files, folders, UUIDs, or extension registration | Run `wix generate --params` — it owns scaffolding |
-| Implementing without reading the extension reference | Always read the relevant reference file first |
-| Using MCP discovery without checking refs   | Check reference files first                    |
-| Reporting done without validation           | Always run validation at the end               |
-| Letting manual action items get buried      | Aggregate all manual steps at the very end     |
+| Implementing without reading the extension reference                  | Always read the relevant reference file first     |
+| Using MCP discovery without checking refs                             | Check reference files first                       |
+| Reporting done without validation                                     | Always run validation at the end                  |
+| Letting manual action items get buried                                | Aggregate all manual steps at the very end        |
 
 ---
 
@@ -82,45 +82,46 @@ Helps build extensions for Wix CLI applications. Covers all extension types: das
 
 ## Extension Types Reference Table
 
-| Extension Type | Category | `extensionType` (for `wix generate --params`) | Reference File |
-| --- | --- | --- | --- |
-| Dashboard Page | Dashboard | `DASHBOARD_PAGE` | [DASHBOARD_PAGE.md](references/DASHBOARD_PAGE.md) |
-| Dashboard Modal | Dashboard | `DASHBOARD_MODAL` | [DASHBOARD_MODAL.md](references/DASHBOARD_MODAL.md) |
-| Dashboard Plugin | Dashboard | `DASHBOARD_PLUGIN` | [DASHBOARD_PLUGIN.md](references/DASHBOARD_PLUGIN.md) |
-| Dashboard Menu Plugin | Dashboard | `DASHBOARD_MENU_PLUGIN` | [DASHBOARD_MENU_PLUGIN.md](references/DASHBOARD_MENU_PLUGIN.md) |
-| Service Plugin | Backend | `SERVICE_PLUGIN` | [SERVICE_PLUGIN.md](references/SERVICE_PLUGIN.md) |
-| Backend Event Extension | Backend | `EVENT` | [BACKEND_EVENT.md](references/BACKEND_EVENT.md) |
-| Backend API | Backend | — (manual, see banner below) | [BACKEND_API.md](references/BACKEND_API.md) |
-| Data Collection | Backend | `DATA_COLLECTION` | [DATA_COLLECTION.md](references/DATA_COLLECTION.md) |
-| Editor React component | Site | `EDITOR_REACT_COMPONENT` | [EDITOR_REACT_COMPONENT.md](references/EDITOR_REACT_COMPONENT.md) |
-| Custom element widget | Site | `CUSTOM_ELEMENT` | [CUSTOM_ELEMENT_WIDGET.md](references/CUSTOM_ELEMENT_WIDGET.md) |
-| Site Plugin | Site | `SITE_PLUGIN` | [SITE_PLUGIN.md](references/SITE_PLUGIN.md) |
-| Embedded Script | Site | `EMBEDDED_SCRIPT` | [EMBEDDED_SCRIPT.md](references/EMBEDDED_SCRIPT.md) |
+| Extension Type          | Category  | `extensionType` (for `wix generate --params`) | Reference File                                                    |
+| ----------------------- | --------- | --------------------------------------------- | ----------------------------------------------------------------- |
+| Dashboard Page          | Dashboard | `DASHBOARD_PAGE`                              | [DASHBOARD_PAGE.md](references/DASHBOARD_PAGE.md)                 |
+| Dashboard Modal         | Dashboard | `DASHBOARD_MODAL`                             | [DASHBOARD_MODAL.md](references/DASHBOARD_MODAL.md)               |
+| Dashboard Plugin        | Dashboard | `DASHBOARD_PLUGIN`                            | [DASHBOARD_PLUGIN.md](references/DASHBOARD_PLUGIN.md)             |
+| Dashboard Menu Plugin   | Dashboard | `DASHBOARD_MENU_PLUGIN`                       | [DASHBOARD_MENU_PLUGIN.md](references/DASHBOARD_MENU_PLUGIN.md)   |
+| Service Plugin          | Backend   | `SERVICE_PLUGIN`                              | [SERVICE_PLUGIN.md](references/SERVICE_PLUGIN.md)                 |
+| Backend Event Extension | Backend   | `EVENT`                                       | [BACKEND_EVENT.md](references/BACKEND_EVENT.md)                   |
+| Backend API             | Backend   | — (manual, see banner below)                  | [BACKEND_API.md](references/BACKEND_API.md)                       |
+| Data Collection         | Backend   | `DATA_COLLECTION`                             | [DATA_COLLECTION.md](references/DATA_COLLECTION.md)               |
+| Editor React component  | Site      | `EDITOR_REACT_COMPONENT`                      | [EDITOR_REACT_COMPONENT.md](references/EDITOR_REACT_COMPONENT.md) |
+| Custom element widget   | Site      | `CUSTOM_ELEMENT`                              | [CUSTOM_ELEMENT_WIDGET.md](references/CUSTOM_ELEMENT_WIDGET.md)   |
+| Site Plugin             | Site      | `SITE_PLUGIN`                                 | [SITE_PLUGIN.md](references/SITE_PLUGIN.md)                       |
+| Embedded Script         | Site      | `EMBEDDED_SCRIPT`                             | [EMBEDDED_SCRIPT.md](references/EMBEDDED_SCRIPT.md)               |
 
 **Key constraints:**
+
 - Dashboard Page cannot use `<Modal />`; use a separate Dashboard Modal and `dashboard.openModal()`.
 
 > **⚠️ Backend API is the only extension type the CLI does NOT scaffold.** `wix generate` has no `BACKEND_API` handler. Create files directly per [BACKEND_API.md](references/BACKEND_API.md).
 
 ## Extension Comparison
 
-| Custom element widget vs Editor React component vs Site Plugin | Dashboard Page vs Modal | Service Plugin vs Event |
-| -------------------------------------------------------------- | ----------------------- | ----------------------- |
+| Custom element widget vs Editor React component vs Site Plugin                                                                                                       | Dashboard Page vs Modal                          | Service Plugin vs Event                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ----------------------------------------- |
 | Custom element widget: standalone interactive component. Editor React component: React with editor manifest (CSS/data/elements). Plugin: fixed slot in Wix app page. | Page: full page. Modal: overlay; use for popups. | Service: during flow. Event: after event. |
 
 ---
 
 ## Cross-Cutting References
 
-| Topic | Reference |
-| --- | --- |
-| Code Quality Requirements (applies to all generated code) | [CODE_QUALITY.md](references/CODE_QUALITY.md) |
-| Extension Registration | [EXTENSION_REGISTRATION.md](references/EXTENSION_REGISTRATION.md) |
-| App Validation | [APP_VALIDATION.md](references/APP_VALIDATION.md) |
-| App Market Review | [APP_MARKET_REVIEW.md](references/APP_MARKET_REVIEW.md) |
-| App Identifiers (Namespace, Code ID) | [APP_IDENTIFIERS.md](references/APP_IDENTIFIERS.md) |
-| Wix Stores Versioning (V1/V3) | [STORES_VERSIONING.md](references/STORES_VERSIONING.md) |
-| Official Documentation Links | [DOCUMENTATION.md](references/DOCUMENTATION.md) |
+| Topic                                                     | Reference                                                         |
+| --------------------------------------------------------- | ----------------------------------------------------------------- |
+| Code Quality Requirements (applies to all generated code) | [CODE_QUALITY.md](references/CODE_QUALITY.md)                     |
+| Extension Registration                                    | [EXTENSION_REGISTRATION.md](references/EXTENSION_REGISTRATION.md) |
+| App Validation                                            | [APP_VALIDATION.md](references/APP_VALIDATION.md)                 |
+| App Market Review                                         | [APP_MARKET_REVIEW.md](references/APP_MARKET_REVIEW.md)           |
+| App Identifiers (Namespace, Code ID)                      | [APP_IDENTIFIERS.md](references/APP_IDENTIFIERS.md)               |
+| Wix Stores Versioning (V1/V3)                             | [STORES_VERSIONING.md](references/STORES_VERSIONING.md)           |
+| Official Documentation Links                              | [DOCUMENTATION.md](references/DOCUMENTATION.md)                   |
 
 ---
 
@@ -132,13 +133,13 @@ Helps build extensions for Wix CLI applications. Covers all extension types: das
 
 **Always include a Data Collection extension when ANY of these are true:**
 
-| Indicator | Example |
-| --- | --- |
-| User mentions saving/storing/persisting app-specific data | "save the fee amount", "store product recommendations" |
-| A dashboard page will **manage** (CRUD) domain entities | "dashboard to manage fees", "admin page to edit rules" |
-| A service plugin reads app-configured data at runtime | "fetch fee rules at checkout", "look up shipping rates" |
-| User mentions "dedicated database/collection" | "save in a dedicated database collection" |
-| Multiple extensions reference the same custom data | Dashboard manages fees + service plugin reads fees |
+| Indicator                                                 | Example                                                 |
+| --------------------------------------------------------- | ------------------------------------------------------- |
+| User mentions saving/storing/persisting app-specific data | "save the fee amount", "store product recommendations"  |
+| A dashboard page will **manage** (CRUD) domain entities   | "dashboard to manage fees", "admin page to edit rules"  |
+| A service plugin reads app-configured data at runtime     | "fetch fee rules at checkout", "look up shipping rates" |
+| User mentions "dedicated database/collection"             | "save in a dedicated database collection"               |
+| Multiple extensions reference the same custom data        | Dashboard manages fees + service plugin reads fees      |
 
 **Why this matters:** Without the Data Collection extension, the collection won't be created when the app is installed, the Wix Data APIs may not work (code editor not enabled), and collection IDs won't be properly scoped to the app namespace.
 
@@ -211,27 +212,29 @@ Use the Extension Types Reference Table and decision content above. State extens
 5. **ONLY use MCP discovery if NOT found** in reference files
 
 **Platform APIs (never discover - in references):**
+
 - Wix Data, Dashboard SDK, Event SDK (common events), Service Plugin SPIs
 
 **Vertical APIs (discover if needed):**
+
 - Wix Stores (**⚠️ MUST use Stores Versioning reference** — V1/V3 catalog check required), Wix Bookings, Wix Members, Wix Pricing Plans, third-party integrations
 
 **Decision table:**
 
-| User Requirement                     | Check References / Discovery Needed? | Reason / Reference File                             |
-| ------------------------------------ | ------------------------------------ | --------------------------------------------------- |
-| "Display store products"             | ✅ YES (MCP discovery)               | Wix Stores API — **include Stores Versioning reference** |
-| "Show booking calendar"              | ✅ YES (MCP discovery)               | Wix Bookings API not in reference files             |
-| "Send emails to users"               | ✅ YES (MCP discovery)               | Wix Triggered Emails not in reference files         |
-| "Get member info"                    | ✅ YES (MCP discovery)               | Wix Members API not in reference files              |
-| "Listen for cart events"             | Check `COMMON-EVENTS.md`             | MCP discovery only if event missing in reference    |
-| "Store data in collection"           | WIX_DATA.md ✅ Found                 | ❌ Skip discovery (covered by reference)             |
-| "Create CMS collections for my app"  | Data Collection reference            | ❌ Skip discovery (covered by dedicated reference)   |
-| "Show dashboard toast"               | DASHBOARD_API.md ✅ Found            | ❌ Skip discovery                                   |
-| "Show toast / navigate"              | DASHBOARD_API.md ✅ Found            | ❌ Skip discovery                                   |
-| "UI only (forms, inputs)"            | N/A (no external API)                | ❌ Skip discovery                                   |
-| "Settings page with form inputs"     | N/A (UI only, no external API)       | ❌ Skip discovery                                   |
-| "Dashboard page with local state"    | N/A (no external API)                | ❌ Skip discovery                                   |
+| User Requirement                    | Check References / Discovery Needed? | Reason / Reference File                                  |
+| ----------------------------------- | ------------------------------------ | -------------------------------------------------------- |
+| "Display store products"            | ✅ YES (MCP discovery)               | Wix Stores API — **include Stores Versioning reference** |
+| "Show booking calendar"             | ✅ YES (MCP discovery)               | Wix Bookings API not in reference files                  |
+| "Send emails to users"              | ✅ YES (MCP discovery)               | Wix Triggered Emails not in reference files              |
+| "Get member info"                   | ✅ YES (MCP discovery)               | Wix Members API not in reference files                   |
+| "Listen for cart events"            | Check `COMMON-EVENTS.md`             | MCP discovery only if event missing in reference         |
+| "Store data in collection"          | WIX_DATA.md ✅ Found                 | ❌ Skip discovery (covered by reference)                 |
+| "Create CMS collections for my app" | Data Collection reference            | ❌ Skip discovery (covered by dedicated reference)       |
+| "Show dashboard toast"              | DASHBOARD_API.md ✅ Found            | ❌ Skip discovery                                        |
+| "Show toast / navigate"             | DASHBOARD_API.md ✅ Found            | ❌ Skip discovery                                        |
+| "UI only (forms, inputs)"           | N/A (no external API)                | ❌ Skip discovery                                        |
+| "Settings page with form inputs"    | N/A (UI only, no external API)       | ❌ Skip discovery                                        |
+| "Dashboard page with local state"   | N/A (no external API)                | ❌ Skip discovery                                        |
 
 **MCP Tools for discovery (when needed):**
 
@@ -246,6 +249,7 @@ For each extension **except Backend API**, run `npx wix generate --params '<json
 If the command fails because of unknown or invalid params, run `npx wix schema generate --type <extensionType>` to print the JSON Schema for that extension type, fix the `--params` payload, and retry. Do not fall back to manual scaffolding.
 
 **What the CLI does automatically:**
+
 - Creates folders and stub files
 - Generates a fresh UUID for the extension `id`
 - Updates `src/extensions.ts` with the import and `.use()` call
@@ -284,10 +288,12 @@ Only after validation passes, provide a **concise summary section** at the top o
 [1-2 sentence description of what was built]
 
 **Extensions Created:**
+
 - [Extension 1 Name] - [Brief purpose]
 - [Extension 2 Name] - [Brief purpose]
 
 **Build Status:**
+
 - ✅ Dependencies: [Installed / status message]
 - ✅ TypeScript: [No compilation errors / status]
 - ✅ Build: [Completed successfully / status]
@@ -310,9 +316,11 @@ Present any manual steps the user must perform (e.g., configuring settings in th
 The following actions need to be done manually by you:
 
 ### 1. [Action Category/Title]
+
 [Detailed description with specific instructions]
 
 ### 2. [Action Category/Title]
+
 [Detailed description]
 ```
 

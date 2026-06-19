@@ -12,6 +12,7 @@ Files this agent OWNS (creates fresh):
 - `src/components/CartBadge.tsx` — React island; nav-wide cart count badge
 
 Files this agent MUST NOT touch:
+
 - `src/styles/components-ecom.css` — owned by the **`components-css`** sibling scope (see `./COMPONENTS_CSS.md`). Reference its class names; do not write the file.
 - Any `.astro` page — designed and later rewritten by other scopes
 - `src/styles/global.css` — owned by designer foundation
@@ -48,10 +49,10 @@ Full cart display with two-column layout, quantity editing, remove, unavailable 
 - **Per-line price display** — `fullPrice` and `price` are per-unit (shown side by side; `fullPrice` is struck through when an automatic discount is applied to that line); `lineItemPrice` is total (shown below only when qty > 1)
 - **Clickable product link** — the image and product name link back to the product detail page. `item.url` shape varies by caller: the `@wix/ecom` SDK returns it as an absolute URL **string** (e.g. `https://<site>.wixsite.com/<name>/product-page/<slug>`), while REST returns an object `{ relativePath, url }`. `resolveProductHref` accepts both, extracts the slug after `/product-page/`, and rewrites to the headless `/products/<slug>` route. Link is suppressed on unavailable lines (nothing to navigate to for NOT_FOUND/NOT_AVAILABLE items).
 - **Cart-level totals + discount surfaces (API-sourced)** — `extractSummary()` reads `cart.priceSummary.{subtotal, discount, total}` and `cart.appliedDiscounts[].discountName` in one pass. Three distinct surfaces, each sourced directly from the API (no client-side amount math):
-   1. `cart-discount` row — amount + optional name — rendered when `priceSummary.discount` is populated (coupons, cart-level promos).
-   2. `cart-applied-discounts` row — name-only — rendered when `priceSummary.discount` is empty but `appliedDiscounts[].discountName` is populated. This is the common case for **line-item automatic discounts**, where Wix bakes the discount into each line's `price` (with `fullPrice` preserved for the strikethrough). The per-line savings amount already shows inline via the `cart-item-full-price`/`cart-item-unit-price` strikethrough; the summary row just names the promotion.
-   3. `cart-total` row — rendered when `priceSummary.total` differs from `priceSummary.subtotal`.
-  If `priceSummary.subtotal` is missing (some early-stage carts return an empty summary before checkout creation), the subtotal is computed client-side from `lineItemPrice.amount` — do not leave the slot blank. Do NOT aggregate line-item savings into a summary row; shoppers see the strikethrough inline and that is the API's canonical visualization.
+  1.  `cart-discount` row — amount + optional name — rendered when `priceSummary.discount` is populated (coupons, cart-level promos).
+  2.  `cart-applied-discounts` row — name-only — rendered when `priceSummary.discount` is empty but `appliedDiscounts[].discountName` is populated. This is the common case for **line-item automatic discounts**, where Wix bakes the discount into each line's `price` (with `fullPrice` preserved for the strikethrough). The per-line savings amount already shows inline via the `cart-item-full-price`/`cart-item-unit-price` strikethrough; the summary row just names the promotion.
+  3.  `cart-total` row — rendered when `priceSummary.total` differs from `priceSummary.subtotal`.
+      If `priceSummary.subtotal` is missing (some early-stage carts return an empty summary before checkout creation), the subtotal is computed client-side from `lineItemPrice.amount` — do not leave the slot blank. Do NOT aggregate line-item savings into a summary row; shoppers see the strikethrough inline and that is the API's canonical visualization.
 - **Availability** — `isItemUnavailable()` checks for `NOT_AVAILABLE` and `NOT_FOUND` status; hides qty selector, blocks checkout
 - **Optimistic UI** — quantity changes and item removal update local state immediately before the API responds. Quantity changes are debounced (300ms) so rapid clicks coalesce into a single request. On API error, the cart reconciles from the server via `loadCart()`
 - **Instant re-render via sessionStorage snapshot** — every successful cart fetch/update writes `{ lineItems, summary }` to `sessionStorage[CART_CACHE_KEY]`. On mount, CartView reads the snapshot synchronously and renders it before the authoritative fetch completes. Eliminates the empty/loading flash when re-navigating to `/cart`. Per-tab scope (sessionStorage not localStorage) so logout / shared-device scenarios can't leak stale carts to a different identity.
@@ -59,6 +60,7 @@ Full cart display with two-column layout, quantity editing, remove, unavailable 
 - **LineItem type** — local structural type mirroring the fields the component consumes. `_id` is declared `string | null | undefined` to match `@wix/ecom`'s `currentCart` return so `cart.lineItems as LineItem[]` type-checks cleanly. If you add new fields, mirror the SDK nullability or narrow at the use site.
 
 Class names used (template provides them — do not invent):
+
 - **Global semantic classes** (in `global.css`, designer-owned): `cart-summary`, `cart-total`, `checkout-btn`, `cart-empty` — compound patterns + interactive states
 - **Row-internal classes** (in `components-ecom.css`, written by this scope): `cart-item-qty`, `qty-btn`, `qty-value`, `cart-item-unavailable`, `cart-item-actions`, `cart-item-prices`, `cart-item-full-price`, `cart-item-unit-price`, `cart-item-line-total`, `cart-item-remove`, `cart-item-image-link`, `cart-item-name-link`, `cart-discount`, `cart-discount-name`, `cart-discount-amount`, `cart-applied-discounts`, `cart-applied-discounts-name`, `cart-item-option`, `cart-item-modifiers`
 - **Layout/spacing in markup as utilities**: `cart-grid` → `<div class="grid grid-cols-1 md:grid-cols-[1fr_22rem] gap-2xl md:gap-3xl md:items-start">`; `cart-items` → `<div class="flex flex-col gap-lg">`; `cart-item` → `<div class="flex gap-lg pb-lg border-b border-rule last:border-0">`; `cart-subtotal` → `<div class="flex justify-between items-baseline">`; `cart-item-image` → utilities; `cart-item-info` → utilities; `cart-item-name` → `class="font-display text-lg leading-tight"`
@@ -94,10 +96,7 @@ Contract keys: `cartBadge`, `cartBadgeCount`
   "data": {
     "islands": ["CartView.tsx", "CartBadge.tsx"]
   },
-  "files": [
-    "src/components/CartView.tsx",
-    "src/components/CartBadge.tsx"
-  ],
+  "files": ["src/components/CartView.tsx", "src/components/CartBadge.tsx"],
   "errors": []
 }
 ```

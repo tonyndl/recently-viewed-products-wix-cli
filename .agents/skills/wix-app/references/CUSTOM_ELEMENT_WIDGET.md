@@ -1,4 +1,3 @@
-
 # Wix Custom Element Widget Builder
 
 Custom element widgets are native web components (HTML custom elements) that appear in the Wix Editor. Site owners add interactive, configurable widgets to their pages and edit them through a built-in settings panel.
@@ -7,12 +6,12 @@ Custom element widgets are native web components (HTML custom elements) that app
 
 Use `wix generate --params` with `extensionType: CUSTOM_ELEMENT`. `folder` must be a valid custom-element tag name (lowercase, starts with a letter, contains at least one hyphen). The CLI generates 4 files plus the `src/extensions.ts` registration:
 
-| File | Purpose |
-|------|---------|
-| `<name>.tsx` | The widget — a class that extends `HTMLElement` |
-| `<name>.panel.tsx` | The settings panel React component shown in the Editor sidebar |
-| `<name>.module.css` | CSS Modules stylesheet pre-wired with a `.root` class and CSS custom-property tokens |
-| `<name>.extension.ts` | Builder file (UUID, name, sizing defaults, auto-add, presets, tagName, file paths) |
+| File                  | Purpose                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| `<name>.tsx`          | The widget — a class that extends `HTMLElement`                                      |
+| `<name>.panel.tsx`    | The settings panel React component shown in the Editor sidebar                       |
+| `<name>.module.css`   | CSS Modules stylesheet pre-wired with a `.root` class and CSS custom-property tokens |
+| `<name>.extension.ts` | Builder file (UUID, name, sizing defaults, auto-add, presets, tagName, file paths)   |
 
 After scaffolding, edit `<name>.tsx` for the widget logic, `<name>.panel.tsx` for the settings UI, `<name>.module.css` for the visual design, and the builder file only for non-default sizing, auto-add, or preset behavior.
 
@@ -46,19 +45,19 @@ React component shown in the Wix Editor sidebar.
 
 The CLI scaffolds the builder file with sensible defaults — edit it only to customize sizing, auto-add behavior, or presets.
 
-| Field | Type | Default | Purpose |
-|---|---|---|---|
-| `id` | UUID | generated | Extension ID. Don't change after scaffolding. |
-| `name` | string | from scaffold param | Display name. |
-| `tagName` | kebab-case | derived from `folder` | Custom-element tag the widget is registered under. Used by the Editor and by `customElements.define()`. |
-| `width.defaultWidth` | number (px) | `450` | Initial width when the widget is added to a page. |
-| `width.allowStretch` | boolean | `true` | Whether the site owner can stretch the widget to the page width. |
-| `height.defaultHeight` | number (px) | `250` | Initial height. |
-| `installation.autoAdd` | boolean | `true` | If true, the widget is auto-added to the site when the app is installed. Set to `false` for opt-in widgets. |
-| `presets` | array | one default preset | Editor presets (saved configurations) the site owner can pick from. Each preset has its own `id`, `name`, and `thumbnailUrl`. |
-| `presets[].thumbnailUrl` | string | `{{BASE_URL}}/<name>-thumbnail.png` | Path to a preview image. `{{BASE_URL}}` is resolved at build time. Replace the placeholder image at the same relative path with your actual asset. |
-| `element` | path | `./extensions/site/widgets/<name>/<name>.tsx` | Path to the widget custom element file. Don't change unless renaming files. |
-| `settings` | path | `./extensions/site/widgets/<name>/<name>.panel.tsx` | Path to the settings panel file. Don't change unless renaming files. |
+| Field                    | Type        | Default                                             | Purpose                                                                                                                                            |
+| ------------------------ | ----------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                     | UUID        | generated                                           | Extension ID. Don't change after scaffolding.                                                                                                      |
+| `name`                   | string      | from scaffold param                                 | Display name.                                                                                                                                      |
+| `tagName`                | kebab-case  | derived from `folder`                               | Custom-element tag the widget is registered under. Used by the Editor and by `customElements.define()`.                                            |
+| `width.defaultWidth`     | number (px) | `450`                                               | Initial width when the widget is added to a page.                                                                                                  |
+| `width.allowStretch`     | boolean     | `true`                                              | Whether the site owner can stretch the widget to the page width.                                                                                   |
+| `height.defaultHeight`   | number (px) | `250`                                               | Initial height.                                                                                                                                    |
+| `installation.autoAdd`   | boolean     | `true`                                              | If true, the widget is auto-added to the site when the app is installed. Set to `false` for opt-in widgets.                                        |
+| `presets`                | array       | one default preset                                  | Editor presets (saved configurations) the site owner can pick from. Each preset has its own `id`, `name`, and `thumbnailUrl`.                      |
+| `presets[].thumbnailUrl` | string      | `{{BASE_URL}}/<name>-thumbnail.png`                 | Path to a preview image. `{{BASE_URL}}` is resolved at build time. Replace the placeholder image at the same relative path with your actual asset. |
+| `element`                | path        | `./extensions/site/widgets/<name>/<name>.tsx`       | Path to the widget custom element file. Don't change unless renaming files.                                                                        |
+| `settings`               | path        | `./extensions/site/widgets/<name>/<name>.panel.tsx` | Path to the settings panel file. Don't change unless renaming files.                                                                               |
 
 - Import `@wix/design-system/styles.global.css` for styles
 - For colors, use `ColorPickerField` with `inputs.selectColor()` from `@wix/editor` — NOT `<Input type="color">`
@@ -69,23 +68,23 @@ The CLI scaffolds the builder file with sensible defaults — edit it only to cu
 
 All cross-boundary prop names are **kebab-case**. Both sides of the widget/panel boundary use the same string:
 
-| Site                                                   | Convention | Example                            |
-| ------------------------------------------------------ | ---------- | ---------------------------------- |
-| `<name>.tsx` — `observedAttributes`, `getAttribute`    | kebab-case | `"display-name"`, `"bg-color"`     |
-| `<name>.panel.tsx` — `widget.getProp` / `widget.setProp` | kebab-case | `"display-name"`, `"bg-color"`     |
-| Local TypeScript variables                             | camelCase  | `displayName`, `bgColor`           |
+| Site                                                     | Convention | Example                        |
+| -------------------------------------------------------- | ---------- | ------------------------------ |
+| `<name>.tsx` — `observedAttributes`, `getAttribute`      | kebab-case | `"display-name"`, `"bg-color"` |
+| `<name>.panel.tsx` — `widget.getProp` / `widget.setProp` | kebab-case | `"display-name"`, `"bg-color"` |
+| Local TypeScript variables                               | camelCase  | `displayName`, `bgColor`       |
 
 ## Wix Data API Integration
 
 When using the Wix Data API in widgets, you **must** handle the Wix Editor environment gracefully — fetching data inside the Editor produces empty results and noisy errors.
 
 ```typescript
-import { items } from '@wix/data';
-import { window as wixWindow } from '@wix/site-window';
+import { items } from "@wix/data";
+import { window as wixWindow } from "@wix/site-window";
 
 class MyWidget extends HTMLElement {
   static get observedAttributes() {
-    return ['collection-id'];
+    return ["collection-id"];
   }
 
   constructor() {
@@ -101,10 +100,10 @@ class MyWidget extends HTMLElement {
   }
 
   async render() {
-    const collectionId = this.getAttribute('collection-id') || '';
+    const collectionId = this.getAttribute("collection-id") || "";
     const viewMode = await wixWindow.viewMode();
 
-    if (viewMode === 'Editor') {
+    if (viewMode === "Editor") {
       this.innerHTML = `
         <div style="padding: 20px; border: 2px dashed #ccc">
           <p>Widget will display data on the live site</p>
@@ -115,10 +114,15 @@ class MyWidget extends HTMLElement {
     }
 
     try {
-      const { items: results } = await items.query(collectionId).limit(10).find();
-      this.innerHTML = results.map((item) => `<div>${item.title}</div>`).join('');
+      const { items: results } = await items
+        .query(collectionId)
+        .limit(10)
+        .find();
+      this.innerHTML = results
+        .map((item) => `<div>${item.title}</div>`)
+        .join("");
     } catch (error) {
-      console.error('Failed to load data:', error);
+      console.error("Failed to load data:", error);
     }
   }
 }

@@ -1,13 +1,22 @@
-import { useCallback, useEffect, useRef, useState, type FC } from 'react';
-import { window as siteWindow } from '@wix/site-window';
-import type { RecentlyViewedItem, WidgetProps } from '../types';
-import { readTrackedSlugs, fetchRecentlyViewed, fetchDefaultProducts } from './products';
-import { ProGalleryView } from './proGalleryView';
-import { StripView } from './ui/stripView';
-import { Watermark } from './ui/watermark';
-import { ProductDetail } from './ui/productModal';
-import { EMPTY_MESSAGE, FREE_LAYOUTS, FREE_RATIOS, FREE_TEXT_POSITIONS } from '../constants';
-import { styles, headingStyle } from './styles/widget';
+import { useCallback, useEffect, useRef, useState, type FC } from "react";
+import { window as siteWindow } from "@wix/site-window";
+import type { RecentlyViewedItem, WidgetProps } from "../types";
+import {
+  readTrackedSlugs,
+  fetchRecentlyViewed,
+  fetchDefaultProducts,
+} from "./products";
+import { ProGalleryView } from "./proGalleryView";
+import { StripView } from "./ui/stripView";
+import { Watermark } from "./ui/watermark";
+import { ProductDetail } from "./ui/productModal";
+import {
+  EMPTY_MESSAGE,
+  FREE_LAYOUTS,
+  FREE_RATIOS,
+  FREE_TEXT_POSITIONS,
+} from "../constants";
+import { styles, headingStyle } from "./styles/widget";
 
 // Site-facing widget — renders the visitor's recently-viewed products with the
 // real Wix Pro Gallery. `behavior` controls the empty state; in the
@@ -17,8 +26,12 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
   const [items, setItems] = useState<RecentlyViewedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditor, setIsEditor] = useState(false);
-  const [previewItem, setPreviewItem] = useState<RecentlyViewedItem | null>(null);
-  const locationRef = useRef<{ to: (url: string) => Promise<void> } | null>(null);
+  const [previewItem, setPreviewItem] = useState<RecentlyViewedItem | null>(
+    null,
+  );
+  const locationRef = useRef<{ to: (url: string) => Promise<void> } | null>(
+    null,
+  );
 
   // The widget renders inside a sandboxed preview iframe that blocks ALL
   // navigation — no 'allow-popups' (window.open) and no 'allow-top-navigation'
@@ -35,7 +48,7 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
     let cancelled = false;
     (async () => {
       try {
-        const mod = await import('@wix/site-location');
+        const mod = await import("@wix/site-location");
         if (!cancelled) locationRef.current = mod.location;
       } catch {
         /* "View Product" falls back to a direct assign */
@@ -73,8 +86,8 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
     let cancelled = false;
 
     const load = async () => {
-      const mode = await siteWindow.viewMode().catch(() => 'Site');
-      const editor = mode === 'Editor' || mode === 'Preview';
+      const mode = await siteWindow.viewMode().catch(() => "Site");
+      const editor = mode === "Editor" || mode === "Preview";
       if (cancelled) return;
       setIsEditor(editor);
 
@@ -93,10 +106,10 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
 
     void load();
     const onNav = () => void load();
-    window.addEventListener('popstate', onNav);
+    window.addEventListener("popstate", onNav);
     return () => {
       cancelled = true;
-      window.removeEventListener('popstate', onNav);
+      window.removeEventListener("popstate", onNav);
     };
   }, []);
 
@@ -110,13 +123,15 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
     ? props
     : {
         ...props,
-        layout: FREE_LAYOUTS.includes(props.layout) ? props.layout : FREE_LAYOUTS[0],
+        layout: FREE_LAYOUTS.includes(props.layout)
+          ? props.layout
+          : FREE_LAYOUTS[0],
         ratio: FREE_RATIOS.includes(props.ratio) ? props.ratio : FREE_RATIOS[0],
         textPosition: FREE_TEXT_POSITIONS.includes(props.textPosition)
           ? props.textPosition
           : FREE_TEXT_POSITIONS[0],
-        headingColor: '', // premium — '' falls back to the theme color
-        textColor: '', // premium — '' falls back to the default colors
+        headingColor: "", // premium — '' falls back to the theme color
+        textColor: "", // premium — '' falls back to the default colors
       };
 
   const heading = effectiveProps.headingShow ? (
@@ -124,19 +139,26 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
   ) : null;
 
   if (items.length === 0) {
-    if (!isEditor && behavior !== 'text') return null;
+    if (!isEditor && behavior !== "text") return null;
     return (
       <div style={styles.root}>
         {heading}
-        <p style={styles.message}>{EMPTY_MESSAGE}</p>
+        <p style={styles.message}>
+          {effectiveProps.emptyText || EMPTY_MESSAGE}
+        </p>
       </div>
     );
   }
 
   // Background color is premium — free plans render transparent.
-  const effectiveBgColor = isPremium ? bgColor : '';
+  const effectiveBgColor = isPremium ? bgColor : "";
   const rootStyle = effectiveBgColor
-    ? { ...styles.root, background: effectiveBgColor, padding: '16px', borderRadius: '12px' }
+    ? {
+        ...styles.root,
+        background: effectiveBgColor,
+        padding: "16px",
+        borderRadius: "12px",
+      }
     : styles.root;
 
   return (
@@ -151,10 +173,18 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
           onBack={() => setPreviewItem(null)}
           onViewProduct={isEditor ? undefined : handleViewProduct}
         />
-      ) : effectiveProps.layout === 'strip' ? (
-        <StripView items={items} props={effectiveProps} onNavigate={handleSelect} />
+      ) : effectiveProps.layout === "strip" ? (
+        <StripView
+          items={items}
+          props={effectiveProps}
+          onNavigate={handleSelect}
+        />
       ) : (
-        <ProGalleryView items={items} props={effectiveProps} onNavigate={handleSelect} />
+        <ProGalleryView
+          items={items}
+          props={effectiveProps}
+          onNavigate={handleSelect}
+        />
       )}
       {!isPremium && (
         <div style={styles.watermarkWrap}>

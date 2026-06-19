@@ -24,7 +24,7 @@ That overhead is pure critical-path cost with no benefit here.
 
 Every subagent's final message ends with a fenced JSON block (language tag: `json` or `jsonc`). Format:
 
-~~~markdown
+````markdown
 ... agent's human-readable summary ...
 
 ```json
@@ -39,7 +39,7 @@ Every subagent's final message ends with a fenced JSON block (language tag: `jso
   "notes": "<optional — anything the parent skill should know>"
 }
 ```
-~~~
+````
 
 The JSON block MUST be the **last** content in the message. The parent skill parses the last fenced JSON block as the return.
 
@@ -53,7 +53,7 @@ The fenced JSON block must be the **last** content in the message. A trailing se
 
 **Correct pattern — end with the fenced block, no trailing prose:**
 
-~~~markdown
+````markdown
 ✅ CORRECT
 
 All files written. Contract classes referenced: productCard, productGrid, optionPill, quantityBtn.
@@ -69,9 +69,9 @@ All files written. Contract classes referenced: productCard, productGrid, option
   "errors": []
 }
 ```
-~~~
+````
 
-~~~markdown
+````markdown
 ❌ WRONG — trailing prose after the block
 
 ```json
@@ -79,17 +79,17 @@ All files written. Contract classes referenced: productCard, productGrid, option
 ```
 
 All three files are correctly written. Let me verify the key requirements are met before returning.
-~~~
+````
 
 The parent skill looks for the **last** fenced JSON block in the message. A trailing sentence means it's no longer the last content; scanning falls back to heuristics. Just stop writing after the closing ` ``` `.
 
 ## Status semantics
 
-| Status | Meaning | Parent action |
-|--------|---------|---------------|
-| `complete` | All work done successfully | Proceed to next phase |
-| `partial` | Some work done, some failed — `errors` explains | Decide per-case: retry, work around, or fail the run |
-| `failed` | Nothing usable produced — `errors` explains | Retry with corrective prompt or fail the run |
+| Status     | Meaning                                         | Parent action                                        |
+| ---------- | ----------------------------------------------- | ---------------------------------------------------- |
+| `complete` | All work done successfully                      | Proceed to next phase                                |
+| `partial`  | Some work done, some failed — `errors` explains | Decide per-case: retry, work around, or fail the run |
+| `failed`   | Nothing usable produced — `errors` explains     | Retry with corrective prompt or fail the run         |
 
 ## Failure returns
 
@@ -117,17 +117,17 @@ Severity levels: `warning` (keep running), `error` (parent should retry), `fatal
 
 The envelope above is universal. The exact `data` shape — plus the known `error.code` values and required `files` — lives in **your role doc**, the one your scope already reads. Do not look for them here; read your own doc. This keeps each shape single-sourced (no drift) and means you never load shapes for phases you don't emit.
 
-| Your agent / scope | `phase` value(s) | Shape lives in |
-|---|---|---|
-| Seed — stores | `stores-seed` | `references/stores/INSTRUCTIONS.md` § Seed return |
-| Seed — CMS | `cms-seed` | `references/cms/INSTRUCTIONS.md` § Seed return |
-| Seed — other verticals | `<pack>-seed` | per-vertical `INSTRUCTIONS.md` (same generic shape as stores) |
-| Components | `<pack>-components` | `references/shared/IMPLEMENTER.md` § Return contract |
-| Pages | `<pack>-pages[-<group>]` | `references/shared/IMPLEMENTER.md` § Return contract |
-| Design System Designer | `design-system` | `references/DESIGN_SYSTEM.md` § What you write and return |
-| Design System Composer (`scripts/compose.mjs`, not a subagent — manifest printed to stdout) | `compose` | `scripts/compose.mjs` header (the manifest shape) |
-| Page Designer | `designer-<scope>` | `references/astro/designer/INSTRUCTIONS.md` (per-scope) |
-| Images | `image-phase-1-decorative`, `image-phase-2-entity` | `references/images/INSTRUCTIONS.md` § Return Contract |
+| Your agent / scope                                                                          | `phase` value(s)                                   | Shape lives in                                                |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------- |
+| Seed — stores                                                                               | `stores-seed`                                      | `references/stores/INSTRUCTIONS.md` § Seed return             |
+| Seed — CMS                                                                                  | `cms-seed`                                         | `references/cms/INSTRUCTIONS.md` § Seed return                |
+| Seed — other verticals                                                                      | `<pack>-seed`                                      | per-vertical `INSTRUCTIONS.md` (same generic shape as stores) |
+| Components                                                                                  | `<pack>-components`                                | `references/shared/IMPLEMENTER.md` § Return contract          |
+| Pages                                                                                       | `<pack>-pages[-<group>]`                           | `references/shared/IMPLEMENTER.md` § Return contract          |
+| Design System Designer                                                                      | `design-system`                                    | `references/DESIGN_SYSTEM.md` § What you write and return     |
+| Design System Composer (`scripts/compose.mjs`, not a subagent — manifest printed to stdout) | `compose`                                          | `scripts/compose.mjs` header (the manifest shape)             |
+| Page Designer                                                                               | `designer-<scope>`                                 | `references/astro/designer/INSTRUCTIONS.md` (per-scope)       |
+| Images                                                                                      | `image-phase-1-decorative`, `image-phase-2-entity` | `references/images/INSTRUCTIONS.md` § Return Contract         |
 
 The **orchestrator** is the one audience that needs every shape — it parses each return directly; there is no aggregated file. This table is its index.
 

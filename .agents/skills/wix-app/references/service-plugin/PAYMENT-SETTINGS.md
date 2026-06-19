@@ -8,8 +8,8 @@ The Payment Settings SPI lets you integrate custom payment settings with the Wix
 
 Before implementing, call `ReadFullDocsMethodSchema` on the docs URL to get the full request/response types.
 
-| Handler | Docs URL |
-| --- | --- |
+| Handler              | Docs URL                                                                                                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `getPaymentSettings` | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/payments/payment-settings/payment-settings-integration-service-plugin/get-payment-settings?apiView=SDK |
 
 ## Example: Require 3DS for High-Value Transactions
@@ -17,7 +17,7 @@ Before implementing, call `ReadFullDocsMethodSchema` on the docs URL to get the 
 This example enforces 3D Secure authentication for orders above a certain threshold.
 
 ```typescript
-import { paymentSettings } from '@wix/ecom/service-plugins';
+import { paymentSettings } from "@wix/ecom/service-plugins";
 
 // Configuration
 const HIGH_VALUE_THRESHOLD = 1000;
@@ -33,15 +33,15 @@ paymentSettings.provideHandlers({
 
       return {
         paymentSettings: {
-          requires3dSecure: require3DS
-        }
+          requires3dSecure: require3DS,
+        },
       };
     } catch (error) {
       // Default to not requiring 3DS on error
       return {
         paymentSettings: {
-          requires3dSecure: false
-        }
+          requires3dSecure: false,
+        },
       };
     }
   },
@@ -53,10 +53,10 @@ paymentSettings.provideHandlers({
 This example requires 3D Secure for specific countries or regions.
 
 ```typescript
-import { paymentSettings } from '@wix/ecom/service-plugins';
+import { paymentSettings } from "@wix/ecom/service-plugins";
 
 // Countries that require 3DS
-const REQUIRE_3DS_COUNTRIES = ['GB', 'FR', 'DE', 'IT', 'ES'];
+const REQUIRE_3DS_COUNTRIES = ["GB", "FR", "DE", "IT", "ES"];
 
 paymentSettings.provideHandlers({
   getPaymentSettings: async ({ request, metadata }) => {
@@ -71,15 +71,15 @@ paymentSettings.provideHandlers({
 
       return {
         paymentSettings: {
-          requires3dSecure: require3DS
-        }
+          requires3dSecure: require3DS,
+        },
       };
     } catch (error) {
       // Default to not requiring 3DS on error
       return {
         paymentSettings: {
-          requires3dSecure: false
-        }
+          requires3dSecure: false,
+        },
       };
     }
   },
@@ -94,4 +94,3 @@ paymentSettings.provideHandlers({
 4. **Settings passed to provider** - The returned settings are passed to the payment provider for enforcement
 5. **Fallback configuration** - Use the `fallbackValueForRequires3dSecure` builder field to set a default value if the SPI call fails (defaults to `false`)
 6. **Handle errors gracefully** - Return sensible defaults on error rather than throwing
-

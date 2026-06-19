@@ -12,15 +12,15 @@ Add `APP_ID` to `src/constants/index.ts`:
 
 ```ts
 // src/constants/index.ts
-export const APP_ID = 'e24ccf8c-8cd5-4e03-b1bc-00a93a4b265d'; // from wix.config.json
+export const APP_ID = "e24ccf8c-8cd5-4e03-b1bc-00a93a4b265d"; // from wix.config.json
 ```
 
 Build the URL in the actions file:
 
 ```ts
 // <page>-actions.ts
-import { dashboard } from '@wix/dashboard';
-import { APP_ID } from '../../../../constants';
+import { dashboard } from "@wix/dashboard";
+import { APP_ID } from "../../../../constants";
 
 export const fetchEditorUrl = (): string | null => {
   const base = dashboard.getSiteInfo()?.editorUrl;
@@ -39,10 +39,10 @@ const editorUrl = fetchEditorUrl();
 <Button
   skin="inverted"
   prefixIcon={<Icons.Edit />}
-  onClick={() => editorUrl && window.open(editorUrl, '_blank')}
+  onClick={() => editorUrl && window.open(editorUrl, "_blank")}
 >
   Open in Editor
-</Button>
+</Button>;
 ```
 
 The `?appDefinitionId` query param tells the Wix Editor to open and focus the app's widget/settings panel, giving the user a direct path instead of landing on the editor root.
@@ -55,16 +55,17 @@ The route below still works but is unnecessary overhead now that `dashboard.getS
 
 ```ts
 // src/pages/api/editor-url.ts
-import type { APIRoute } from 'astro';
-import { auth } from '@wix/essentials';
-import { editor } from '@wix/urls';
-import { customJson } from '../../utils/customJson';
+import type { APIRoute } from "astro";
+import { auth } from "@wix/essentials";
+import { editor } from "@wix/urls";
+import { customJson } from "../../utils/customJson";
 
 export const GET: APIRoute = () =>
-  auth.elevate(editor.getEditorUrls)()
+  auth
+    .elevate(editor.getEditorUrls)()
     .then((res) => customJson({ editorUrl: res.urls?.editorUrl ?? null }))
     .catch((error: unknown) => {
-      console.error('[api/editor-url] GET failed:', error);
+      console.error("[api/editor-url] GET failed:", error);
       return customJson({ error: String(error) }, { status: 500 });
     });
 ```
@@ -86,6 +87,6 @@ const [editorUrl, setEditorUrl] = useState<string | null>(null);
 useEffect(() => {
   fetchEditorUrl()
     .then(setEditorUrl)
-    .catch((err) => console.error('[dashboard] editor URL error:', err));
+    .catch((err) => console.error("[dashboard] editor URL error:", err));
 }, []);
 ```

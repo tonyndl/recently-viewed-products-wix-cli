@@ -1,10 +1,10 @@
 export class LogoElement extends HTMLElement {
-    constructor() {
-        super();
-    }
+  constructor() {
+    super();
+  }
 
-    connectedCallback() {
-        this.innerHTML = `
+  connectedCallback() {
+    this.innerHTML = `
         <a href="https://dub.sh/purple-wix-app" target="_blank";>
         <svg preserveAspectRatio="xMidYMid meet" data-bbox="0 0 180.312 32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180.312 32" height="33" width="180" data-type="color" role="presentation" aria-hidden="true" aria-label="">
             <g>
@@ -14,11 +14,8 @@ export class LogoElement extends HTMLElement {
         </svg>
         </a>
         `;
-        this.style['z-index'] = 9999999;
-    }
-
+    this.style["z-index"] = 9999999;
+  }
 }
 
-window.customElements.define('logo-element', LogoElement);
-
-
+window.customElements.define("logo-element", LogoElement);

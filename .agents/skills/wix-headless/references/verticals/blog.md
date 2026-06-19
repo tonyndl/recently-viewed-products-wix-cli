@@ -1,7 +1,16 @@
 ---
 name: blog
 description: "Blog — post listing, post detail with rich content, RSS feed, sitemap."
-triggers: ["blog", "publish articles", "write posts", "content site", "editorial", "journal", "newsletter"]
+triggers:
+  [
+    "blog",
+    "publish articles",
+    "write posts",
+    "content site",
+    "editorial",
+    "journal",
+    "newsletter",
+  ]
 
 features:
   - name: "Blog"
@@ -16,7 +25,7 @@ apps:
 routes:
   - route: "/blog"
   - route: "/blog/[slug]"
-    name: "Blog Post"   # path-derivation would produce "Blog [slug]" — override with the user-facing label
+    name: "Blog Post" # path-derivation would produce "Blog [slug]" — override with the user-facing label
   - route: "/rss.xml"
 
 disabled: false

@@ -11,6 +11,7 @@ Files this agent OWNS:
 - `src/styles/components-gift-cards.css` — scoped CSS for the form fields, amount pills, hero image frame, and home teaser
 
 Files this agent MUST NOT touch:
+
 - `src/utils/wix-image.ts`, `src/utils/analytics.ts` — shared utilities. Import from them; do not write copies.
 - `src/components/AddToCartButton.tsx`, `src/components/CartBadge.tsx`, `src/components/CartView.tsx` — owned by stores/ecom; gift-cards uses `currentCart.addToCurrentCart` directly inside the buy-flow island, not via `AddToCartButton`.
 - Any `.astro` page or layout — those are written by other scopes.
@@ -46,6 +47,7 @@ Do NOT modify logic, imports, or component structure.
 Use template `templates/gift-cards.ts`.
 
 Exports:
+
 - `WIX_GIFT_CARDS_APP_ID` — string constant.
 - `GiftCardImage`, `GiftCardPresetVariant`, `GiftCardProduct` — TypeScript interfaces.
 - `getGiftCardProduct(): Promise<GiftCardProduct | null>` — memoized probe. Returns the first gift-card product or null on any failure.
@@ -59,6 +61,7 @@ Use template `templates/GiftCardPurchase.tsx`.
 Props: `{ product: GiftCardProduct }`.
 
 State machine: `"idle" | "adding" | "added" | "error"`. Submit handler:
+
 1. Validate selected `variantId`, `recipientFirstName`, `recipientEmail` (regex).
 2. Call `currentCart.addToCurrentCart` with the catalogReference shape from gift-cards.md ("Wix Gift Card app reference data" section).
 3. Dispatch `cart-updated` CustomEvent (so CartBadge updates).
@@ -66,6 +69,7 @@ State machine: `"idle" | "adding" | "added" | "error"`. Submit handler:
 5. `window.location.href = "/cart"` on success.
 
 Class names from contract:
+
 - `.gift-card-form`, `.gift-card-fieldset`, `.gift-card-amounts`, `.gift-card-grid`, `.gift-card-field`, `.gift-card-field-wide`, `.gift-card-counter`, `.gift-card-error` — defined in `components-gift-cards.css`.
 - `.option-label`, `.option-pill`, `.option-pill.selected` — shared across packs (also used by stores `ProductPurchase`).
 - `.add-to-cart-btn` — shared with stores AddToCartButton; same brand styling.
@@ -75,6 +79,7 @@ Class names from contract:
 Use template `templates/components-gift-cards.css`.
 
 Scoped styles for:
+
 - Buy-form layout (grid, fields, counter, error message).
 - `/gift-cards` page sections (`.gift-card-page`, `.gift-card-grid-wrap`, `.gift-card-hero-image`, `.gift-card-body`, `.gift-card-lede`, `.gift-card-fineprint`).
 - Home teaser (`.gift-card-teaser`, `.gift-card-teaser-link`, `.gift-card-teaser-image`, `.gift-card-teaser-body`, `.gift-card-teaser-lede`).
@@ -109,11 +114,11 @@ Use brand `@theme` utilities (`bg-cream`, `text-ink`, etc.) where natural; fall 
 
 ## Anti-patterns
 
-| WRONG | CORRECT |
-|-------|---------|
-| Use `@wix/auto_sdk_ecom_gift-vouchers` to query the buy template | That SDK only exposes redemption — use `httpClient.fetchWithAuth` against the REST endpoint |
-| Wrap `getGiftCardProduct()` in `auth.elevate(...)` | Visitor-scope is correct; elevation breaks the probe |
-| Throw or log+rethrow on probe failure | Return `null`; callers gate the UI on null |
-| Hardcode denomination amounts (€10, €25, etc.) | Always render from `product.presetVariants` |
-| Skip `wixGiftCardsAppNewCatalog: true` in cart options | Required — without it the cart line is the wrong item type and `ORDER_PAID` does not issue a gift card |
-| Write your own `wix-image.ts` / `analytics.ts` | Import from the shared utilities |
+| WRONG                                                            | CORRECT                                                                                                |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Use `@wix/auto_sdk_ecom_gift-vouchers` to query the buy template | That SDK only exposes redemption — use `httpClient.fetchWithAuth` against the REST endpoint            |
+| Wrap `getGiftCardProduct()` in `auth.elevate(...)`               | Visitor-scope is correct; elevation breaks the probe                                                   |
+| Throw or log+rethrow on probe failure                            | Return `null`; callers gate the UI on null                                                             |
+| Hardcode denomination amounts (€10, €25, etc.)                   | Always render from `product.presetVariants`                                                            |
+| Skip `wixGiftCardsAppNewCatalog: true` in cart options           | Required — without it the cart line is the wrong item type and `ORDER_PAID` does not issue a gift card |
+| Write your own `wix-image.ts` / `analytics.ts`                   | Import from the shared utilities                                                                       |

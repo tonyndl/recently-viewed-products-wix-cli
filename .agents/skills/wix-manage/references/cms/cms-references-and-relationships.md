@@ -2,6 +2,7 @@
 name: "CMS References And Relationships"
 description: "Add, replace, or remove items from MULTI_REFERENCE fields. Use insert-references, replace-references, remove-references endpoints. Required for managing multi-reference relationships - these CANNOT be set via regular insert/update/patch operations. Also covers single references and querying with expanded references."
 ---
+
 # CMS References & Relationships
 
 > **Standard call shape (every curl below).** The `<AUTH>` placeholder is shorthand for `Authorization: Bearer <TOKEN>` only. Body-bearing requests also need `Content-Type: application/json`.
@@ -21,10 +22,10 @@ This recipe covers linking CMS collections together using reference fields.
 
 ## Reference Types
 
-| Type | Field Type | Relationship | Example |
-|------|------------|--------------|---------|
-| Single Reference | `REFERENCE` | One-to-one, Many-to-one | Product → Category |
-| Multi-Reference | `MULTI_REFERENCE` | One-to-many, Many-to-many | Product → Tags |
+| Type             | Field Type        | Relationship              | Example            |
+| ---------------- | ----------------- | ------------------------- | ------------------ |
+| Single Reference | `REFERENCE`       | One-to-one, Many-to-one   | Product → Category |
+| Multi-Reference  | `MULTI_REFERENCE` | One-to-many, Many-to-many | Product → Tags     |
 
 ## Add a Single Reference Field
 
@@ -149,11 +150,11 @@ curl -X POST \
 
 ## Reference Query Operators
 
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `$eq` | Exact match (single reference) | `{ "category": "id" }` |
-| `$hasSome` | Has at least one of | `{ "tags": { "$hasSome": ["id1", "id2"] } }` |
-| `$hasAll` | Has all of | `{ "tags": { "$hasAll": ["id1", "id2"] } }` |
+| Operator   | Description                    | Example                                      |
+| ---------- | ------------------------------ | -------------------------------------------- |
+| `$eq`      | Exact match (single reference) | `{ "category": "id" }`                       |
+| `$hasSome` | Has at least one of            | `{ "tags": { "$hasSome": ["id1", "id2"] } }` |
+| `$hasAll`  | Has all of                     | `{ "tags": { "$hasAll": ["id1", "id2"] } }`  |
 
 ## Related Documentation
 

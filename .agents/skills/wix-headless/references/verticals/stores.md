@@ -1,7 +1,18 @@
 ---
 name: stores
 description: "Ecommerce — product catalog with add-to-cart. Co-loads ecom (cart/checkout) and gift-cards (passive)."
-triggers: ["sell", "ecommerce", "store", "shop", "products", "merchandise", "catalog", "merch", "buy"]
+triggers:
+  [
+    "sell",
+    "ecommerce",
+    "store",
+    "shop",
+    "products",
+    "merchandise",
+    "catalog",
+    "merch",
+    "buy",
+  ]
 requires: ["ecom", "gift-cards"]
 
 features:
@@ -15,7 +26,7 @@ apps:
 routes:
   - route: "/products"
   - route: "/products/[slug]"
-    name: "Product Detail"   # path-derivation would produce "Products [slug]" — override with the user-facing label
+    name: "Product Detail" # path-derivation would produce "Products [slug]" — override with the user-facing label
   - route: "/category/[slug]"
     name: "Category"
 

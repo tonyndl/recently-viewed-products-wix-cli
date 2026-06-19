@@ -1,4 +1,3 @@
-
 # Wix Embedded Script Builder
 
 Embedded scripts are HTML code fragments injected into the DOM of Wix sites — for integration with third-party services, analytics tracking, advertising, and custom JavaScript functionality.
@@ -11,12 +10,12 @@ Use `wix generate --params` with all 5 required fields:
 wix generate --params '{"extensionType":"EMBEDDED_SCRIPT","name":"<name>","folder":"<folder>","scriptType":"<scriptType>","placement":"<placement>"}'
 ```
 
-| Field | Constraint |
-| --- | --- |
-| `name` | Display name, any string. |
-| `folder` | Lowercase alphanumeric, hyphens, slashes (for sub-paths). |
+| Field        | Constraint                                                     |
+| ------------ | -------------------------------------------------------------- |
+| `name`       | Display name, any string.                                      |
+| `folder`     | Lowercase alphanumeric, hyphens, slashes (for sub-paths).      |
 | `scriptType` | One of: `ESSENTIAL`, `FUNCTIONAL`, `ANALYTICS`, `ADVERTISING`. |
-| `placement` | One of: `HEAD`, `BODY_START`, `BODY_END`. |
+| `placement`  | One of: `HEAD`, `BODY_START`, `BODY_END`.                      |
 
 The CLI generates the folder, `<folder>.html` (the actual script HTML), the builder file, the UUID, and the `src/extensions.ts` registration. (It may also drop a sample `<other>.ts` module to demonstrate `<script type="module" src="./xxx.ts">` imports — feel free to delete or repurpose it.)
 
@@ -37,11 +36,11 @@ Embedded scripts must declare a type for consent management:
 
 ## Placement Options
 
-| Placement    | Where in HTML                            | Best for                                                                |
-| ------------ | ---------------------------------------- | ----------------------------------------------------------------------- |
-| `HEAD`       | Between `<head>` and `</head>` tags      | Analytics, tracking, early initialization                               |
-| `BODY_START` | Immediately after opening `<body>` tag   | Critical functionality, `<noscript>` fallback                           |
-| `BODY_END`   | Immediately before closing `</body>` tag | Advertising pixels, non-critical features (non-blocking, better perf)   |
+| Placement    | Where in HTML                            | Best for                                                              |
+| ------------ | ---------------------------------------- | --------------------------------------------------------------------- |
+| `HEAD`       | Between `<head>` and `</head>` tags      | Analytics, tracking, early initialization                             |
+| `BODY_START` | Immediately after opening `<body>` tag   | Critical functionality, `<noscript>` fallback                         |
+| `BODY_END`   | Immediately before closing `</body>` tag | Advertising pixels, non-critical features (non-blocking, better perf) |
 
 ## Dynamic Parameters and Dashboard Configuration
 
@@ -66,23 +65,27 @@ Embedded scripts must declare a type for consent management:
 `{{parameterKey}}` placeholders are substituted at injection time, **but only inside HTML attribute values** — not inside `<script>` bodies. The required pattern is: render every parameter as a data attribute on a config element, then read it from `dataset` in JS.
 
 ```html
-<div id="config"
+<div
+  id="config"
   data-api-key="{{apiKey}}"
   data-enabled="{{enabled}}"
   data-headline="{{headline}}"
 ></div>
 <script>
-  const { apiKey, enabled, headline } = document.getElementById("config").dataset;
+  const { apiKey, enabled, headline } =
+    document.getElementById("config").dataset;
   // ...
 </script>
 ```
 
 **Type handling (all `dataset` values are strings):**
+
 - `NUMBER` → `Number(value)` or `parseInt(value, 10)`
 - `BOOLEAN` → compare against `"true"` / `"false"`
 - `DATE` / `DATETIME` → `new Date(value)`
 
 **Other rules:**
+
 - Template variable names must match the parameter keys exactly.
 - Required parameters always have values; optional parameters may be empty — provide fallbacks.
 - Only use parameters that are relevant to the use case; don't reference parameters you don't implement.

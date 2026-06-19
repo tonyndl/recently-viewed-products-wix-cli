@@ -1,7 +1,17 @@
 ---
 name: forms
 description: "Forms — contact, lead capture, or newsletter signup with CRM integration."
-triggers: ["contact form", "lead form", "signup form", "waitlist", "registration", "get in touch", "inquiry", "feedback"]
+triggers:
+  [
+    "contact form",
+    "lead form",
+    "signup form",
+    "waitlist",
+    "registration",
+    "get in touch",
+    "inquiry",
+    "feedback",
+  ]
 
 features:
   - name: "Contact form"

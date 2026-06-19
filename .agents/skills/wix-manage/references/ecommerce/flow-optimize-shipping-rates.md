@@ -10,9 +10,11 @@ references:
     path: ecommerce/setup-shipping-rates.md
     load: true
 ---
+
 # Flow: Optimize Shipping Rates
 
 > **Before executing this skill**, read these referenced skills with `ReadFullDocsArticle`:
+>
 > - [Guardrail: Rate Pricing Sanity](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/guardrail-rate-pricing-sanity)
 > - [Setup: Shipping Rates](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/setup-shipping-rates)
 
@@ -37,17 +39,17 @@ Analyzes the site's catalog price distribution and current shipping rate structu
 
 Retrieve catalog statistics for the "All Products" category group. Required fields:
 
-| Metric | Description |
-|---|---|
-| `product_count` | Total number of products |
-| `price_min` | Lowest product price |
-| `price_max` | Highest product price |
-| `price_avg` | Average product price |
-| `price_stddev` | Standard deviation of prices |
-| `price_p25` | 25th percentile price |
-| `price_p50` | 50th percentile (median) price |
-| `price_p75` | 75th percentile price |
-| `price_p90` | 90th percentile price |
+| Metric          | Description                    |
+| --------------- | ------------------------------ |
+| `product_count` | Total number of products       |
+| `price_min`     | Lowest product price           |
+| `price_max`     | Highest product price          |
+| `price_avg`     | Average product price          |
+| `price_stddev`  | Standard deviation of prices   |
+| `price_p25`     | 25th percentile price          |
+| `price_p50`     | 50th percentile (median) price |
+| `price_p75`     | 75th percentile price          |
+| `price_p90`     | 90th percentile price          |
 
 ### 1a: Calculate price spread ratio
 
@@ -66,6 +68,7 @@ Retrieve all shipping options to analyze the existing rate structure.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/shipping-options/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -77,6 +80,7 @@ Retrieve all shipping options to analyze the existing rate structure.
 ```
 
 **Response**:
+
 ```json
 {
   "shippingOptions": [
@@ -105,6 +109,7 @@ Retrieve all shipping options to analyze the existing rate structure.
 ```
 
 For each option, classify its rate structure:
+
 - **Flat rate**: `conditions[]` is empty
 - **Tiered**: Multiple rates with `BY_TOTAL_PRICE`, `BY_TOTAL_WEIGHT`, or `BY_TOTAL_QUANTITY` conditions
 - **Free shipping**: `amount="0"`
@@ -126,28 +131,28 @@ If any shipping option has `multiplyByQuantity=true`, flag it immediately.
 
 Check ALL three conditions. If all are true, recommend converting flat rates to price-based tiers:
 
-| Condition | Threshold |
-|---|---|
-| `price_spread_ratio > 10` | Catalog has extreme price diversity |
-| `price_stddev > price_avg x 0.5` | High variance in pricing |
-| Only flat rates currently exist | No tiered structure in place |
+| Condition                        | Threshold                           |
+| -------------------------------- | ----------------------------------- |
+| `price_spread_ratio > 10`        | Catalog has extreme price diversity |
+| `price_stddev > price_avg x 0.5` | High variance in pricing            |
+| Only flat rates currently exist  | No tiered structure in place        |
 
 **If all three conditions are met**, recommend price-based tiers:
 
-| Tier | Price Range | Rate Strategy |
-|---|---|---|
-| Tier 1 | Orders below `price_p50` | Lower flat rate |
-| Tier 2 | Orders `price_p50` to `price_p75` | Standard rate |
-| Tier 3 | Orders above `price_p75` | Higher rate or free shipping |
+| Tier   | Price Range                       | Rate Strategy                |
+| ------ | --------------------------------- | ---------------------------- |
+| Tier 1 | Orders below `price_p50`          | Lower flat rate              |
+| Tier 2 | Orders `price_p50` to `price_p75` | Standard rate                |
+| Tier 3 | Orders above `price_p75`          | Higher rate or free shipping |
 
 ### 3c: Confirm flat rate is optimal
 
 If ALL of the following are true, flat rate is the correct strategy -- no changes needed:
 
-| Condition | Threshold |
-|---|---|
-| `price_spread_ratio <= 3` | Narrow price range |
-| `price_stddev < price_avg x 0.3` | Low variance |
+| Condition                        | Threshold          |
+| -------------------------------- | ------------------ |
+| `price_spread_ratio <= 3`        | Narrow price range |
+| `price_stddev < price_avg x 0.3` | Low variance       |
 
 Report: "Your catalog has a narrow price range. Flat rate shipping is the optimal strategy. No changes recommended."
 
@@ -173,6 +178,7 @@ Update the shipping option to disable per-item multiplication.
 **Endpoint**: `PATCH https://www.wixapis.com/ecom/v1/shipping-options/{shippingOptionId}`
 
 **Request**:
+
 ```json
 {
   "shippingOption": {
@@ -192,6 +198,7 @@ Update the shipping option to disable per-item multiplication.
 ```
 
 **Response**:
+
 ```json
 {
   "shippingOption": {
@@ -223,6 +230,7 @@ When converting from flat to tiered, create a new option with price-based tiers.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/shipping-options`
 
 **Request**:
+
 ```json
 {
   "shippingOption": {
@@ -274,6 +282,7 @@ When converting from flat to tiered, create a new option with price-based tiers.
 ```
 
 **Response**:
+
 ```json
 {
   "shippingOption": {
@@ -340,6 +349,7 @@ Re-query shipping options to confirm changes took effect.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/shipping-options/query`
 
 Verify:
+
 1. Per-item options now have `multiplyByQuantity=false`
 2. Tiered options have contiguous tier boundaries with no gaps
 3. All options have `estimatedDeliveryTime` populated
@@ -350,13 +360,13 @@ Verify:
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| `SHIPPING_OPTION_NOT_FOUND` | Option ID doesn't exist | Re-query shipping options to get current IDs |
-| `REVISION_MISMATCH` | Revision doesn't match the current version | Re-fetch the option for the latest revision, then retry |
-| `deliveryRegionId is not a valid GUID` | Used `deliveryRegionIds` (plural) instead of `deliveryRegionId` (singular) | Use the singular `deliveryRegionId` field |
-| Tier gap detected after update | Condition boundaries don't cover all ranges | Verify tier boundaries are contiguous: use LTE for upper bounds and GT for lower bounds of adjacent tiers |
-| Rate exceeds 15% of AOV | Shipping cost is a cart abandonment risk | Lower the rate amount or add a free shipping tier for larger orders |
+| Error                                  | Cause                                                                      | Fix                                                                                                       |
+| -------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `SHIPPING_OPTION_NOT_FOUND`            | Option ID doesn't exist                                                    | Re-query shipping options to get current IDs                                                              |
+| `REVISION_MISMATCH`                    | Revision doesn't match the current version                                 | Re-fetch the option for the latest revision, then retry                                                   |
+| `deliveryRegionId is not a valid GUID` | Used `deliveryRegionIds` (plural) instead of `deliveryRegionId` (singular) | Use the singular `deliveryRegionId` field                                                                 |
+| Tier gap detected after update         | Condition boundaries don't cover all ranges                                | Verify tier boundaries are contiguous: use LTE for upper bounds and GT for lower bounds of adjacent tiers |
+| Rate exceeds 15% of AOV                | Shipping cost is a cart abandonment risk                                   | Lower the rate amount or add a free shipping tier for larger orders                                       |
 
 ## References
 

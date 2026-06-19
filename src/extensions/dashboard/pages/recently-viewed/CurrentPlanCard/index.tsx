@@ -1,8 +1,8 @@
-import { type FC } from 'react';
-import { Text, Button, Badge } from '@wix/design-system';
-import * as Icons from '@wix/wix-ui-icons-common';
-import { openUpgradeUrl } from '../upgradeUtils';
-import { styles } from './styles';
+import { type FC } from "react";
+import { Text, Button, Badge } from "@wix/design-system";
+import * as Icons from "@wix/wix-ui-icons-common";
+import { openUpgradeUrl } from "../upgradeUtils";
+import { styles } from "./styles";
 
 type Props = {
   isPremium: boolean;
@@ -18,10 +18,9 @@ const CurrentPlanCard: FC<Props> = ({ isPremium, currentTier, upgradeUrl }) => {
       <div>
         <div style={styles.infoRow}>
           <Text weight="bold">Your Current Plan:</Text>
-          <Badge skin={isPremium ? 'premium' : 'standard'} size="tiny">
-            {isPremium ? 'PREMIUM' : 'FREE'}
+          <Badge skin={isPremium ? "premium" : "standard"} size="tiny">
+            {isPremium ? "PREMIUM" : "FREE"}
           </Badge>
-          <Text secondary>{isPremium ? currentTier?.name ?? 'Premium' : '$0 forever'}</Text>
         </div>
         {features.length > 0 && (
           <div style={styles.featuresRow}>

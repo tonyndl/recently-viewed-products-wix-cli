@@ -2,6 +2,7 @@
 name: "Payment Links for Bookings"
 description: Creates payment links for unpaid bookings using Payment Links API. Links booking IDs to payment requests with proper redirect handling.
 ---
+
 # Payment Links for Bookings
 
 Use this recipe to collect payment for booking-related flows by generating payment links with the Payment Links API.
@@ -28,6 +29,7 @@ If a booking already has an associated unpaid eCommerce order, create an `ECOM_O
 ```
 
 Notes:
+
 - `orderId` must exist and be unpaid.
 - `ECOM_ORDER` links require `paymentsLimit: 1`.
 
@@ -87,13 +89,13 @@ Before creating booking payment links, ensure:
 
 ## Common Errors
 
-| Error Code | Meaning |
-|------------|---------|
-| `UNPUBLISHED_SITE` | Site must be published before creating payment links |
-| `MISSING_ACCEPT_PAYMENTS` | Site is not set up to accept payments |
-| `ORDER_NOT_FOUND` | The provided order ID does not exist |
-| `INVALID_PAYMENTS_LIMIT_FOR_ECOM_ORDER_PAYMENT_LINK` | `ECOM_ORDER` links require `paymentsLimit: 1` |
-| `RECIPIENT_NOT_FOUND` | Recipient contact ID does not exist |
+| Error Code                                           | Meaning                                              |
+| ---------------------------------------------------- | ---------------------------------------------------- |
+| `UNPUBLISHED_SITE`                                   | Site must be published before creating payment links |
+| `MISSING_ACCEPT_PAYMENTS`                            | Site is not set up to accept payments                |
+| `ORDER_NOT_FOUND`                                    | The provided order ID does not exist                 |
+| `INVALID_PAYMENTS_LIMIT_FOR_ECOM_ORDER_PAYMENT_LINK` | `ECOM_ORDER` links require `paymentsLimit: 1`        |
+| `RECIPIENT_NOT_FOUND`                                | Recipient contact ID does not exist                  |
 
 ## API Documentation References
 

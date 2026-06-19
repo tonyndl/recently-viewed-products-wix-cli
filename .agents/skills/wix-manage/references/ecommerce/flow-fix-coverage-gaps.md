@@ -10,9 +10,11 @@ references:
     path: ecommerce/setup-shipping-regions.md
     load: true
 ---
+
 # Flow: Fix Shipping Coverage Gaps
 
 > **Before executing this skill**, read these referenced skills with `ReadFullDocsArticle`:
+>
 > - [Guardrail: Shipping Health](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/guardrail-shipping-health)
 > - [Setup: Shipping Regions](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/setup-shipping-regions)
 
@@ -39,6 +41,7 @@ Retrieve all delivery profiles to build a complete map of regions and their carr
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/delivery-profiles/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -50,6 +53,7 @@ Retrieve all delivery profiles to build a complete map of regions and their carr
 ```
 
 **Response**:
+
 ```json
 {
   "deliveryProfiles": [
@@ -112,6 +116,7 @@ Retrieve all shipping options to determine which regions already have coverage.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/shipping-options/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -123,6 +128,7 @@ Retrieve all shipping options to determine which regions already have coverage.
 ```
 
 **Response**:
+
 ```json
 {
   "shippingOptions": [
@@ -199,6 +205,7 @@ For each region identified as having zero coverage, create a standard shipping o
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/shipping-options`
 
 **Request**:
+
 ```json
 {
   "shippingOption": {
@@ -217,6 +224,7 @@ For each region identified as having zero coverage, create a standard shipping o
 ```
 
 **Response**:
+
 ```json
 {
   "shippingOption": {
@@ -244,6 +252,7 @@ For each region identified as having zero coverage, create a standard shipping o
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/shipping-options`
 
 **Request**:
+
 ```json
 {
   "shippingOption": {
@@ -286,13 +295,13 @@ Use the same request from Step 2 and verify the count now covers all active, non
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| `deliveryRegionId is not a valid GUID` | Used `deliveryRegionIds` (plural) instead of `deliveryRegionId` (singular) in create request | Use the singular `deliveryRegionId` field |
-| `SHIPPING_OPTION_NOT_FOUND` | The shipping option ID doesn't exist | Re-query shipping options to get current IDs |
-| `REVISION_MISMATCH` | The `revision` doesn't match the current version | Re-fetch the option to get the latest revision, then retry |
-| Region appears covered but customers still can't check out | Region has `active=false` | Check region active status in the delivery profile; activate the region if intended |
-| Option exists but not visible at checkout | Option linked to an inactive or deleted region | Verify region exists and `active=true` in the delivery profile |
+| Error                                                      | Cause                                                                                        | Fix                                                                                 |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `deliveryRegionId is not a valid GUID`                     | Used `deliveryRegionIds` (plural) instead of `deliveryRegionId` (singular) in create request | Use the singular `deliveryRegionId` field                                           |
+| `SHIPPING_OPTION_NOT_FOUND`                                | The shipping option ID doesn't exist                                                         | Re-query shipping options to get current IDs                                        |
+| `REVISION_MISMATCH`                                        | The `revision` doesn't match the current version                                             | Re-fetch the option to get the latest revision, then retry                          |
+| Region appears covered but customers still can't check out | Region has `active=false`                                                                    | Check region active status in the delivery profile; activate the region if intended |
+| Option exists but not visible at checkout                  | Option linked to an inactive or deleted region                                               | Verify region exists and `active=true` in the delivery profile                      |
 
 ## References
 

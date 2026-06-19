@@ -14,6 +14,7 @@ Files this agent OWNS (creates fresh, no designer output to read):
 - `src/components/BackInStockForm.tsx` — React island; back-in-stock subscription form
 
 Files this agent MUST NOT touch:
+
 - `src/styles/components-stores.css` — owned by the **`components-css`** sibling scope (see `./COMPONENTS_CSS.md`). Reference its class names; do not write the file.
 - `src/utils/wix-image.ts` — **shared utility shipped by the build skill.** Import `resolveWixImageUrl` from `../utils/wix-image`; do NOT write your own copy (would shadow the shared util and drop other verticals' callers). The canonical source lives at `<SKILL_ROOT>/shared-utilities/wix-image.ts`; it's copied into projects by `seed-utilities.sh` during Setup.
 - `src/components/CartView.tsx`, `src/components/CartBadge.tsx`, `src/utils/analytics.ts`, `src/styles/components-ecom.css` — owned by ecom
@@ -92,12 +93,17 @@ Use template `templates/ProductPurchase.tsx`.
 Handles variant selection, quantity selector, stock awareness, and wraps `AddToCartButton`. Mounted on product detail pages (by `product-pages` scope) as:
 
 ```tsx
-<ProductPurchase client:load product={product} inventoryByVariant={inventoryByVariant} />
+<ProductPurchase
+  client:load
+  product={product}
+  inventoryByVariant={inventoryByVariant}
+/>
 ```
 
 **Prop contract — single `product` object.** The template accepts the full productsV3 product and destructures internally. This mirrors `ProductCard.astro`'s `{ product }` contract so both stores components take the same shape (prevents a shape mismatch where a fallback-written `[slug].astro` passes `product` as a whole while the component expects flat props).
 
 Key behaviors:
+
 - `hasMeaningfulOptions` — a product has meaningful options only when at least one option has >1 choice. Dummy single-choice options (e.g., "Type: Standard") are treated as no options.
 - Out of stock → renders just the message, no button.
 - No meaningful options → renders quantity + AddToCartButton with default variant ID.
@@ -134,10 +140,23 @@ Classes from contract (stores pack):
   "scope": "components",
   "summary": "Wrote React islands and Astro components from templates (CSS handled by components-css sibling)",
   "data": {
-    "islands": ["ProductPurchase.tsx", "AddToCartButton.tsx", "BackInStockForm.tsx"],
+    "islands": [
+      "ProductPurchase.tsx",
+      "AddToCartButton.tsx",
+      "BackInStockForm.tsx"
+    ],
     "astroComponents": ["SeoTags.astro"],
     "globalContractClassesReferenced": ["addToCartButton", "productPurchase"],
-    "scopedContractClassesReferenced": ["optionGroup", "optionLabel", "optionChoices", "optionPill", "stockStatus", "quantitySelector", "quantityBtn", "quantityValue"]
+    "scopedContractClassesReferenced": [
+      "optionGroup",
+      "optionLabel",
+      "optionChoices",
+      "optionPill",
+      "stockStatus",
+      "quantitySelector",
+      "quantityBtn",
+      "quantityValue"
+    ]
   },
   "files": [
     "src/components/SeoTags.astro",
@@ -151,15 +170,15 @@ Classes from contract (stores pack):
 
 ## Anti-patterns
 
-| WRONG | CORRECT |
-|-------|---------|
-| Read designer `.astro` files | Not needed — this scope doesn't touch pages |
-| Import `products` from `@wix/stores` | Use `productsV3` |
-| Write `src/utils/wix-image.ts` | Import from it — shared util already exposes `resolveWixImageUrl` |
-| Hardcode `className="btn-primary"` | Use contract class `className="add-to-cart-btn"` |
-| Default Tailwind color utilities on React islands (`bg-green-50`, `bg-blue-500`) | Brand `@theme` utilities (`bg-bark`, `text-cream`) or contract class names |
-| `<!--` HTML comments in `.astro` frontmatter | `//` or `/* */` — frontmatter is TypeScript |
-| Omit `WIX_STORES_APP_ID` constant | Hardcoded `215238eb-22a5-4c36-9e7b-e7c08025e04e` in AddToCartButton for `catalogReference.appId` |
-| Introspect `node_modules/@wix/*` | All symbols are documented here; if missing, use docs-search REST (see `DOCS_SEARCH.md`) |
-| Write `CartView.tsx`, `CartBadge.tsx`, or `analytics.ts` | Not owned by this scope — do not write |
+| WRONG                                                                            | CORRECT                                                                                                 |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Read designer `.astro` files                                                     | Not needed — this scope doesn't touch pages                                                             |
+| Import `products` from `@wix/stores`                                             | Use `productsV3`                                                                                        |
+| Write `src/utils/wix-image.ts`                                                   | Import from it — shared util already exposes `resolveWixImageUrl`                                       |
+| Hardcode `className="btn-primary"`                                               | Use contract class `className="add-to-cart-btn"`                                                        |
+| Default Tailwind color utilities on React islands (`bg-green-50`, `bg-blue-500`) | Brand `@theme` utilities (`bg-bark`, `text-cream`) or contract class names                              |
+| `<!--` HTML comments in `.astro` frontmatter                                     | `//` or `/* */` — frontmatter is TypeScript                                                             |
+| Omit `WIX_STORES_APP_ID` constant                                                | Hardcoded `215238eb-22a5-4c36-9e7b-e7c08025e04e` in AddToCartButton for `catalogReference.appId`        |
+| Introspect `node_modules/@wix/*`                                                 | All symbols are documented here; if missing, use docs-search REST (see `DOCS_SEARCH.md`)                |
+| Write `CartView.tsx`, `CartBadge.tsx`, or `analytics.ts`                         | Not owned by this scope — do not write                                                                  |
 | Pass flat props to `ProductPurchase` (`productId`, `options`, `variantsInfo`, …) | Pass the whole product: `<ProductPurchase product={product} inventoryByVariant={inventoryByVariant} />` |

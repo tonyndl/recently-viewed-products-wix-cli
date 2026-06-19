@@ -3,6 +3,7 @@
 Replace the default sample products Wix Stores installs with on-brand products via the Stores REST API (`curl` against `wixapis.com/stores/v3/...` with the standard headers from `../shared/AUTHENTICATION.md`). This file covers the `seed` scope — data seeding only. Frontend wiring lives in the astro scope references (`../astro/stores/SHARED_WIRING.md`, `../astro/stores/PRODUCT_PAGES.md`, `../astro/ecom/CART_PAGES.md`, `../astro/stores/HOME_AND_NAV.md`) and should not be read by `seed`.
 
 > **Critical Rules — Read Before Starting**
+>
 > 1. **V3 only** — all endpoints under `/stores/v3/...` for products.
 > 2. **No improvised endpoints** — if an REST call returns 404, stop and report. Do not guess alternative URLs. Do not loop on `docs-search REST (see DOCS_SEARCH.md)` more than twice on the same topic.
 > 3. **Do not seed categories** — they are merchant-driven. See Step 6 for the full rule and how the storefront still wires up automatically.
@@ -16,6 +17,7 @@ Replace the default sample products Wix Stores installs with on-brand products v
 ## Setup: Replace Default Products via REST
 
 > **Conditional:** This section only applies when ALL of these are true:
+>
 > - The Stores app was just installed (default sample products exist)
 > - CLI auth works (`npx @wix/cli@latest token --site "$SITE_ID"` returns a token)
 > - Discovery context is available in your prompt (business type, brand name, style)
@@ -28,13 +30,13 @@ Replace the default sample products Wix Stores installs with on-brand products v
 >
 > <!-- REVIEW (appDefId discrepancy): `1380b703-…` is labeled the `wixMetadata.appDefId` here, but `stores/INSTRUCTIONS.md` (back-in-stock split + failure-mode table) calls the same id the back-in-stock app id. One of these labels is wrong — flagged for human review; value left unchanged. -->
 
-
 ### Step 0: Ensure Stores App Is Installed
 
 Before querying products, verify the Stores app is installed:
 
 1. **Probe** — `REST: POST https://www.wixapis.com/stores/v3/products/query`
 2. **If the API returns a "REQUIRED_APP_NOT_INSTALLED" error** → install the Wix Stores app:
+
    ```
    REST: POST https://www.wixapis.com/apps-installer-service/v1/app-instance/install
    body: {
@@ -42,9 +44,11 @@ Before querying products, verify the Stores app is installed:
      "appInstance": { "appDefId": "215238eb-22a5-4c36-9e7b-e7c08025e04e", "enabled": true }
    }
    ```
+
    > Translate this prose-HTTP form into the full `curl` tool-call shape — pass `body` as JSON in `-d` (NOT a stringified JSON). See `../shared/AUTHENTICATION.md` for the standard REST headers.
 
    Then retry the probe query to confirm installation succeeded.
+
 3. **If the probe succeeds** → proceed to Step 1.
 
 ---
@@ -83,14 +87,14 @@ No API call — use discovery context (business type, brand name, style, industr
 
 **Product design guidelines by business type:**
 
-| Business Type | Product 1 | Product 2 | Product 3 |
-|--------------|-----------|-----------|-----------|
-| Skincare / beauty | Signature serum or moisturizer | Cleansing product | Gift set or bundle |
-| Clothing / fashion | Signature top or dress | Accessory item | Seasonal piece |
-| Food / bakery | Signature item (cake, bread) | Sampler or variety pack | Gift box |
-| Home / decor | Statement piece | Functional item | Set or collection |
-| Fitness / wellness | Core product (mat, equipment) | Accessory | Starter kit |
-| General retail | Best-seller item | Complementary item | Value bundle |
+| Business Type      | Product 1                      | Product 2               | Product 3          |
+| ------------------ | ------------------------------ | ----------------------- | ------------------ |
+| Skincare / beauty  | Signature serum or moisturizer | Cleansing product       | Gift set or bundle |
+| Clothing / fashion | Signature top or dress         | Accessory item          | Seasonal piece     |
+| Food / bakery      | Signature item (cake, bread)   | Sampler or variety pack | Gift box           |
+| Home / decor       | Statement piece                | Functional item         | Set or collection  |
+| Fitness / wellness | Core product (mat, equipment)  | Accessory               | Starter kit        |
+| General retail     | Best-seller item               | Complementary item      | Value bundle       |
 
 Adapt names, descriptions, and pricing to match the brand's tone and style. Use the brand name in product descriptions where natural.
 
@@ -173,7 +177,7 @@ Omit `options` and `variantsInfo` entirely. Set the price at the product level. 
   "visible": true,
   "visibleInPos": true,
   "physicalProperties": {},
-  "priceData": { "price": 89.00 },
+  "priceData": { "price": 89.0 },
   "manageVariants": false,
   "inventoryItem": { "trackQuantity": true, "quantity": 30 }
 }

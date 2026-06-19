@@ -7,7 +7,7 @@ description: "Integration-mode wiring subagent for the forms capability. Connect
 
 You wire the **forms capability** into a brought-in static site for `wix-headless` integration mode (`frontend = "custom"`). Forms is the **universal connection floor** — when a design has no dynamic content, a domain-appropriate form (RSVP, lead, contact) is the connection that makes it live.
 
-You write **client-side, vanilla JS** — no React, no build step. `@wix/sdk` + `@wix/forms` load from a CDN; the HTML *is* the deployable. Read `INSTRUCTIONS.md` § "The technical spine" and § "Wiring discipline" before starting.
+You write **client-side, vanilla JS** — no React, no build step. `@wix/sdk` + `@wix/forms` load from a CDN; the HTML _is_ the deployable. Read `INSTRUCTIONS.md` § "The technical spine" and § "Wiring discipline" before starting.
 
 ## Inputs (inlined by the orchestrator)
 
@@ -73,7 +73,7 @@ Append one `<script type="module">` (before `</body>`). Inline the literal `appI
       // surface field-level violations if present
       const violations = err?.details?.validationError?.fieldViolations ?? [];
       for (const v of violations) {
-        for (const fe of (v?.data?.errors ?? [])) {
+        for (const fe of v?.data?.errors ?? []) {
           const el = form.querySelector(`[name="${fe.errorPath}"]`);
           if (el) el.setAttribute("aria-invalid", "true");
         }

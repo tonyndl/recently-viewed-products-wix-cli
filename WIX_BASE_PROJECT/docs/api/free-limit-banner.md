@@ -21,23 +21,23 @@ ManageItemsTab/
 ## `ui/styles/freeLimitBanner.ts`
 
 ```ts
-import type { CSSProperties } from 'react';
+import type { CSSProperties } from "react";
 
 export const styles = {
   banner: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '12px 16px',
-    background: '#FFF7E6',
-    border: '1px solid #FFD166',
-    borderRadius: '8px',
-    gap: '12px',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "12px 16px",
+    background: "#FFF7E6",
+    border: "1px solid #FFD166",
+    borderRadius: "8px",
+    gap: "12px",
   } as CSSProperties,
   textGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2px',
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px",
     flex: 1,
   } as CSSProperties,
   upgradeButton: {
@@ -53,10 +53,10 @@ export const styles = {
 Replace the copy with wording relevant to your app's free limit.
 
 ```tsx
-import type { FC } from 'react';
-import { Box, Button, Text } from '@wix/design-system';
-import { PremiumFilled } from '@wix/wix-ui-icons-common';
-import { styles } from './styles/freeLimitBanner';
+import type { FC } from "react";
+import { Box, Button, Text } from "@wix/design-system";
+import { PremiumFilled } from "@wix/wix-ui-icons-common";
+import { styles } from "./styles/freeLimitBanner";
 
 interface FreeLimitBannerProps {
   upgradeUrl: string | undefined;
@@ -77,7 +77,7 @@ export const FreeLimitBanner: FC<FreeLimitBannerProps> = ({ upgradeUrl }) => (
         skin="inverted"
         size="small"
         prefixIcon={<PremiumFilled />}
-        onClick={() => window.open(upgradeUrl, '_blank')}
+        onClick={() => window.open(upgradeUrl, "_blank")}
         style={styles.upgradeButton}
       >
         Upgrade Now
@@ -94,10 +94,12 @@ export const FreeLimitBanner: FC<FreeLimitBannerProps> = ({ upgradeUrl }) => (
 Show the banner when the user has hit the free limit:
 
 ```tsx
-import { FreeLimitBanner } from './ui/freeLimitBanner';
+import { FreeLimitBanner } from "./ui/freeLimitBanner";
 
 // In ManageItemsTab/index.tsx:
 const atFreeLimit = !isPremium && items.length >= FREE_LIMIT;
 
-{atFreeLimit && <FreeLimitBanner upgradeUrl={upgradeUrl} />}
+{
+  atFreeLimit && <FreeLimitBanner upgradeUrl={upgradeUrl} />;
+}
 ```

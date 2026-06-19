@@ -2,6 +2,7 @@
 name: "Install Wix Apps"
 description: Installs Wix apps on a site using Apps Installer API. Covers enabling Velo (Wix Code), app installation, and common app definition IDs.
 ---
+
 # Install Wix Apps on a Site
 
 This recipe guides you through installing Wix apps on a site using the Apps Installer REST API, including enabling Velo (Wix Code) when needed.
@@ -16,6 +17,7 @@ This recipe guides you through installing Wix apps on a site using the Apps Inst
 - **Apps Installer API**: [REST](https://dev.wix.com/docs/api-reference/business-management/app-installation/app-installation/install-app)
 
 ---
+
 ## Step 0: Find the App ID (skip if you already have it)
 
 If you already know the `appDefId` (e.g. from the table of Wix-built apps below), skip to Step 1.
@@ -25,6 +27,7 @@ For any third-party app, or any app you only know by name, resolve the ID first 
 **Endpoint**: `POST https://www.wixapis.com/devcenter/app-market-listing/v1/market-listings/search`
 
 **Request**:
+
 ```bash
 curl -X POST \
   'https://www.wixapis.com/devcenter/app-market-listing/v1/market-listings/search' \
@@ -34,6 +37,7 @@ curl -X POST \
 ```
 
 **Response** (truncated):
+
 ```json
 {
   "marketListings": [
@@ -48,9 +52,11 @@ curl -X POST \
 Use the returned `appId` as the `appDefId` in Step 2.
 
 ### IMPORTANT NOTES
+
 - The `appDefId` field in the install request and the `appId` field returned here are the same value
 - If multiple results come back, match on `basicInfo.name` to confirm you have the right app before installing
 - Only listings with `status: "PUBLISHED"` can be installed
+
 ## Step 1: Enable Velo (Wix Code) if Needed
 
 If you receive the error `WDE0110: Wix Code not enabled`, you must first enable Velo on the site.
@@ -58,6 +64,7 @@ If you receive the error `WDE0110: Wix Code not enabled`, you must first enable 
 **Endpoint**: `POST https://www.wixapis.com/mcp-serverless/v1/velo/provision`
 
 **Request**:
+
 ```bash
 curl -X POST \
   'https://www.wixapis.com/mcp-serverless/v1/velo/provision/' \
@@ -69,6 +76,7 @@ curl -X POST \
 **Response**: Empty body on success.
 
 ### IMPORTANT NOTES:
+
 - Only call this endpoint if you receive the `WDE0110` error
 - This is a one-time operation per site
 
@@ -81,6 +89,7 @@ Use the Apps Installer API to install any Wix app on a site.
 **Endpoint**: `POST https://www.wixapis.com/apps-installer-service/v1/app-instance/install`
 
 **Request Body**:
+
 ```json
 {
   "tenant": {
@@ -94,6 +103,7 @@ Use the Apps Installer API to install any Wix app on a site.
 ```
 
 **Request**:
+
 ```bash
 curl -X POST \
   'https://www.wixapis.com/apps-installer-service/v1/app-instance/install' \
@@ -124,6 +134,7 @@ Some common apps:
 | Wix Pricing Plans | `1522827f-c56c-a5c9-2ac9-00f9e6ae12d3` |
 
 ### IMPORTANT NOTES:
+
 - NEVER guess the `appDefId`. For Wix-built apps, use the table above. For any other app, resolve the ID using Step 0 (Search Market Listings).
 - The `tenantType` MUST be `SITE`
 - The `id` in tenant is the site's metaSiteId
@@ -133,9 +144,11 @@ Some common apps:
 ## Error Handling
 
 ### App Not Installed Error
+
 If you receive an error indicating a required app is not installed, use this recipe to install it before proceeding.
 
 ### WDE0110: Wix Code not enabled
+
 Call the Velo provision endpoint (Step 1) first, then retry the original operation.
 
 ---
@@ -143,6 +156,7 @@ Call the Velo provision endpoint (Step 1) first, then retry the original operati
 ## Next Steps
 
 After installing an app:
+
 - Configure the app's settings using its specific APIs
 - Set up any required app-specific data (products for Stores, services for Bookings, etc.)
 

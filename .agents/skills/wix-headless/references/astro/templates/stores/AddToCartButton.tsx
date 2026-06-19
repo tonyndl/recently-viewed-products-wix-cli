@@ -21,9 +21,16 @@ interface AddToCartButtonProps {
 }
 
 export default function AddToCartButton({
-  productId, productName, price, currency,
-  variantId, variantName, quantity = 1, disabled,
-  modifierChoices, customTextFields,
+  productId,
+  productName,
+  price,
+  currency,
+  variantId,
+  variantName,
+  quantity = 1,
+  disabled,
+  modifierChoices,
+  customTextFields,
 }: AddToCartButtonProps) {
   const [status, setStatus] = useState<"idle" | "added">("idle");
 
@@ -31,7 +38,9 @@ export default function AddToCartButton({
     // Optimistic: show success immediately, fire API in background
     setStatus("added");
     setTimeout(() => setStatus("idle"), 2000);
-    window.dispatchEvent(new CustomEvent("cart-updated", { detail: { delta: quantity } }));
+    window.dispatchEvent(
+      new CustomEvent("cart-updated", { detail: { delta: quantity } }),
+    );
 
     try {
       // Build catalogReference.options per Wix Stores Catalog V3 contract:
@@ -45,19 +54,31 @@ export default function AddToCartButton({
         catalogOptions.customTextFields = customTextFields;
       }
       const { cart } = await currentCart.addToCurrentCart({
-        lineItems: [{
-          catalogReference: {
-            appId: WIX_STORES_APP_ID,
-            catalogItemId: productId,
-            options: Object.keys(catalogOptions).length > 0 ? catalogOptions : undefined,
+        lineItems: [
+          {
+            catalogReference: {
+              appId: WIX_STORES_APP_ID,
+              catalogItemId: productId,
+              options:
+                Object.keys(catalogOptions).length > 0
+                  ? catalogOptions
+                  : undefined,
+            },
+            quantity,
           },
-          quantity,
-        }],
+        ],
       });
-      window.dispatchEvent(new CustomEvent("cart-updated", { detail: { cart } }));
+      window.dispatchEvent(
+        new CustomEvent("cart-updated", { detail: { cart } }),
+      );
       trackEvent("AddToCart", {
-        id: productId, name: productName, price, currency,
-        quantity, variant: variantName, origin: "Product Page",
+        id: productId,
+        name: productName,
+        price,
+        currency,
+        quantity,
+        variant: variantName,
+        origin: "Product Page",
       });
     } catch {
       setStatus("idle");
@@ -71,7 +92,11 @@ export default function AddToCartButton({
       disabled={disabled || status === "added"}
       className="add-to-cart-btn"
     >
-      {disabled ? "Select Options" : status === "added" ? "Added \u2713" : "Add to Cart"}
+      {disabled
+        ? "Select Options"
+        : status === "added"
+          ? "Added \u2713"
+          : "Add to Cart"}
     </button>
   );
 }

@@ -27,9 +27,9 @@ component's own content decides how tall it is.
 ### Where to write the override
 
 ```ts
-import { extensions } from '@wix/astro/builders';
-import { LAYOUT } from '@wix/react-component-schema';
-import { manifest } from './ComponentName.generated';
+import { extensions } from "@wix/astro/builders";
+import { LAYOUT } from "@wix/react-component-schema";
+import { manifest } from "./ComponentName.generated";
 
 const componentExtension = extensions.editorReactComponent({
   // …other fields…
@@ -82,13 +82,13 @@ identity.
 
 ### Heuristic — which axes are meaningful?
 
-| Choice | When to use |
-|--------|-------------|
+| Choice                  | When to use                                                                                                                                           |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `horizontalAndVertical` | Content fills or stretches in both axes. Hero, carousel, gallery, card grid, embed, form control, any framed visual. **Default for most components.** |
-| `horizontal` | Height is rigid/intrinsic — cannot meaningfully stretch. Breadcrumb, tag row, nav bar, single-line input, slider rail. |
-| `vertical` | Width is rigid/intrinsic. Vertical stack, ribbon, sidebar rail. |
-| `aspectRatio` | Distortion breaks identity — logo, illustration, animation. |
-| `none` | Size fully owned by a parent layout. Never for top-level components. |
+| `horizontal`            | Height is rigid/intrinsic — cannot meaningfully stretch. Breadcrumb, tag row, nav bar, single-line input, slider rail.                                |
+| `vertical`              | Width is rigid/intrinsic. Vertical stack, ribbon, sidebar rail.                                                                                       |
+| `aspectRatio`           | Distortion breaks identity — logo, illustration, animation.                                                                                           |
+| `none`                  | Size fully owned by a parent layout. Never for top-level components.                                                                                  |
 
 **Tiebreaker:** if a drag handle on an axis would feel inert or wrong
 to a designer, take it away.
@@ -96,9 +96,9 @@ to a designer, take it away.
 ### Where to write the override
 
 ```ts
-import { extensions } from '@wix/astro/builders';
-import { LAYOUT } from '@wix/react-component-schema';
-import { manifest } from './ComponentName.generated';
+import { extensions } from "@wix/astro/builders";
+import { LAYOUT } from "@wix/react-component-schema";
+import { manifest } from "./ComponentName.generated";
 
 const componentExtension = extensions.editorReactComponent({
   // …other fields…
@@ -159,7 +159,7 @@ const componentExtension = extensions.editorReactComponent({
   // …other fields…
   installation: {
     // …other fields…
-    staticContainer: 'HOMEPAGE',
+    staticContainer: "HOMEPAGE",
   },
 });
 ```

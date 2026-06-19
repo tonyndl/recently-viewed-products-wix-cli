@@ -3,6 +3,7 @@ name: "Troubleshoot: Discount Not Applying"
 description: Diagnostic tree for when a discount rule exists but isn't applying at checkout. Checks active status, time window, scope targeting, revision, and app installation.
 layer: troubleshoot
 ---
+
 # Troubleshoot: Discount Not Applying
 
 ## When to use
@@ -38,15 +39,18 @@ Examine the `activeTimeInfo` field on the discount rule.
 Examine the discount rule's scope configuration:
 
 ### CATALOG scope
+
 - Should apply to all products. If it's not applying, skip to Step 5 (app installation check).
 
 ### COLLECTION scope
+
 - Verify that `categoryIds` contain valid GUIDs, not collection names.
 - Common mistake: using the collection name string instead of its GUID.
 - Call `getCategoryIds` or query collections to validate that each ID resolves to an existing collection.
 - If any ID is invalid → **Resolution**: "The collection ID '{id}' does not match any existing collection. Use the collection GUID, not the display name."
 
 ### SPECIFIC_PRODUCTS scope
+
 - Verify that each `productId` in the rule exists in the store catalog.
 - Query products to confirm each ID resolves.
 - If any product was deleted → **Resolution**: "Product '{id}' no longer exists in the catalog. Remove it from the discount rule or replace it with a valid product ID."
@@ -85,11 +89,11 @@ Are other active discount rules conflicting with or overriding this one?
 
 ## Summary: Diagnostic checklist
 
-| Step | Check | Common resolution |
-|---|---|---|
-| 1 | `active` field | Set `active: true` |
-| 2 | Time window | Update or remove expired `activeTimeInfo` |
-| 3 | Scope targeting | Fix invalid collection/product GUIDs |
-| 4 | Revision mismatch | Retry the update with correct revision |
-| 5 | App installation | Install Wix Stores app |
-| 6 | Stacking interference | Review and resolve overlapping rules |
+| Step | Check                 | Common resolution                         |
+| ---- | --------------------- | ----------------------------------------- |
+| 1    | `active` field        | Set `active: true`                        |
+| 2    | Time window           | Update or remove expired `activeTimeInfo` |
+| 3    | Scope targeting       | Fix invalid collection/product GUIDs      |
+| 4    | Revision mismatch     | Retry the update with correct revision    |
+| 5    | App installation      | Install Wix Stores app                    |
+| 6    | Stacking interference | Review and resolve overlapping rules      |

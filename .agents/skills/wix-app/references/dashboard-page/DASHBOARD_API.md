@@ -7,18 +7,22 @@ Complete reference for the `@wix/dashboard` host module.
 Host Module '@wix/dashboard' 'navigate()' method for navigating between dashboard pages.
 
 **Method parameters:**
+
 - `destination`: Destination
 - `options?`: NavigationOptions
 
 **Destination object:**
+
 - `pageId` (string): ID of the page to navigate to
 - `relativeUrl` (string): Optional. URL segment appended to the base page URL. Can include path segments, query string, and fragment.
 
 **Navigation options:**
+
 - `displayMode` ("main" | "overlay" | "auto"): How to display the destination page. "auto" (default) loads in current context.
 - `history` ("push" | "replace"): Optional. Whether to push a new history entry or replace the current one.
 
 **Example:**
+
 ```typescript
 import { dashboard } from '@wix/dashboard';
 // Navigate to your own app's page with some internal state
@@ -50,19 +54,23 @@ dashboard.navigate(
 Common Wix dashboard page IDs useful for navigation. Use with `dashboard.navigate({ pageId })`.
 
 **Selection policy:**
+
 - When asked to navigate by page name, choose the closest match from the list below.
 - Prefer exact match; otherwise use common aliases/synonyms.
 - Do not default to "Home" unless the user asks for home or no reasonable match exists.
 - If multiple names share the same ID, treat them as aliases.
 
 **ID formats:**
+
 - Most IDs are GUIDs. Some are slugs (e.g., "wix-restaurants-orders-new", "restaurants_orders"). Use them as-is.
 
 **Aliases/synonyms (non-exhaustive):**
+
 - Products List: product list, products page, catalog, product catalog, inventory products
 - Automatic Discounts ↔ Coupons
 
 **Page IDs:**
+
 - Abandoned Carts: bb407b4d-6df5-4607-81df-6cd9ecf5d229
 - Activity: dfad075a-1ab3-458c-a77b-8fc9f509eaca
 - Accept Payments Page: abe22932-49cb-43e0-b22d-8e342482113e
@@ -153,28 +161,34 @@ Common Wix dashboard page IDs useful for navigation. Use with `dashboard.navigat
 Host Module '@wix/dashboard' 'observeState()' method to receive contextual state and environmental information for dashboard pages, widgets, and modals. The observer runs on initialization and whenever the state is updated.
 
 **Method parameters:**
+
 - `observer`: Observer — callback receiving (componentParams, environmentState)
 
 **Observer:**
+
 - `componentParams`: P | PageParams — Data sent to your component by its host. For dashboard pages rendered by the platform, this is PageParams
 - `environmentState`: EnvironmentState — Information about the user's environment
 
 **Page params:**
+
 - `location`: PageLocation — Information about the location of the rendered page
 
 **Environment state:**
+
 - `locale` (string): User's locale (ISO 639-1)
 - `pageLocation` (PageLocation): Deprecated. Information about the currently rendered page location
 
 **Page location:**
+
 - `pageId` (string): ID of the current page
 - `pathname` (string): Any parts of the current URL path appended to the page's base URL path
 - `search` (string, optional): Current URL query string
 - `hash` (string, optional): Current URL fragment identifier
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Receive state passed by your host
 dashboard.observeState((componentParams, environmentState) => {
@@ -183,7 +197,7 @@ dashboard.observeState((componentParams, environmentState) => {
 
 // Receive user's locale
 dashboard.observeState((_, { locale }) => {
-  console.log('locale:', locale);
+  console.log("locale:", locale);
 });
 
 // Handle internal page routes
@@ -207,9 +221,11 @@ dashboard.observeState((pageParams, environmentState) => {
 Host Module '@wix/dashboard' 'showToast()' displays a toast notification from a dashboard page or widget. Up to 3 toasts show at once; additional toasts may be queued.
 
 **Method parameters:**
+
 - `config`: ToastConfig — Toast configuration options
 
 **Toast config:**
+
 - `message` (string): Text to display
 - `type` ("standard" | "success" | "warning" | "error"): Icon and message type. Default: standard
 - `priority` ("low" | "normal" | "high"): Display priority. Default: normal
@@ -219,6 +235,7 @@ Host Module '@wix/dashboard' 'showToast()' displays a toast notification from a 
 - `action` (ToastAction, optional): call-to-action displayed in the toast
 
 **Toast action:**
+
 - `text` (string): Text that appears in the call-to-action.
 - `uiType` ("button" | "link"): The type of call-to-action
 - `onClick` (() => void): Callback function to run after the call-to-action is clicked.
@@ -229,8 +246,9 @@ An object with a method to remove the toast programmatically
 `{ remove: () => void }`
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Display a success toast when a product is updated
 dashboard.showToast({
@@ -271,14 +289,17 @@ remove();
 Host Module '@wix/dashboard' 'openModal()' opens a dashboard modal extension on your app's dashboard page.
 
 **Notes:**
+
 - Does not work when developing sites or building apps with Blocks.
 - Requires a dashboard modal extension to be implemented first.
 - Avoid using relative CSS height units (e.g., 'vh') in extensions opened by this method.
 
 **Method parameters:**
+
 - `modalInfo`: ModalInfo — Information about the dashboard modal to open
 
 **Modal info:**
+
 - `modalId` (string): ID of the dashboard modal extension to open
 - `params` (Record<string, any>, optional): Custom data to pass into the modal (accessible via observeState in the modal)
 
@@ -287,17 +308,18 @@ Promise that resolves when the modal is closed.
 `{ modalClosed: Promise<Serializable> }`
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Open a modal
 await dashboard.openModal({
-  modalId: 'your-modal-id',
+  modalId: "your-modal-id",
 });
 
 // Pass extra data when opening a modal
 await dashboard.openModal({
-  modalId: 'your-modal-id',
+  modalId: "your-modal-id",
   params: { firstName: "Name" },
 });
 
@@ -322,8 +344,9 @@ Host Module '@wix/dashboard' 'navigateBack()' navigates the user back to the pre
 No parameters.
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Navigate back to the previous page
 dashboard.navigateBack();
@@ -334,9 +357,11 @@ dashboard.navigateBack();
 Host Module '@wix/dashboard' 'getPageUrl()' returns the full URL for a dashboard page.
 
 **Method parameters:**
+
 - `destination`: Destination — URL destination details
 
 **Destination object:**
+
 - `pageId` (string): ID of the page to link to
 - `relativeUrl` (string, optional): URL segment appended to the base page URL. Can include path segments, query string, and fragment
 
@@ -345,8 +370,9 @@ The full URL (string) of the dashboard page with the provided relativeUrl append
 `Promise<string>`
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Get the URL of the dashboard's home page with a query string
 const pageUrl = await dashboard.getPageUrl({
@@ -360,9 +386,11 @@ const pageUrl = await dashboard.getPageUrl({
 Host Module '@wix/dashboard' 'openMediaManager()' opens the Wix Media Manager in a modal to let users pick media files. Developer Preview.
 
 **Method parameters:**
+
 - `options?`: Options — Optional Media Manager options
 
 **Options:**
+
 - `category` (string, optional): Media type to display. Supported: "IMAGE", "VIDEO", "MUSIC", "DOCUMENT", "VECTOR_ART", "3D_IMAGE". Default: all except "3D_IMAGE"
 - `multiSelect` (boolean, optional): Whether multiple files can be selected. Default: false
 
@@ -374,6 +402,7 @@ A promise that resolves to an object with a single key called items. The value o
 FileDescriptor is the full schema describing a Media Manager file, including IDs, timestamps, media-type, URLs, status, labels, and a media-specific payload.
 
 **Typical fields:**
+
 - `_id` (string): File GUID
 - `_createdDate` (Date): Creation time
 - `_updatedDate` (Date): Last update time
@@ -391,17 +420,18 @@ FileDescriptor is the full schema describing a Media Manager file, including IDs
 - `labels` (string[]): User/AI labels
 - `sourceUrl` (string): URL where the file was uploaded from.
 - `media` (object): One of the following variants with specific fields
-  - archive: { _id: string; filename: string; sizeInBytes: string; url: string; urlExpirationDate: Date }
-  - audio: { _id: string; assets: string[]; bitrate: number; duration: number; format: string; sizeInBytes: string }
+  - archive: { \_id: string; filename: string; sizeInBytes: string; url: string; urlExpirationDate: Date }
+  - audio: { \_id: string; assets: string[]; bitrate: number; duration: number; format: string; sizeInBytes: string }
   - document: string
   - image: { caption: string; colors: { palette: Array<{ hex: string; rgb: { r: number; g: number; b: number } }>; prominent: { hex: string; rgb: { r: number; g: number; b: number } }; }; faces: Array<{ confidence: number; height: number; width: number; x: number; y: number }>; image: string; previewImage: string; }
-  - model3d: { _id: string; altText: string; filename: string; sizeInBytes: string; thumbnail: string; url: string; urlExpirationDate: Date }
+  - model3d: { \_id: string; altText: string; filename: string; sizeInBytes: string; thumbnail: string; url: string; urlExpirationDate: Date }
   - vector: { caption: string; colors: { palette: Array<{ hex: string; rgb: { r: number; g: number; b: number } }>; prominent: { hex: string; rgb: { r: number; g: number; b: number } }; }; faces: Array<{ confidence: number; height: number; width: number; x: number; y: number }>; image: string; previewImage: string; }
   - video: string
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Open a media manager modal allowing multiple image selection
 const chosenMediaItems = await dashboard.openMediaManager({
@@ -418,9 +448,11 @@ Host Module '@wix/dashboard' 'onBeforeUnload()' registers a beforeunload handler
 `onBeforeUnload(callback: (event: { preventDefault: () => void }) => void): { remove: () => void }`
 
 **Method parameters:**
+
 - `callback`: (event: { preventDefault: () => void }) => void — Called when the beforeunload event fires
 
 **Notes:**
+
 - Do not assume the beforeunload event will always fire or that a confirmation dialog will always appear; behavior varies by browser.
 
 **Returns:**
@@ -428,8 +460,9 @@ An object with a remove() method to unregister the handler
 `{ remove: () => void }`
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Prompt for confirmation before unloading unsaved data
 const { remove } = dashboard.onBeforeUnload((event) => {
@@ -445,17 +478,21 @@ const { remove } = dashboard.onBeforeUnload((event) => {
 Host Module '@wix/dashboard' 'addSitePlugin()' adds a site plugin to one of the slots supported in an app created by Wix. You can target a specific slot or rely on prioritized slots configured in your app's dashboard.
 
 **Notes:**
+
 - Developer Preview. API is subject to change.
 - Requires a site plugin extension to be configured first.
 
 **Method parameters:**
+
 - `pluginId`: string — ID of your site plugin (from the extension's settings in your app's dashboard)
 - `options`: addSitePluginOptions — Options for adding the site plugin
 
 **Add site plugin options:**
+
 - `placement?`: PluginPlacement — Details of the slot to add the plugin to. If omitted, the plugin is added to the first available slot based on your installation settings. If all prioritized slots are occupied, it won't be added
 
 **Plugin placement:**
+
 - `appDefinitionId`: string — ID of the Wix app hosting the widget and slot (see list of apps created by Wix)
 - `widgetId`: string — ID of the host widget in which the slot exists
 - `slotId`: string — ID of the slot in the host widget
@@ -465,6 +502,7 @@ Resolves on success. See Errors for possible rejection reasons
 `Promise<void>`
 
 **Errors:**
+
 - 3001: Slot occupied
 - 3002: Slot not found
 - 3003: Error adding plugin
@@ -474,8 +512,9 @@ Resolves on success. See Errors for possible rejection reasons
 - 3007: Site not published yet
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Add a site plugin to a specific slot
 const pluginId = "975bffb7-3c04-42cc-9840-3d48c24e73d5";
@@ -512,17 +551,19 @@ dashboard
 Host Module '@wix/dashboard' 'setPageTitle()' sets the title of the current dashboard page in the browser tab. This can only be called from dashboard pages (not plugin extensions). Pass null to reset the title to the default dashboard page title.
 
 **Method parameters:**
+
 - `pageTitle`: string | null — Title to set (or null to reset)
 
 **Returns:**
 void
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Set a static page title
-dashboard.setPageTitle('Orders Overview');
+dashboard.setPageTitle("Orders Overview");
 
 // Reset to default dashboard page title
 dashboard.observeState((_, environmentState) => {
@@ -549,6 +590,7 @@ dashboard.observeState((_, environmentState) => {
 Host Module '@wix/dashboard' 'onLayerStateChange()' registers a handler fired when a page, modal, or plugin extension moves between foreground and background. Use it to refresh data when coming to foreground and pause resource-intensive work when backgrounded.
 
 **Method parameters:**
+
 - `callback`: (state: "foreground" | "background") => void — Called whenever the layer state changes
 
 **Returns:**
@@ -556,8 +598,9 @@ An object with remove() to unregister the handler
 `{ remove: () => void }`
 
 **Example:**
+
 ```typescript
-import { dashboard } from '@wix/dashboard';
+import { dashboard } from "@wix/dashboard";
 
 // Refresh/pause depending on visibility
 const { remove } = dashboard.onLayerStateChange((state) => {

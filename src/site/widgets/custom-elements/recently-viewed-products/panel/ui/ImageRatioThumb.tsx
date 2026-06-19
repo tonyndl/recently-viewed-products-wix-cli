@@ -1,5 +1,5 @@
-import type { FC, ReactNode } from 'react';
-import type { RatioKind } from '../../constants';
+import type { FC, ReactNode } from "react";
+import type { RatioKind } from "../../constants";
 
 // Tiny schematic of the image's shape for each ratio, drawn as the universal
 // photo glyph (sun + mountains) in a frame of that proportion. `original` uses a
@@ -12,10 +12,22 @@ interface Props {
 }
 
 // A mini photo glyph (rounded rect + sun + mountains) filling the given rect.
-const photo = (x: number, y: number, w: number, h: number, c: string, t: string): ReactNode => (
+const photo = (
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  c: string,
+  t: string,
+): ReactNode => (
   <>
     <rect x={x} y={y} width={w} height={h} rx={2.5} fill={c} />
-    <circle cx={x + w * 0.27} cy={y + h * 0.3} r={Math.min(w, h) * 0.13} fill={t} />
+    <circle
+      cx={x + w * 0.27}
+      cy={y + h * 0.3}
+      r={Math.min(w, h) * 0.13}
+      fill={t}
+    />
     <path
       d={`M${x + w * 0.08} ${y + h * 0.93} L${x + w * 0.4} ${y + h * 0.52} L${x + w * 0.58} ${y + h * 0.7} L${x + w * 0.78} ${y + h * 0.45} L${x + w * 0.92} ${y + h * 0.93} Z`}
       fill={t}
@@ -25,11 +37,11 @@ const photo = (x: number, y: number, w: number, h: number, c: string, t: string)
 
 const shapes = (kind: RatioKind, c: string, t: string): ReactNode => {
   switch (kind) {
-    case 'portrait':
+    case "portrait":
       return photo(14, 6, 20, 28, c, t); // tall (≈3:4)
-    case 'landscape':
+    case "landscape":
       return photo(8, 9, 32, 22, c, t); // wide (≈4:3)
-    case 'original':
+    case "original":
       return (
         <>
           <rect
@@ -46,14 +58,20 @@ const shapes = (kind: RatioKind, c: string, t: string): ReactNode => {
           {photo(14, 10, 20, 20, c, t)}
         </>
       );
-    case 'square':
+    case "square":
     default:
       return photo(11, 7, 26, 26, c, t); // 1:1
   }
 };
 
 export const ImageRatioThumb: FC<Props> = ({ kind, color, contrast }) => (
-  <svg viewBox="0 0 48 40" width="66%" height="auto" fill="none" aria-hidden="true">
+  <svg
+    viewBox="0 0 48 40"
+    width="66%"
+    height="auto"
+    fill="none"
+    aria-hidden="true"
+  >
     {shapes(kind, color, contrast)}
   </svg>
 );

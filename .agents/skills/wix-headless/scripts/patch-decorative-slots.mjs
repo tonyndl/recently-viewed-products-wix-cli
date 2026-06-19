@@ -29,7 +29,13 @@
 //       * Otherwise inject <img …> as the first child.
 //   - Output JSON summary of patches/skips/warnings to stdout.
 
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  readdirSync,
+  statSync,
+} from "node:fs";
 import { join } from "node:path";
 
 const projectDir = process.argv[2] ?? process.cwd();
@@ -41,18 +47,34 @@ if (!process.stdin.isTTY) {
     try {
       urlMap = JSON.parse(raw);
     } catch (e) {
-      console.error(JSON.stringify({ status: "error", reason: `stdin is not valid JSON (${e.message})` }));
+      console.error(
+        JSON.stringify({
+          status: "error",
+          reason: `stdin is not valid JSON (${e.message})`,
+        }),
+      );
       process.exit(2);
     }
     if (!urlMap || typeof urlMap !== "object" || Array.isArray(urlMap)) {
-      console.error(JSON.stringify({ status: "error", reason: "expected a JSON object mapping slot keys to URLs" }));
+      console.error(
+        JSON.stringify({
+          status: "error",
+          reason: "expected a JSON object mapping slot keys to URLs",
+        }),
+      );
       process.exit(2);
     }
   }
 }
 
 if (Object.keys(urlMap).length === 0) {
-  console.log(JSON.stringify({ status: "skipped", reason: "no slot→URL pairs on stdin (themed-blocks mode or Image Phase 1 produced none)" }));
+  console.log(
+    JSON.stringify({
+      status: "skipped",
+      reason:
+        "no slot→URL pairs on stdin (themed-blocks mode or Image Phase 1 produced none)",
+    }),
+  );
   process.exit(0);
 }
 
@@ -72,12 +94,22 @@ function findPagesDir() {
 
 const pagesResolved = findPagesDir();
 if (!pagesResolved.path) {
-  console.error(JSON.stringify({
-    status: "error",
-    reason: "src/pages not found at <projectDir>/src/pages or in any scaffold subdir; pass the scaffold dir explicitly",
-    projectDir,
-    pagesSearchedAt: pagesResolved.source === "ambiguous" ? pagesResolved.hits : [join(projectDir, "src/pages")],
-  }, null, 2));
+  console.error(
+    JSON.stringify(
+      {
+        status: "error",
+        reason:
+          "src/pages not found at <projectDir>/src/pages or in any scaffold subdir; pass the scaffold dir explicitly",
+        projectDir,
+        pagesSearchedAt:
+          pagesResolved.source === "ambiguous"
+            ? pagesResolved.hits
+            : [join(projectDir, "src/pages")],
+      },
+      null,
+      2,
+    ),
+  );
   process.exit(2);
 }
 
@@ -99,37 +131,54 @@ const patched = [];
 const skipped = [];
 const warnings = [];
 
-const SLOT_DIV_REGEX = /(<div[^>]*\bdata-decorative-slot="([^"]+)"[^>]*>)([\s\S]*?)(<\/div>)/g;
+const SLOT_DIV_REGEX =
+  /(<div[^>]*\bdata-decorative-slot="([^"]+)"[^>]*>)([\s\S]*?)(<\/div>)/g;
 
 for (const file of candidates) {
   const original = readFileSync(file, "utf8");
   let modified = original;
   let fileChanged = false;
 
-  modified = modified.replace(SLOT_DIV_REGEX, (match, openTag, slotKey, inner, closeTag) => {
-    const url = urlMap[slotKey];
-    if (!url) {
-      skipped.push({ file, slot: slotKey, reason: "no URL for this slot in input map" });
-      return match;
-    }
+  modified = modified.replace(
+    SLOT_DIV_REGEX,
+    (match, openTag, slotKey, inner, closeTag) => {
+      const url = urlMap[slotKey];
+      if (!url) {
+        skipped.push({
+          file,
+          slot: slotKey,
+          reason: "no URL for this slot in input map",
+        });
+        return match;
+      }
 
-    const stripped = inner.replace(/<!--[\s\S]*?-->/g, "").trim();
+      const stripped = inner.replace(/<!--[\s\S]*?-->/g, "").trim();
 
-    if (/<img\b/i.test(stripped)) {
-      skipped.push({ file, slot: slotKey, reason: "div already contains an <img> tag (idempotent skip)" });
-      return match;
-    }
+      if (/<img\b/i.test(stripped)) {
+        skipped.push({
+          file,
+          slot: slotKey,
+          reason: "div already contains an <img> tag (idempotent skip)",
+        });
+        return match;
+      }
 
-    if (stripped.length > 0) {
-      warnings.push({ file, slot: slotKey, reason: "div has existing non-image child content; not patching to avoid clobber" });
-      return match;
-    }
+      if (stripped.length > 0) {
+        warnings.push({
+          file,
+          slot: slotKey,
+          reason:
+            "div has existing non-image child content; not patching to avoid clobber",
+        });
+        return match;
+      }
 
-    fileChanged = true;
-    const img = `<img src="${url}" alt="" loading="lazy" decoding="async" class="decorative-slot-img" />`;
-    patched.push({ file, slot: slotKey });
-    return `${openTag}\n      ${img}${inner}${closeTag}`;
-  });
+      fileChanged = true;
+      const img = `<img src="${url}" alt="" loading="lazy" decoding="async" class="decorative-slot-img" />`;
+      patched.push({ file, slot: slotKey });
+      return `${openTag}\n      ${img}${inner}${closeTag}`;
+    },
+  );
 
   if (fileChanged) {
     writeFileSync(file, modified);

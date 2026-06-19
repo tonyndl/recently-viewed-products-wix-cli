@@ -100,17 +100,28 @@ Read the design tokens from `.wix/design-tokens.css` (on disk, gate-verified pre
     "scopedCssFile": "src/styles/components-stores.css",
     "scopedCssRules": 18,
     "scopedContractClassesDefined": [
-      "option-group", "option-label", "option-choices", "option-pill",
-      "quantity-selector", "quantity-btn", "quantity-value",
+      "option-group",
+      "option-label",
+      "option-choices",
+      "option-pill",
+      "quantity-selector",
+      "quantity-btn",
+      "quantity-value",
       "stock-status",
-      "product-card", "product-card-media", "product-card-ribbon", "product-card-index",
+      "product-card",
+      "product-card-media",
+      "product-card-ribbon",
+      "product-card-index",
       "product-grid",
-      "offer-callout", "offer-callout-item", "offer-callout-badge", "offer-callout-name", "offer-callout-detail", "offer-callout-foot"
+      "offer-callout",
+      "offer-callout-item",
+      "offer-callout-badge",
+      "offer-callout-name",
+      "offer-callout-detail",
+      "offer-callout-foot"
     ]
   },
-  "files": [
-    "src/styles/components-stores.css"
-  ],
+  "files": ["src/styles/components-stores.css"],
   "errors": []
 }
 ```
@@ -119,11 +130,11 @@ If a leak was found and overridden, include `errors: [{code: "GLOBAL_CSS_LEAK", 
 
 ## Anti-patterns
 
-| WRONG | CORRECT |
-|-------|---------|
-| Read `INSTRUCTIONS.md`, `SHARED_WIRING.md`, or any `.tsx` template | Not needed — this scope only writes CSS |
-| Edit `src/styles/global.css` to fix a leak | Override in `components-stores.css`; report the leak in `errors` |
-| Use default Tailwind colors (`bg-green-50`, `text-red-600`) | Brand `@theme` utilities (`bg-bark`, `text-cream`) or `var(--color-...)` |
-| Write rules for `.add-to-cart-btn` here | That's a global contract class — owned by the designer's `global.css` |
-| Rename a class because the brand is "more elegant" with kebab-cased variants | Class names are contract keys; renaming breaks every TSX import that references them |
-| Skip the leak audit | Skipping ships double-defined rules; the audit is < 5 s and prevents downstream visual regressions |
+| WRONG                                                                        | CORRECT                                                                                            |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Read `INSTRUCTIONS.md`, `SHARED_WIRING.md`, or any `.tsx` template           | Not needed — this scope only writes CSS                                                            |
+| Edit `src/styles/global.css` to fix a leak                                   | Override in `components-stores.css`; report the leak in `errors`                                   |
+| Use default Tailwind colors (`bg-green-50`, `text-red-600`)                  | Brand `@theme` utilities (`bg-bark`, `text-cream`) or `var(--color-...)`                           |
+| Write rules for `.add-to-cart-btn` here                                      | That's a global contract class — owned by the designer's `global.css`                              |
+| Rename a class because the brand is "more elegant" with kebab-cased variants | Class names are contract keys; renaming breaks every TSX import that references them               |
+| Skip the leak audit                                                          | Skipping ships double-defined rules; the audit is < 5 s and prevents downstream visual regressions |

@@ -39,6 +39,7 @@ The util covers the common subset (PARAGRAPH, HEADING 1-6, BULLETED_LIST / ORDER
 > **Do NOT `set:html={item.body}` directly.** That ships JSON-encoded text into the page (e.g. `[object Object]` or `{"nodes":...}`). Always go through `renderRicos`.
 
 > **Critical Rules — Read Before Starting**
+>
 > 1. **Collection IDs have NO namespace** — user collections use just the name (e.g., `"Projects"`). Only Wix App collections use `<namespace>/<name>`. Verify via `curl`: `GET /wix-data/v2/collections?fields=id`.
 > 2. **SDK query pattern** — `items.query("CollectionId").find()`. There is no `items.queryDataItems()` in the SDK.
 > 3. **`auth.elevate` on every query** — without it, restricted collections silently return no items.
@@ -110,7 +111,11 @@ export interface CollectionItem {
 }
 
 // -- Image resolution helper --
-function resolveImage(wixImageUrl: string | undefined, width = 800, height = 600): string | undefined {
+function resolveImage(
+  wixImageUrl: string | undefined,
+  width = 800,
+  height = 600,
+): string | undefined {
   if (!wixImageUrl) return undefined;
   return media.getScaledToFillImageUrl(wixImageUrl, width, height, {});
 }
@@ -138,7 +143,9 @@ export async function queryItems(): Promise<CollectionItem[]> {
 }
 
 // -- Get single item by slug --
-export async function getItemBySlug(slug: string): Promise<CollectionItem | null> {
+export async function getItemBySlug(
+  slug: string,
+): Promise<CollectionItem | null> {
   try {
     const elevatedQuery = auth.elevate(items.query);
     const { items: results } = await elevatedQuery(COLLECTION_ID)
@@ -161,6 +168,7 @@ export async function getItemBySlug(slug: string): Promise<CollectionItem | null
 ```
 
 Key details:
+
 - `auth.elevate(items.query)` wraps the query for restricted collections — always use this by default since collection permissions vary
 - `media.getScaledToFillImageUrl(url, w, h, {})` resolves `wix:image://` URLs to sized CDN URLs
 - Sort by `orderIndex` (ascending) for manually ordered content, or `_createdDate` (descending) for chronological
@@ -171,7 +179,11 @@ Key details:
 For collections with image arrays (e.g., gallery images):
 
 ```typescript
-function resolveImages(imageUrls: string[] | undefined, width = 800, height = 600): string[] {
+function resolveImages(
+  imageUrls: string[] | undefined,
+  width = 800,
+  height = 600,
+): string[] {
   if (!imageUrls || imageUrls.length === 0) return [];
   return imageUrls
     .map((url) => media.getScaledToFillImageUrl(url, width, height, {}))

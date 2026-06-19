@@ -13,10 +13,10 @@ Generates site images in two scopes. Uses Wix AI (Runware) for generation and Wi
 
 Your prompt includes `Scope: <name>`. Map it to an image phase:
 
-| Scope | Depends on | Output |
-|---|---|---|
-| `image-phase-1-decorative` | Brand context only | Decorative images for hero / about / backgrounds; slot→URL map returned in `data.slots` |
-| `image-phase-2-entity` | Phase 1 Seed return data (entity IDs in prompt) | Entity images attached to products / blog posts / CMS items via REST PATCH |
+| Scope                      | Depends on                                      | Output                                                                                  |
+| -------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `image-phase-1-decorative` | Brand context only                              | Decorative images for hero / about / backgrounds; slot→URL map returned in `data.slots` |
+| `image-phase-2-entity`     | Phase 1 Seed return data (entity IDs in prompt) | Entity images attached to products / blog posts / CMS items via REST PATCH              |
 
 If your prompt is missing a `Scope:` line, stop and ask the parent — do not guess.
 
@@ -28,7 +28,7 @@ If your prompt is missing a `Scope:` line, stop and ask the parent — do not gu
    1. **FIRST re-read your own recipe** in this file (INSTRUCTIONS.md § for that entity type) — it likely covers the error.
    2. If the recipe covers it, follow the recipe. Do NOT look up external docs for errors your recipe already handles.
    3. **ONLY** if you've re-read the recipe AND the error is genuinely not covered, fall back to `docs-search REST (see DOCS_SEARCH.md)` / `raw-docs REST (see DOCS_SEARCH.md)`.
-   
+
    Known errors already covered by this recipe (do not look up externally):
    - **428** from product PATCH → missing `options`/`variantsInfo` → see § "Products" step 1
    - **400** `"Expected an object"` from product PATCH → missing `revision` → see § "Products" step 4
@@ -89,6 +89,7 @@ That gives you exactly 3 concurrent batches for the whole image phase: 1 generat
 Concurrent siblings are safe across all three stages (gen, import, PATCH). Wix Media imports do not rate-limit at typical scales (≤10/run); product PATCHes against distinct entity IDs do not produce revision conflicts because each entity has independent revision tracking. The 3-message recipe (one batch per stage) typically completes in ~190 s end-to-end vs ~480 s for the same 4 entities done sequentially — ~2.5× speedup.
 
 **Self-check before the generate dispatch:**
+
 - [ ] You have planned all N tasks with UUIDv4 `taskUUID` values
 - [ ] All generate tool calls will be in one concurrent batch (siblings for `google:4@2`, or one block with N tasks for other models)
 - [ ] You wrote out the full plan in your text before making any tool call
@@ -104,6 +105,7 @@ Generate site-wide decorative images that don't depend on any entity. Used by th
 **What to generate** is determined by the `decorativeSlots` list in your prompt — generate exactly those keys, no more, no less. Typical canonical keys: `hero`, `about`, `productsHeader`, `cmsHeader`. Do not invent additional keys (`background`, `aboutFeature`, etc.) — orphan keys ship as unused images and unfilled slots show as empty placeholders. The orchestrator composes this list from the loaded verticals + the designer's slot vocabulary (`references/astro/designer/INSTRUCTIONS.md` § common rule #7); the two must agree.
 
 **Inputs (from your prompt):**
+
 - Brand name, business type, aesthetic direction
 - Color palette (hex codes)
 - `decorativeSlots: string[]` — the exact slot keys to generate (REQUIRED). If absent, return `status: "failed"` with `reason: "decorativeSlots not provided in prompt"` rather than guessing.
@@ -126,6 +128,7 @@ Generate images for products, blog posts, and CMS items. Attach via REST PATCH c
 > **Parent must NOT paste a PATCH/Update body template.** This INSTRUCTIONS.md owns the recipe per entity type (Products, Blog Posts, CMS Items) — including the exact write-shape (`media.itemsInfo.items[].url` + echoed `options`/`variantsInfo` + `revision`, no `fieldMask`) and the failure-mode mappings. An inline template in the parent prompt causes drift; the wrong shape (e.g. `media.main.image` + `fieldMask`) returns `400 "Expected an object"` on every product. Parents should pass `Phase 1 Seed return data` and `Brand context` only.
 
 **Phase 1 Seed entity IDs are in your prompt, not on disk.** Your parent passes a `Phase 1 Seed return data:` block containing:
+
 - `products: [{id, name, slug, variantId, ...}, ...]` — if stores pack loaded
 - `collections: [{name, itemIds, fields}, ...]` — if cms pack loaded
 - `blogPosts: [{id, title, ...}, ...]` — if blog pack loaded
@@ -140,6 +143,7 @@ Generate images for products, blog posts, and CMS items. Attach via REST PATCH c
    **`google:4@2` 504 retry** (manual fallback; the script does this for you). Even with N concurrent siblings, individual tasks intermittently 504. When the response array contains an entry with `errorMessage: "Request timed out"` or HTTP 504, retry **only the failing task(s)** in a follow-up batch — do NOT re-dispatch the whole batch. Cap at 1 retry per task; if it 504s twice, fall back to `bfl:5@1` for that task or skip it (entity gets no image; user can upload from dashboard).
 
    **N≥6 entities — stagger.** When you have 6 or more entities of one type, split into pairs of 3 parallel siblings rather than 6+ in one shot. Runware throttles google:4@2 above ~4 concurrent tasks per request burst, and the timeout ladder gets steeper. Two messages with 3 siblings each is reliably faster than one message with 6 + multiple retries.
+
 3. **Import each to Wix Media**. Imports can parallelize.
 4. **PATCH each entity** with its image URL / file ID. PATCH calls can also parallelize (sibling `curl` tool calls in one message).
 
@@ -152,9 +156,11 @@ Generate images for products, blog posts, and CMS items. Attach via REST PATCH c
    > **Critical:** `POST /stores/v3/products/query` does **NOT** return `variantsInfo` — even when you pass `fields: [VARIANT_OPTION_CHOICE_NAMES, MERCHANT_DATA, MEDIA_ITEMS_INFO]`. It returns `options` only. Using the bulk-query endpoint produces 428 on every product with variants. Use per-product GETs.
 
    > **Use per-product GET instead of bulk query:**
+   >
    > ```
    > REST: GET https://www.wixapis.com/stores/v3/products/{productId}
    > ```
+   >
    > GET returns both `options` and `variantsInfo` in one shot. Parallelize the N GETs as sibling `curl` tool calls in one concurrent batch so they fan out without adding to the critical path.
 
    > If you skip this and get a 428, re-read this section — do not look up external docs.
@@ -164,6 +170,7 @@ Generate images for products, blog posts, and CMS items. Attach via REST PATCH c
 3. Import each to Wix Media — parallelize with sibling calls.
 
 4. PATCH each product with its image + preserved options/variantsInfo + product `revision`:
+
    ```
    REST: PATCH https://www.wixapis.com/stores/v3/products/{productId}
    body: {
@@ -181,6 +188,7 @@ Generate images for products, blog posts, and CMS items. Attach via REST PATCH c
      }
    }
    ```
+
    **`revision` is mandatory** — omitting it returns `400 "Expected an object"` with no useful hint. Read it from each product's GET response in step 1 and echo it back on the PATCH. Do NOT use `media.main.image` — `media.itemsInfo.items[].url` is the write-shape; `media.main.image` is the read-shape on product responses (they are asymmetric).
 
    **DO NOT add `fieldMask` to this PATCH.** The endpoint runs cross-field validation (options ↔ variants) BEFORE applying the field mask, so even though `fieldMask: { paths: ["media"] }` should "only update media", the validator sees variants without options and returns 428 `MISSING_VARIANT_OPTION`. Send the full product body shown above (id, revision, media, options, variantsInfo) and let the server merge — no fieldMask.
@@ -204,6 +212,7 @@ Generate images for products, blog posts, and CMS items. Attach via REST PATCH c
 3. Import to Wix Media — save the **`file.fileUrl`** (file ID), not the full URL.
 
 4. PATCH each draft post's cover image:
+
    ```
    REST: PATCH https://www.wixapis.com/blog/v3/draft-posts/{draftPostId}
    body: {
@@ -214,6 +223,7 @@ Generate images for products, blog posts, and CMS items. Attach via REST PATCH c
    ```
 
 5. **Re-publish** each updated post (PATCHing a published post makes it unpublished):
+
    ```
    REST: POST https://www.wixapis.com/blog/v3/draft-posts/{draftPostId}/publish
    ```
@@ -227,6 +237,7 @@ Key constraint: `wix-data/v2/items` updates are **full-record replaces** (via PU
 The `PATCH /wix-data/v2/items/{itemId}` endpoint exists but requires a JsonPatch-shaped `fieldModifications` array, not a plain `{dataItem: {data}}` body. Do NOT use PATCH for this scope — it has rejected the documented shape in production and led agents to fall back to a destructive PUT. Use read-merge-PUT instead.
 
 1. Your prompt lists `collections[].itemIds` for each collection with an image field. **Fetch the existing item data** once per collection via `POST /wix-data/v2/items/query` — you cannot skip this step because you need every existing field to merge-preserve.
+
    ```
    REST: POST https://www.wixapis.com/wix-data/v2/items/query
    body: {
@@ -234,6 +245,7 @@ The `PATCH /wix-data/v2/items/{itemId}` endpoint exists but requires a JsonPatch
      "query": { "filter": { "_id": { "$in": ["<itemId1>", "<itemId2>", ...] } } }
    }
    ```
+
    Retain the full `data` object from each result — you'll merge into it.
 
 2. Generate images — ONE batched generation call with N tasks across all applicable items.
@@ -254,11 +266,13 @@ The `PATCH /wix-data/v2/items/{itemId}` endpoint exists but requires a JsonPatch
    `...existingData` MUST include every non-system field you read in step 1 (`heading`, `body`, etc.). System fields (`_id`, `_owner`, `_createdDate`, `_updatedDate`) don't need to be echoed back — Wix repopulates them.
 
 **Failure mode — do NOT ship with this pattern:**
+
 ```
 // WRONG — wipes heading + body
 PUT /wix-data/v2/items/{itemId}
 body: { "dataCollectionId": "<c>", "dataItem": { "id": "...", "data": { "image": "..." } } }
 ```
+
 Without the read-merge step, an `about-content` item loses its seeded `heading` and `body` when Image Phase 2 attaches the image — the About page then renders only its fallback copy.
 
 PUT calls parallelize — dispatch all items across all collections as sibling `curl` tool calls in one concurrent batch.
@@ -317,41 +331,41 @@ The JSON block MUST be the **last** content in your message (see `../shared/RETU
 
 ## Error Handling
 
-| Error | Action |
-|---|---|
-| `unsupportedParameter` (400) | Strip `steps`/`CFGScale` (or whichever field the response names) and retry once |
-| `unsupportedDimensions` (400) | Retry with `1024×1024` / `1376×768` / `1200×896`, or a value from the error payload's supported list |
-| 428 from product PATCH | Missing `options`/`variantsInfo` — re-read § "Products" step 1; query the product for existing `options` + `variantsInfo`; retry PATCH with those fields included. This recipe covers it — do not look up external docs. |
-| 400 `"Expected an object"` from product PATCH | Missing `revision` in the `product` body — re-read § "Products" step 4; the PATCH body needs `"revision": "<product.revision from step 1 GET>"`. |
-| 400 `invalidTaskUUID` from Runware | `taskUUID` must be valid UUIDv4. Regenerate with `uuidgen` / `crypto.randomUUID()` and retry. |
-| Model unavailable / rate limited | Switch to an alternative model (`bfl:5@1`, `runware:400@1`) and retry once; skip if still failing |
-| Credit exhaustion | Stop generating, return `status: "partial"` with `data.decorativeCount` / `data.entityCount` listing what was completed, and `errors: [{code: "CREDITS_EXHAUSTED", message: "..."}]` |
-| Generation fails (5xx, timeout) | Skip this image, continue with others |
-| Wix Media import fails | Skip this image, continue |
-| Entity PATCH fails | Log the failure in `errors`, continue with other entities |
-| Phase 1 Seed data missing from prompt (Image Phase 2 only) | Return `status: "failed"` immediately; do not poll or re-query |
+| Error                                                      | Action                                                                                                                                                                                                                   |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `unsupportedParameter` (400)                               | Strip `steps`/`CFGScale` (or whichever field the response names) and retry once                                                                                                                                          |
+| `unsupportedDimensions` (400)                              | Retry with `1024×1024` / `1376×768` / `1200×896`, or a value from the error payload's supported list                                                                                                                     |
+| 428 from product PATCH                                     | Missing `options`/`variantsInfo` — re-read § "Products" step 1; query the product for existing `options` + `variantsInfo`; retry PATCH with those fields included. This recipe covers it — do not look up external docs. |
+| 400 `"Expected an object"` from product PATCH              | Missing `revision` in the `product` body — re-read § "Products" step 4; the PATCH body needs `"revision": "<product.revision from step 1 GET>"`.                                                                         |
+| 400 `invalidTaskUUID` from Runware                         | `taskUUID` must be valid UUIDv4. Regenerate with `uuidgen` / `crypto.randomUUID()` and retry.                                                                                                                            |
+| Model unavailable / rate limited                           | Switch to an alternative model (`bfl:5@1`, `runware:400@1`) and retry once; skip if still failing                                                                                                                        |
+| Credit exhaustion                                          | Stop generating, return `status: "partial"` with `data.decorativeCount` / `data.entityCount` listing what was completed, and `errors: [{code: "CREDITS_EXHAUSTED", message: "..."}]`                                     |
+| Generation fails (5xx, timeout)                            | Skip this image, continue with others                                                                                                                                                                                    |
+| Wix Media import fails                                     | Skip this image, continue                                                                                                                                                                                                |
+| Entity PATCH fails                                         | Log the failure in `errors`, continue with other entities                                                                                                                                                                |
+| Phase 1 Seed data missing from prompt (Image Phase 2 only) | Return `status: "failed"` immediately; do not poll or re-query                                                                                                                                                           |
 
 **Never block other agents on image failures.** Products, posts, and pages work without images.
 
 ## Anti-Patterns
 
-| WRONG | CORRECT |
-|-------|---------|
-| N sequential 1-task `curl` generation calls across multiple turns | Run `generate-images.mjs` (it parallelizes in-process); or, hand-driving, all generation tool calls in one concurrent batch — parallel siblings for `google:4@2`, or one batched call for other models. See IMAGE_GENERATION.md § "Required (manual fallback): minimize round-trips" |
-| Poll `.wix/logs/<feature>-data.md` sidecars to learn Phase 1 Seed is done | Phase 1 Seed data is inline in your prompt — if missing, return `failed` |
-| `sleep 60` loop to wait for Phase 1 Seed | No waiting, no polling — prompt has the data or the agent fails |
-| Write `.wix/logs/images.md` or `.wix/image-urls.md` sidecar | Return structured JSON per `RETURN_CONTRACT.md` instead (decorative URLs go in `data.slots`) |
-| Re-query Phase 1 Seed entity IDs via the REST API | IDs are in your prompt; re-querying wastes a round-trip |
-| Generic prompts ("a product photo") | Use brand context, product name, aesthetic direction |
-| Ignore color palette from prompt | Reference actual hex codes in image prompts |
-| Request text in images | Always include "no text, no watermarks" |
-| Send `steps` or `CFGScale` with `google:4@2` | Omit both — `google:4@2` rejects them with `unsupportedParameter` |
-| Use free-form sizes (e.g., `800×600`) | Use allowed dimensions only — `1024×1024`, `1376×768`, `1200×896` |
-| Use blog post `file.url` for cover image | Blog posts need `file.fileUrl` (file ID) for `media.wixMedia.image.id` |
-| Block on image failures | Skip failed images, continue with others |
-| Write any coordination file (`.wix/image-urls.md`, sidecars) | Return slot→URL map in `data.slots`; the orchestrator pipes it to `patch-decorative-slots.mjs` via stdin |
-| PATCH products without `options`/`variantsInfo` | Always query products first for these fields — PATCH returns 428 without them (see § "Products" step 1) |
-| PUT a CMS item with only `{data: {image: "..."}}` | Read-merge-write: query the item, merge image into existing `data`, PUT the full record (see § "CMS Items" step 4). Writing only `image` erases seeded heading/body/etc. |
-| Use `PATCH /wix-data/v2/items/{itemId}` with `{dataItem: {data}}` | PATCH requires JsonPatch `fieldModifications` — use read-merge-PUT instead (see § "CMS Items") |
-| Hit a 428 → immediately search external docs | Re-read § "Products" step 1 first — it covers 428. Only use external docs if your recipe genuinely doesn't cover the error (see § "Self-Loading" step 3) |
-| Default to `raw-docs REST (see DOCS_SEARCH.md)` for API errors already covered by your recipe | Re-read your own recipe first; fall back to the doc-lookup endpoints in `DOCS_SEARCH.md` only for errors genuinely not covered (see § "Self-Loading" step 3) |
+| WRONG                                                                                         | CORRECT                                                                                                                                                                                                                                                                              |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| N sequential 1-task `curl` generation calls across multiple turns                             | Run `generate-images.mjs` (it parallelizes in-process); or, hand-driving, all generation tool calls in one concurrent batch — parallel siblings for `google:4@2`, or one batched call for other models. See IMAGE_GENERATION.md § "Required (manual fallback): minimize round-trips" |
+| Poll `.wix/logs/<feature>-data.md` sidecars to learn Phase 1 Seed is done                     | Phase 1 Seed data is inline in your prompt — if missing, return `failed`                                                                                                                                                                                                             |
+| `sleep 60` loop to wait for Phase 1 Seed                                                      | No waiting, no polling — prompt has the data or the agent fails                                                                                                                                                                                                                      |
+| Write `.wix/logs/images.md` or `.wix/image-urls.md` sidecar                                   | Return structured JSON per `RETURN_CONTRACT.md` instead (decorative URLs go in `data.slots`)                                                                                                                                                                                         |
+| Re-query Phase 1 Seed entity IDs via the REST API                                             | IDs are in your prompt; re-querying wastes a round-trip                                                                                                                                                                                                                              |
+| Generic prompts ("a product photo")                                                           | Use brand context, product name, aesthetic direction                                                                                                                                                                                                                                 |
+| Ignore color palette from prompt                                                              | Reference actual hex codes in image prompts                                                                                                                                                                                                                                          |
+| Request text in images                                                                        | Always include "no text, no watermarks"                                                                                                                                                                                                                                              |
+| Send `steps` or `CFGScale` with `google:4@2`                                                  | Omit both — `google:4@2` rejects them with `unsupportedParameter`                                                                                                                                                                                                                    |
+| Use free-form sizes (e.g., `800×600`)                                                         | Use allowed dimensions only — `1024×1024`, `1376×768`, `1200×896`                                                                                                                                                                                                                    |
+| Use blog post `file.url` for cover image                                                      | Blog posts need `file.fileUrl` (file ID) for `media.wixMedia.image.id`                                                                                                                                                                                                               |
+| Block on image failures                                                                       | Skip failed images, continue with others                                                                                                                                                                                                                                             |
+| Write any coordination file (`.wix/image-urls.md`, sidecars)                                  | Return slot→URL map in `data.slots`; the orchestrator pipes it to `patch-decorative-slots.mjs` via stdin                                                                                                                                                                             |
+| PATCH products without `options`/`variantsInfo`                                               | Always query products first for these fields — PATCH returns 428 without them (see § "Products" step 1)                                                                                                                                                                              |
+| PUT a CMS item with only `{data: {image: "..."}}`                                             | Read-merge-write: query the item, merge image into existing `data`, PUT the full record (see § "CMS Items" step 4). Writing only `image` erases seeded heading/body/etc.                                                                                                             |
+| Use `PATCH /wix-data/v2/items/{itemId}` with `{dataItem: {data}}`                             | PATCH requires JsonPatch `fieldModifications` — use read-merge-PUT instead (see § "CMS Items")                                                                                                                                                                                       |
+| Hit a 428 → immediately search external docs                                                  | Re-read § "Products" step 1 first — it covers 428. Only use external docs if your recipe genuinely doesn't cover the error (see § "Self-Loading" step 3)                                                                                                                             |
+| Default to `raw-docs REST (see DOCS_SEARCH.md)` for API errors already covered by your recipe | Re-read your own recipe first; fall back to the doc-lookup endpoints in `DOCS_SEARCH.md` only for errors genuinely not covered (see § "Self-Loading" step 3)                                                                                                                         |

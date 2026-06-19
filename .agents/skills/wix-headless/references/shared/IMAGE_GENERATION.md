@@ -31,26 +31,26 @@ Extract `data[0].imageURL` from the response. This is a short-lived URL — **im
 
 ### Required Fields
 
-| Field | Value | Notes |
-|-------|-------|-------|
-| `taskType` | `"imageInference"` | Always this value |
-| `taskUUID` | valid **UUIDv4** | Runware validates the v4 format strictly — human-readable slugs like `product-maestro-001` return `400 invalidTaskUUID`. Generate via `uuidgen` (macOS/Linux) or `crypto.randomUUID()`. Example: `550e8400-e29b-41d4-a716-446655440000`. One unique UUID per task; reusing in the same request errors. |
-| `outputType` | `"URL"` | Return a URL (not base64) |
-| `outputFormat` | `"PNG"` or `"JPG"` | PNG for transparency-friendly art, JPG for photography |
-| `positivePrompt` | brand-contextual prompt | See "Prompt Guidelines" below |
-| `height`, `width` | one of the allowed pairs below | Free-form sizes return 400 |
-| `model` | `"google:4@2"` (default) | Nano Banana Pro 2. Alternatives: `bfl:5@1`, `runware:400@1` — only switch if the default fails repeatedly |
-| `numberResults` | `1` | Increase if you need multiple variants per prompt |
+| Field             | Value                          | Notes                                                                                                                                                                                                                                                                                                  |
+| ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `taskType`        | `"imageInference"`             | Always this value                                                                                                                                                                                                                                                                                      |
+| `taskUUID`        | valid **UUIDv4**               | Runware validates the v4 format strictly — human-readable slugs like `product-maestro-001` return `400 invalidTaskUUID`. Generate via `uuidgen` (macOS/Linux) or `crypto.randomUUID()`. Example: `550e8400-e29b-41d4-a716-446655440000`. One unique UUID per task; reusing in the same request errors. |
+| `outputType`      | `"URL"`                        | Return a URL (not base64)                                                                                                                                                                                                                                                                              |
+| `outputFormat`    | `"PNG"` or `"JPG"`             | PNG for transparency-friendly art, JPG for photography                                                                                                                                                                                                                                                 |
+| `positivePrompt`  | brand-contextual prompt        | See "Prompt Guidelines" below                                                                                                                                                                                                                                                                          |
+| `height`, `width` | one of the allowed pairs below | Free-form sizes return 400                                                                                                                                                                                                                                                                             |
+| `model`           | `"google:4@2"` (default)       | Nano Banana Pro 2. Alternatives: `bfl:5@1`, `runware:400@1` — only switch if the default fails repeatedly                                                                                                                                                                                              |
+| `numberResults`   | `1`                            | Increase if you need multiple variants per prompt                                                                                                                                                                                                                                                      |
 
 ### Allowed Dimensions (safe defaults)
 
 Runware enforces a fixed set per model. Start with these:
 
-| Aspect | Size | Use for |
-|--------|------|---------|
+| Aspect | Size          | Use for                                                  |
+| ------ | ------------- | -------------------------------------------------------- |
 | Square | `1024 × 1024` | Product photos, decorative squares, Instagram-style hero |
-| 16:9 | `1376 × 768` | Page heroes, wide banners |
-| 4:3 | `1200 × 896` | About-page visuals, editorial imagery |
+| 16:9   | `1376 × 768`  | Page heroes, wide banners                                |
+| 4:3    | `1200 × 896`  | About-page visuals, editorial imagery                    |
 
 If a 400 response lists supported dimensions, use one from that list — do not retry with the same invalid size.
 
@@ -91,6 +91,7 @@ body: [
   { "taskType": "imageInference", "taskUUID": "<uuid-3>", "positivePrompt": "...", ... }
 ]
 ```
+
 One round-trip. Response's `data[]` array contains one result per task, matched by `taskUUID`.
 
 ### For `google:4@2` (the default): N parallel 1-task sibling calls
@@ -104,7 +105,7 @@ Assistant message (single turn, multiple tool calls):
   REST: POST https://www.wixapis.com/runwareschemaless/v1/request
 ```
 
-All three fire in parallel (runtime dispatches concurrent siblings concurrently). No 504, no sequential wait. The important constraint is *one concurrent batch* — splitting them across turns loses the parallelism: sequential 1-task calls across multiple turns each add inter-message overhead.
+All three fire in parallel (runtime dispatches concurrent siblings concurrently). No 504, no sequential wait. The important constraint is _one concurrent batch_ — splitting them across turns loses the parallelism: sequential 1-task calls across multiple turns each add inter-message overhead.
 
 ### Procedure to enforce batching
 
@@ -135,10 +136,10 @@ body: {
 
 The Wix Media import response contains a `file` object. The calling skill receives two values:
 
-| Field | Value | Use For |
-|-------|-------|---------|
-| `file.url` | Full permanent `wixstatic.com` URL | Product media, `<img>` tags, CSS `background-image`, CMS Image fields |
-| `file.fileUrl` | File ID (e.g., `9a9cdf_abc123~mv2.png`) | Blog post `media.wixMedia.image.id` field |
+| Field          | Value                                   | Use For                                                               |
+| -------------- | --------------------------------------- | --------------------------------------------------------------------- |
+| `file.url`     | Full permanent `wixstatic.com` URL      | Product media, `<img>` tags, CSS `background-image`, CMS Image fields |
+| `file.fileUrl` | File ID (e.g., `9a9cdf_abc123~mv2.png`) | Blog post `media.wixMedia.image.id` field                             |
 
 The calling skill is responsible for attaching the image to whatever entity it belongs to (product, blog post, page element).
 
@@ -156,12 +157,12 @@ Every prompt should incorporate the full brand context available from the discov
 
 ### Context Sources
 
-| Source | What to Extract |
-|--------|----------------|
-| Discovery plan | Business type, brand name, industry, target audience |
-| Design Step 1 (brand discovery) | Aesthetic direction, mood, personality |
-| Design Step 2 (design system) | Color palette hex codes from `global.css` |
-| Entity being created | Product name/description, blog post title/topic, page purpose |
+| Source                          | What to Extract                                               |
+| ------------------------------- | ------------------------------------------------------------- |
+| Discovery plan                  | Business type, brand name, industry, target audience          |
+| Design Step 1 (brand discovery) | Aesthetic direction, mood, personality                        |
+| Design Step 2 (design system)   | Color palette hex codes from `global.css`                     |
+| Entity being created            | Product name/description, blog post title/topic, page purpose |
 
 ### Anti-Patterns (NEVER do these)
 
@@ -173,14 +174,14 @@ Every prompt should incorporate the full brand context available from the discov
 
 ## Error Handling
 
-| Error | Action |
-|---|---|
-| `unsupportedParameter` (400) | Strip the offending field (most commonly `steps` or `CFGScale`) and retry |
-| `unsupportedDimensions` (400) | Retry with one of the allowed defaults (`1024×1024`, `1376×768`, `1200×896`) or a size from the error payload's supported list |
-| Model-specific failure (model down, rate limited) | Switch to an alternative model (`bfl:5@1`, `runware:400@1`) and retry once; skip if still failing |
-| Credit exhaustion | Stop generating, return `status: "partial"` with `errors: [{code: "CREDITS_EXHAUSTED", ...}]` listing what was completed (see `RETURN_CONTRACT.md`) |
-| Generation fails (5xx, timeout) | Skip this image, continue with others |
-| Wix Media import fails | Skip this image, entity gets no image |
-| All images fail | Proceed without images, return `status: "failed"` with the root cause |
+| Error                                             | Action                                                                                                                                              |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `unsupportedParameter` (400)                      | Strip the offending field (most commonly `steps` or `CFGScale`) and retry                                                                           |
+| `unsupportedDimensions` (400)                     | Retry with one of the allowed defaults (`1024×1024`, `1376×768`, `1200×896`) or a size from the error payload's supported list                      |
+| Model-specific failure (model down, rate limited) | Switch to an alternative model (`bfl:5@1`, `runware:400@1`) and retry once; skip if still failing                                                   |
+| Credit exhaustion                                 | Stop generating, return `status: "partial"` with `errors: [{code: "CREDITS_EXHAUSTED", ...}]` listing what was completed (see `RETURN_CONTRACT.md`) |
+| Generation fails (5xx, timeout)                   | Skip this image, continue with others                                                                                                               |
+| Wix Media import fails                            | Skip this image, entity gets no image                                                                                                               |
+| All images fail                                   | Proceed without images, return `status: "failed"` with the root cause                                                                               |
 
 **Never block the main flow on image generation failure.** Products, posts, and pages work without images — users can upload their own via the Wix dashboard later.

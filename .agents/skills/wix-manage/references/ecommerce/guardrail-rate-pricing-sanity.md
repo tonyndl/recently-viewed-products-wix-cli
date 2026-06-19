@@ -3,6 +3,7 @@ name: "Guardrail: Rate Pricing Sanity"
 description: Validates shipping rate pricing against AOV and catalog data. Flags excessive rates, per-item penalties, unreachable free shipping thresholds, and backup rate sticker shock.
 layer: guardrail
 ---
+
 # Guardrail: Rate Pricing Sanity
 
 ## When to use
@@ -18,6 +19,7 @@ Run these checks when evaluating existing shipping rates or before creating/upda
 **Why**: Shipping costs above 15% of order value are a top reason for cart abandonment. Customers who see disproportionately high shipping fees frequently abandon their carts.
 
 **Detection**:
+
 - For each shipping rate, compare `amount` against `AOV × 0.15`
 - If exceeded → flag:
 
@@ -32,6 +34,7 @@ Run these checks when evaluating existing shipping rates or before creating/upda
 **Why**: Per-item shipping charges penalize larger orders and discourage customers from adding more items to cart.
 
 **Detection**:
+
 - Find all rates with `multiplyByQuantity: true`
 - Calculate the impact for a typical multi-item order:
 
@@ -46,6 +49,7 @@ Run these checks when evaluating existing shipping rates or before creating/upda
 **Why**: If the free shipping minimum is more than double the average order, very few customers will ever qualify. The threshold should be achievable — close enough to the AOV to encourage customers to add one more item.
 
 **Detection**:
+
 - Compare free shipping `threshold` against `AOV × 2`
 - If exceeded → flag:
 
@@ -60,6 +64,7 @@ Run these checks when evaluating existing shipping rates or before creating/upda
 **Why**: If the threshold is below the average order value, most customers already qualify for free shipping without adding anything to their cart. This provides no upsell incentive and may erode margins unnecessarily.
 
 **Detection**:
+
 - Compare free shipping `threshold` against `AOV × 0.8`
 - If below → flag:
 
@@ -74,6 +79,7 @@ Run these checks when evaluating existing shipping rates or before creating/upda
 **Why**: Backup rates apply when the primary carrier can't fulfill (e.g., remote address, service outage). If the backup rate is dramatically higher than normal shipping, customers experience sticker shock at checkout.
 
 **Detection**:
+
 - For each carrier's `backupRate`, compare `amount` against `effective_aov × 0.15`
 - If exceeded → flag:
 
@@ -88,6 +94,7 @@ Run these checks when evaluating existing shipping rates or before creating/upda
 **Why**: Carrier surcharges (fuel, residential delivery, handling fees) add up. If the total surcharge burden exceeds 10% of the order value, it may negate the perceived value of the base shipping rate.
 
 **Detection**:
+
 - Sum all `additionalCharges` across active carriers
 - Compare total against `AOV × 0.10`
 - If exceeded → flag:
@@ -98,11 +105,11 @@ Run these checks when evaluating existing shipping rates or before creating/upda
 
 ## Summary: Pricing sanity thresholds
 
-| Check | Threshold | Action |
-|---|---|---|
-| Excessive rate | Rate > 15% of AOV | Flag — cart abandonment risk |
-| Per-item penalty | `multiplyByQuantity: true` | Flag — discourages larger orders |
-| Free threshold too high | Threshold > 2x AOV | Flag — unreachable for most customers |
-| Free threshold too low | Threshold < 0.8x AOV | Flag — no upsell incentive, margin erosion |
-| Backup rate shock | Backup > 15% of AOV | Flag — recommend 5-10% of AOV |
-| Hidden surcharges | Total surcharges > 10% of AOV | Flag — review necessity |
+| Check                   | Threshold                     | Action                                     |
+| ----------------------- | ----------------------------- | ------------------------------------------ |
+| Excessive rate          | Rate > 15% of AOV             | Flag — cart abandonment risk               |
+| Per-item penalty        | `multiplyByQuantity: true`    | Flag — discourages larger orders           |
+| Free threshold too high | Threshold > 2x AOV            | Flag — unreachable for most customers      |
+| Free threshold too low  | Threshold < 0.8x AOV          | Flag — no upsell incentive, margin erosion |
+| Backup rate shock       | Backup > 15% of AOV           | Flag — recommend 5-10% of AOV              |
+| Hidden surcharges       | Total surcharges > 10% of AOV | Flag — review necessity                    |

@@ -47,7 +47,9 @@ body[data-navigating="true"] .product-grid {
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: transform 280ms ease, box-shadow 280ms ease;
+  transition:
+    transform 280ms ease,
+    box-shadow 280ms ease;
   box-shadow: var(--shadow-card, 0 4px 16px -8px rgba(0, 0, 0, 0.15));
 }
 .product-card:hover {
@@ -181,7 +183,6 @@ body[data-navigating="true"] .product-grid {
   margin: 0;
 }
 
-
 /* =========================================================================
    Rules below use direct CSS (var(--token)) only — no `@apply`.
 
@@ -223,7 +224,9 @@ body[data-navigating="true"] .product-grid {
   font-family: var(--font-body);
   border-radius: 9999px;
   cursor: pointer;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 }
 .option-pill.selected {
   background: var(--color-ink);

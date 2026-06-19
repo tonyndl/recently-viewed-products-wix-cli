@@ -1,10 +1,21 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type FC } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FC,
+} from "react";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - pro-gallery ships loose types
-import { ProGallery, GALLERY_CONSTS } from 'pro-gallery';
-import 'pro-gallery/dist/statics/main.css';
-import type { RecentlyViewedItem, WidgetProps } from '../types';
-import { STRIP_ITEM_WIDTH, LAYOUTS_WITH_COLUMNS, type LayoutKind } from '../constants';
+import { ProGallery, GALLERY_CONSTS } from "pro-gallery";
+import "pro-gallery/dist/statics/main.css";
+import type { RecentlyViewedItem, WidgetProps } from "../types";
+import {
+  STRIP_ITEM_WIDTH,
+  LAYOUTS_WITH_COLUMNS,
+  type LayoutKind,
+} from "../constants";
 
 // GALLERY_CONSTS is loosely typed — alias to any for ergonomic enum access.
 const C = GALLERY_CONSTS as any;
@@ -20,9 +31,13 @@ interface TextStyleOpts {
 // shows an info element when the host supplies `customInfoRenderer`. This one
 // renders the product name + price; styling adapts to where Pro Gallery places
 // it (OVERLAY on the image vs BELOW it).
-const renderItemInfo = (itemProps: any, placement: string, ts: TextStyleOpts) => {
-  const title: string = itemProps?.title || '';
-  const price: string = itemProps?.description || '';
+const renderItemInfo = (
+  itemProps: any,
+  placement: string,
+  ts: TextStyleOpts,
+) => {
+  const title: string = itemProps?.title || "";
+  const price: string = itemProps?.description || "";
   if (!title && !price) return null;
   const onImage = placement === C.layoutParams_info_placement.OVERLAY;
   const nameStyle: CSSProperties = {
@@ -31,17 +46,17 @@ const renderItemInfo = (itemProps: any, placement: string, ts: TextStyleOpts) =>
     fontWeight: 500,
     // On-image text stays light for contrast against the gradient; below/above
     // honors the chosen text color (or the theme default when unset).
-    color: onImage ? '#fff' : ts.textColor || 'var(--wix-color-text, #2b2b2b)',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    color: onImage ? "#fff" : ts.textColor || "var(--wix-color-text, #2b2b2b)",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   };
   const priceStyle: CSSProperties = {
-    margin: '2px 0 0 0',
+    margin: "2px 0 0 0",
     fontSize: `${Math.max(10, ts.textSize - 1)}px`,
     color: onImage
-      ? 'rgba(255,255,255,0.9)'
-      : ts.textColor || 'var(--wix-color-text-secondary, #6b6b6b)',
+      ? "rgba(255,255,255,0.9)"
+      : ts.textColor || "var(--wix-color-text-secondary, #6b6b6b)",
   };
   const text = (
     <>
@@ -56,20 +71,21 @@ const renderItemInfo = (itemProps: any, placement: string, ts: TextStyleOpts) =>
     return (
       <div
         style={{
-          position: 'absolute',
+          position: "absolute",
           inset: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-          pointerEvents: 'none',
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          pointerEvents: "none",
         }}
       >
         <div
           style={{
-            boxSizing: 'border-box',
-            width: '100%',
-            padding: '20px 10px 10px',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0))',
+            boxSizing: "border-box",
+            width: "100%",
+            padding: "20px 10px 10px",
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0))",
           }}
         >
           {text}
@@ -79,7 +95,13 @@ const renderItemInfo = (itemProps: any, placement: string, ts: TextStyleOpts) =>
   }
   const above = placement === C.layoutParams_info_placement.ABOVE;
   return (
-    <div style={{ boxSizing: 'border-box', width: '100%', padding: above ? '0 2px 8px' : '8px 2px 0' }}>
+    <div
+      style={{
+        boxSizing: "border-box",
+        width: "100%",
+        padding: above ? "0 2px 8px" : "8px 2px 0",
+      }}
+    >
       {text}
     </div>
   );
@@ -97,9 +119,14 @@ const makeCustomComponents = (ts: TextStyleOpts) => ({
 
 // Space-filling mosaic layouts pack tiles edge-to-edge with no room for text
 // below each item, so their name/price must render on the image instead.
-const OVERLAY_ONLY_LAYOUTS: readonly LayoutKind[] = ['collage', 'bricks', 'mix', 'alternate'];
+const OVERLAY_ONLY_LAYOUTS: readonly LayoutKind[] = [
+  "collage",
+  "bricks",
+  "mix",
+  "alternate",
+];
 
-const RATIO_VAL: Record<WidgetProps['ratio'], number> = {
+const RATIO_VAL: Record<WidgetProps["ratio"], number> = {
   square: 1,
   portrait: 0.75,
   landscape: 4 / 3,
@@ -111,25 +138,26 @@ const RATIO_VAL: Record<WidgetProps['ratio'], number> = {
 // crop, spacing, etc.) on top of the generic options below. "Strip" reuses the
 // GRID preset but is forced into a single horizontal scrolling row.
 const LAYOUT_PRESET: Record<LayoutKind, string> = {
-  strip: 'GRID',
-  grid: 'GRID',
-  masonry: 'MASONRY',
-  collage: 'COLLAGE',
-  thumbnails: 'THUMBNAIL',
-  slider: 'SLIDER',
-  slideshow: 'SLIDESHOW',
-  column: 'COLUMN',
-  bricks: 'BRICKS',
-  mix: 'MIX',
-  alternate: 'ALTERNATE',
+  strip: "GRID",
+  grid: "GRID",
+  masonry: "MASONRY",
+  collage: "COLLAGE",
+  thumbnails: "THUMBNAIL",
+  slider: "SLIDER",
+  slideshow: "SLIDESHOW",
+  column: "COLUMN",
+  bricks: "BRICKS",
+  mix: "MIX",
+  alternate: "ALTERNATE",
 };
 
 const buildOptions = (p: WidgetProps): Record<string, unknown> => {
-  const isStrip = p.layout === 'strip';
+  const isStrip = p.layout === "strip";
   const usesColumns = LAYOUTS_WITH_COLUMNS.includes(p.layout) && p.columns > 0;
   // Draw the name/price on the image when the user picks "on image", or when the
   // layout is a space-filling mosaic that has no room for text below each tile.
-  const useOverlay = p.textPosition === 'onimage' || OVERLAY_ONLY_LAYOUTS.includes(p.layout);
+  const useOverlay =
+    p.textPosition === "onimage" || OVERLAY_ONLY_LAYOUTS.includes(p.layout);
   const o: Record<string, unknown> = {
     layoutParams_structure_galleryLayout:
       C.layoutParams_structure_galleryLayout[LAYOUT_PRESET[p.layout]],
@@ -137,13 +165,9 @@ const buildOptions = (p: WidgetProps): Record<string, unknown> => {
       ? C.layoutParams_structure_scrollDirection.HORIZONTAL
       : C.layoutParams_structure_scrollDirection.VERTICAL,
     layoutParams_structure_itemSpacing: p.spacing,
-    layoutParams_crop_enable: p.ratio !== 'original',
-    layoutParams_crop_method:
-      // Staggered layouts (Masonry/Collage) rely on FILL to crop square products
-      // into varied cells, so they always fill regardless of the Image-fit setting.
-      p.imageFit === 'fit' && !STAGGER_LAYOUTS.includes(p.layout)
-        ? C.layoutParams_crop_method.FIT
-        : C.layoutParams_crop_method.FILL,
+    layoutParams_crop_enable: p.ratio !== "original",
+    // Images always crop (FILL) to fill their cell.
+    layoutParams_crop_method: C.layoutParams_crop_method.FILL,
     layoutParams_crop_ratios: [RATIO_VAL[p.ratio]],
     // Render the title/price text. Without an explicit info layout + a fixed
     // pixel height the info element collapses and nothing shows. OVERLAY draws
@@ -151,7 +175,7 @@ const buildOptions = (p: WidgetProps): Record<string, unknown> => {
     // text strip under it. Mosaic layouts have no room below, so they overlay.
     layoutParams_info_placement: useOverlay
       ? C.layoutParams_info_placement.OVERLAY
-      : p.textPosition === 'top'
+      : p.textPosition === "top"
         ? C.layoutParams_info_placement.ABOVE
         : C.layoutParams_info_placement.BELOW,
     // Our renderer supplies its own background/gradient, so use NO_BACKGROUND.
@@ -160,7 +184,9 @@ const buildOptions = (p: WidgetProps): Record<string, unknown> => {
     // Reserve enough height for the (text-size-driven) name + price lines.
     // Matches the previous 56 / 32 at the default text size of 14.
     layoutParams_info_height:
-      (p.showTitle ? p.textSize + 10 : 0) + (p.showPrice ? p.textSize + 8 : 0) + 10,
+      (p.showTitle ? p.textSize + 10 : 0) +
+      (p.showPrice ? p.textSize + 8 : 0) +
+      10,
     behaviourParams_item_overlay_hoveringBehaviour: useOverlay
       ? C.behaviourParams_item_overlay_hoveringBehaviour.ALWAYS_SHOW
       : C.behaviourParams_item_overlay_hoveringBehaviour.NEVER_SHOW,
@@ -168,20 +194,20 @@ const buildOptions = (p: WidgetProps): Record<string, unknown> => {
     // a gradient caption to the bottom and leaves the rest of the image clear.
     // (This option is a plain color STRING, not a { value } object — the default
     // is an opaque dark scrim 'rgba(8,8,8,0.75)' that would darken the image.)
-    behaviourParams_item_overlay_backgroundColor: 'rgba(0, 0, 0, 0)',
+    behaviourParams_item_overlay_backgroundColor: "rgba(0, 0, 0, 0)",
     // ACTION (not LINK): emit ITEM_ACTION_TRIGGERED on click so we route through
     // Wix's router (location.to) instead of pro-gallery's <a href>, which would
     // resolve the product path against the parastorage preview origin (403).
     behaviourParams_item_clickAction: C.behaviourParams_item_clickAction.ACTION,
     behaviourParams_item_content_hoverAnimation:
-      p.hoverEffect === 'zoom'
+      p.hoverEffect === "zoom"
         ? C.behaviourParams_item_content_hoverAnimation.ZOOM_IN
-        : p.hoverEffect === 'fade'
+        : p.hoverEffect === "fade"
           ? C.behaviourParams_item_content_hoverAnimation.DARKENED
           : C.behaviourParams_item_content_hoverAnimation.NO_EFFECT,
     stylingParams_itemBorderRadius: p.cornerRadius,
     stylingParams_itemBorderWidth: p.imageBorder ? 1 : 0,
-    stylingParams_itemBorderColor: { value: '#e3e3e3' },
+    stylingParams_itemBorderColor: { value: "#e3e3e3" },
     // Navigation arrows — small, faint chevrons sitting on the far-end images
     // (no button container), centered on the image. They're subtle so they don't
     // distract from the products.
@@ -193,7 +219,7 @@ const buildOptions = (p: WidgetProps): Record<string, unknown> => {
       C.layoutParams_navigationArrows_position.ON_GALLERY,
     layoutParams_navigationArrows_verticalAlignment:
       C.layoutParams_navigationArrows_verticalAlignment.IMAGE_CENTER,
-    stylingParams_arrowsColor: { value: 'rgba(0, 0, 0, 0.4)' },
+    stylingParams_arrowsColor: { value: "rgba(0, 0, 0, 0.4)" },
     // Don't loop — so Pro Gallery hides the left arrow at the start and the
     // right arrow once the end is reached, instead of always showing both.
     behaviourParams_gallery_horizontal_loop: false,
@@ -203,7 +229,7 @@ const buildOptions = (p: WidgetProps): Record<string, unknown> => {
   // they vary in height. Without this the masonry preset defaults to HORIZONTAL
   // and justifies each row to one height (equal heights, varied widths) — which
   // looks like a grid.
-  if (p.layout === 'masonry') {
+  if (p.layout === "masonry") {
     o.layoutParams_structure_layoutOrientation =
       C.layoutParams_structure_layoutOrientation.VERTICAL;
   }
@@ -213,23 +239,28 @@ const buildOptions = (p: WidgetProps): Record<string, unknown> => {
   // collapses the gallery to a single column).
   if (isStrip) {
     o.layoutParams_structure_numberOfGridRows = 1;
-    o.layoutParams_structure_responsiveMode = C.layoutParams_structure_responsiveMode.FIT_TO_SCREEN;
+    o.layoutParams_structure_responsiveMode =
+      C.layoutParams_structure_responsiveMode.FIT_TO_SCREEN;
     o.layoutParams_targetItemSize_value = STRIP_ITEM_WIDTH;
   } else if (usesColumns) {
-    o.layoutParams_structure_responsiveMode = C.layoutParams_structure_responsiveMode.SET_ITEMS_PER_ROW;
+    o.layoutParams_structure_responsiveMode =
+      C.layoutParams_structure_responsiveMode.SET_ITEMS_PER_ROW;
     o.layoutParams_structure_numberOfColumns = p.columns;
-  } else if (p.layout === 'collage') {
+  } else if (p.layout === "collage") {
     // Collage builds its mosaic — large feature tiles mixed with smaller ones —
     // from its own smart sizing. Forcing a fixed pixel size flattens every tile
     // to the same width and it collapses into a Masonry-like grid, so we let the
     // preset choose the target size and keep its group types intact.
-    o.layoutParams_structure_responsiveMode = C.layoutParams_structure_responsiveMode.FIT_TO_SCREEN;
+    o.layoutParams_structure_responsiveMode =
+      C.layoutParams_structure_responsiveMode.FIT_TO_SCREEN;
   } else {
     // Grid/Masonry on Auto, plus the other preset-driven layouts (slider,
     // slideshow, thumbnails, column, bricks, mix, alternate). The preset
     // overrides whatever it needs; this just sets a sensible column width.
-    o.layoutParams_structure_responsiveMode = C.layoutParams_structure_responsiveMode.FIT_TO_SCREEN;
-    o.layoutParams_targetItemSize_unit = C.layoutParams_targetItemSize_unit.PIXEL;
+    o.layoutParams_structure_responsiveMode =
+      C.layoutParams_structure_responsiveMode.FIT_TO_SCREEN;
+    o.layoutParams_targetItemSize_unit =
+      C.layoutParams_targetItemSize_unit.PIXEL;
     o.layoutParams_targetItemSize_value = 220;
   }
   return o;
@@ -253,14 +284,15 @@ const itemKey = (it: RecentlyViewedItem) => it.id || it.slug;
 // Layouts that need a synthetic stagger: they build their varied look from each
 // image's aspect ratio (cropping off), so square product photos collapse them
 // into a plain grid. We give near-square items rotating ratios instead.
-const STAGGER_LAYOUTS: readonly LayoutKind[] = ['masonry'];
+const STAGGER_LAYOUTS: readonly LayoutKind[] = ["masonry"];
 
 // Rotating aspect ratios (width / height) used to stagger square images — a mix
 // of portrait, square and landscape so cells end up at different heights, like
 // the native Masonry/Collage previews.
 const STAGGER_RATIOS = [0.72, 1.35, 0.95, 1.55, 0.82, 1.2, 0.68, 1.45];
 
-const isNearSquare = (w: number, h: number) => w > 0 && h > 0 && Math.abs(w / h - 1) <= 0.15;
+const isNearSquare = (w: number, h: number) =>
+  w > 0 && h > 0 && Math.abs(w / h - 1) <= 0.15;
 
 // Resolve the width/height we declare to the gallery for an item. Order of
 // preference: measured natural size → catalog size → square fallback. For
@@ -275,7 +307,8 @@ const displaySize = (
 ): { width: number; height: number } => {
   const measured = sizes[itemKey(it)];
   const width = measured?.width || (it.width && it.width > 0 ? it.width : 1000);
-  const height = measured?.height || (it.height && it.height > 0 ? it.height : 1000);
+  const height =
+    measured?.height || (it.height && it.height > 0 ? it.height : 1000);
   if (stagger && isNearSquare(width, height)) {
     const ratio = STAGGER_RATIOS[index % STAGGER_RATIOS.length];
     return { width: 1000, height: Math.round(1000 / ratio) };
@@ -297,12 +330,14 @@ const toGalleryItems = (
       itemId: itemKey(it),
       mediaUrl: it.imageUrl,
       metaData: {
-        type: 'image',
+        type: "image",
         height,
         width,
-        title: showTitle ? it.name : '',
-        description: showPrice ? it.formattedPrice : '',
-        ...(it.productUrl ? { link: { url: it.productUrl, target: '_self' } } : {}),
+        title: showTitle ? it.name : "",
+        description: showPrice ? it.formattedPrice : "",
+        ...(it.productUrl
+          ? { link: { url: it.productUrl, target: "_self" } }
+          : {}),
       },
     };
   });
@@ -317,7 +352,9 @@ const useNaturalSizes = (items: RecentlyViewedItem[]): SizeMap | null => {
 
   useEffect(() => {
     let cancelled = false;
-    const pending = items.filter((it) => it.imageUrl && !(it.width && it.height));
+    const pending = items.filter(
+      (it) => it.imageUrl && !(it.width && it.height),
+    );
     if (pending.length === 0) {
       setSizes({});
       return;
@@ -334,7 +371,10 @@ const useNaturalSizes = (items: RecentlyViewedItem[]): SizeMap | null => {
       const img = new window.Image();
       const onDone = () => {
         if (img.naturalWidth > 0 && img.naturalHeight > 0) {
-          measured[itemKey(it)] = { width: img.naturalWidth, height: img.naturalHeight };
+          measured[itemKey(it)] = {
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+          };
         }
         done += 1;
         if (done === pending.length) {
@@ -365,7 +405,11 @@ interface ProGalleryViewProps {
 // Renders the real Wix Pro Gallery. Pro Gallery needs an explicit container
 // size, so we measure the host width (ResizeObserver) and read the laid-out
 // height from its GALLERY_CHANGE event to auto-fit.
-export const ProGalleryView: FC<ProGalleryViewProps> = ({ items, props, onNavigate }) => {
+export const ProGalleryView: FC<ProGalleryViewProps> = ({
+  items,
+  props,
+  onNavigate,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(SEED_HEIGHT[props.layout] ?? 0);
@@ -382,12 +426,23 @@ export const ProGalleryView: FC<ProGalleryViewProps> = ({ items, props, onNaviga
 
   const sizes = useNaturalSizes(items);
   const galleryItems = useMemo(
-    () => toGalleryItems(items, sizes ?? {}, props.layout, props.showTitle, props.showPrice),
+    () =>
+      toGalleryItems(
+        items,
+        sizes ?? {},
+        props.layout,
+        props.showTitle,
+        props.showPrice,
+      ),
     [items, sizes, props.layout, props.showTitle, props.showPrice],
   );
   const options = useMemo(() => buildOptions(props), [props]);
   const customComponents = useMemo(
-    () => makeCustomComponents({ textSize: props.textSize, textColor: props.textColor }),
+    () =>
+      makeCustomComponents({
+        textSize: props.textSize,
+        textColor: props.textColor,
+      }),
     [props.textSize, props.textColor],
   );
 
@@ -402,14 +457,18 @@ export const ProGalleryView: FC<ProGalleryViewProps> = ({ items, props, onNaviga
 
   const eventsListener = (eventName: string, eventData: any) => {
     if (eventName === C.events.GALLERY_CHANGE && eventData) {
-      const h = eventData.layoutHeight ?? eventData.height ?? eventData.scrollHeight;
-      if (typeof h === 'number' && h > 0 && Math.abs(h - height) > 1) {
+      const h =
+        eventData.layoutHeight ?? eventData.height ?? eventData.scrollHeight;
+      if (typeof h === "number" && h > 0 && Math.abs(h - height) > 1) {
         setHeight(Math.ceil(h));
       }
       return;
     }
-    if (eventName === C.events.ITEM_ACTION_TRIGGERED || eventName === C.events.ITEM_CLICKED) {
-      const item = itemById.get(eventData?.id ?? eventData?.itemId ?? '');
+    if (
+      eventName === C.events.ITEM_ACTION_TRIGGERED ||
+      eventName === C.events.ITEM_CLICKED
+    ) {
+      const item = itemById.get(eventData?.id ?? eventData?.itemId ?? "");
       if (item) onNavigate?.(item);
     }
   };
@@ -423,7 +482,7 @@ export const ProGalleryView: FC<ProGalleryViewProps> = ({ items, props, onNaviga
           items={galleryItems}
           options={options}
           container={{ width, height }}
-          scrollingElement={typeof window !== 'undefined' ? window : undefined}
+          scrollingElement={typeof window !== "undefined" ? window : undefined}
           eventsListener={eventsListener}
           customComponents={customComponents}
         />

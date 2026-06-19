@@ -2,6 +2,7 @@
 name: "How to Setup Wix Payments"
 description: Configures Wix Payments as the payment provider. Covers eligibility checking, business verification, bank account setup, and payment method configuration (cards, PayPal, Apple Pay).
 ---
+
 # How to Set Up Wix Payments
 
 This recipe covers the setup flow needed before creating payment links or collecting payments.

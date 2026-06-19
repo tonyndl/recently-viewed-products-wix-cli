@@ -3,6 +3,7 @@
 Create 3 on-brand blog posts so the blog has real content on first preview.
 
 > **Critical Rules — Read Before Starting**
+>
 > 1. **Seed content is required** — a blog with zero posts on first preview is a build failure. Do not skip this section.
 > 2. **Re-publish after PATCH** — updating a published post sets `hasUnpublishedChanges: true`. Call `publish` again or visitors see the old version.
 > 3. **Use `@wix/blog`, not `@wix/data`** — blog posts are NOT CMS collections.
@@ -18,6 +19,7 @@ Before querying blog data, verify the Blog app is installed:
 
 1. **Probe** — `REST: POST https://www.wixapis.com/blog/v3/posts/query`
 2. **If the API returns a "REQUIRED_APP_NOT_INSTALLED" error** → install the Wix Blog app:
+
    ```
    REST: POST https://www.wixapis.com/apps-installer-service/v1/app-instance/install
    body: {
@@ -25,9 +27,11 @@ Before querying blog data, verify the Blog app is installed:
      "appInstance": { "appDefId": "14bcded7-0066-7c35-14d7-466cb3f09103", "enabled": true }
    }
    ```
+
    > Translate this prose-HTTP form into the full `curl` tool-call shape — pass `body` as JSON in `-d` (NOT a stringified JSON). See `../shared/AUTHENTICATION.md` for the standard REST headers.
 
    Then retry the probe query to confirm installation succeeded.
+
 3. **If the probe succeeds** → proceed to Step 1.
 
 ---
@@ -52,14 +56,14 @@ No API call — use discovery context (business type, brand name, tone, industry
 
 **Post design guidelines by business type:**
 
-| Business Type | Post 1 | Post 2 | Post 3 |
-|--------------|--------|--------|--------|
-| AI / tech blog | Architecture deep-dive | Practical comparison (X vs Y) | Lessons learned / field report |
-| Skincare / beauty | Ingredient science spotlight | Routine guide (morning/evening) | Myth-busting or FAQ |
-| Food / restaurant | Behind the recipe | Seasonal menu spotlight | Sourcing / farm-to-table story |
-| Fitness / wellness | Training methodology breakdown | Nutrition or recovery guide | Client transformation story |
-| Fashion / retail | Trend analysis | Styling guide | Behind the brand / process |
-| General business | Industry insight | How-to guide | Company news / milestone |
+| Business Type      | Post 1                         | Post 2                          | Post 3                         |
+| ------------------ | ------------------------------ | ------------------------------- | ------------------------------ |
+| AI / tech blog     | Architecture deep-dive         | Practical comparison (X vs Y)   | Lessons learned / field report |
+| Skincare / beauty  | Ingredient science spotlight   | Routine guide (morning/evening) | Myth-busting or FAQ            |
+| Food / restaurant  | Behind the recipe              | Seasonal menu spotlight         | Sourcing / farm-to-table story |
+| Fitness / wellness | Training methodology breakdown | Nutrition or recovery guide     | Client transformation story    |
+| Fashion / retail   | Trend analysis                 | Styling guide                   | Behind the brand / process     |
+| General business   | Industry insight               | How-to guide                    | Company news / milestone       |
 
 Adapt titles, tone, and content to match the brand's voice and style.
 
@@ -104,17 +108,18 @@ body: {
 
 Use these node types to build rich, varied content:
 
-| Node Type | Structure | Use For |
-|-----------|-----------|---------|
-| `PARAGRAPH` | `{ type: "PARAGRAPH", id, nodes: [TEXT], paragraphData: {} }` | Body text |
-| `HEADING` | `{ type: "HEADING", id, nodes: [TEXT], headingData: { level: 2 } }` | Section headers (level 2–4) |
-| `CODE_BLOCK` | `{ type: "CODE_BLOCK", id, nodes: [TEXT], codeBlockData: { language: "javascript" } }` | Code snippets |
-| `BULLETED_LIST` | `{ type: "BULLETED_LIST", id, nodes: [LIST_ITEM] }` | Unordered lists |
-| `LIST_ITEM` | `{ type: "LIST_ITEM", id, nodes: [PARAGRAPH] }` | Items inside BULLETED_LIST |
-| `BLOCKQUOTE` | `{ type: "BLOCKQUOTE", id, nodes: [PARAGRAPH] }` | Pull quotes, callouts |
-| `TEXT` | `{ type: "TEXT", id: "", nodes: [], textData: { text: "...", decorations: [] } }` | Inline text (leaf node inside paragraphs, headings, etc.) |
+| Node Type       | Structure                                                                              | Use For                                                   |
+| --------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `PARAGRAPH`     | `{ type: "PARAGRAPH", id, nodes: [TEXT], paragraphData: {} }`                          | Body text                                                 |
+| `HEADING`       | `{ type: "HEADING", id, nodes: [TEXT], headingData: { level: 2 } }`                    | Section headers (level 2–4)                               |
+| `CODE_BLOCK`    | `{ type: "CODE_BLOCK", id, nodes: [TEXT], codeBlockData: { language: "javascript" } }` | Code snippets                                             |
+| `BULLETED_LIST` | `{ type: "BULLETED_LIST", id, nodes: [LIST_ITEM] }`                                    | Unordered lists                                           |
+| `LIST_ITEM`     | `{ type: "LIST_ITEM", id, nodes: [PARAGRAPH] }`                                        | Items inside BULLETED_LIST                                |
+| `BLOCKQUOTE`    | `{ type: "BLOCKQUOTE", id, nodes: [PARAGRAPH] }`                                       | Pull quotes, callouts                                     |
+| `TEXT`          | `{ type: "TEXT", id: "", nodes: [], textData: { text: "...", decorations: [] } }`      | Inline text (leaf node inside paragraphs, headings, etc.) |
 
 **Tips:**
+
 - Container nodes (PARAGRAPH, HEADING, etc.) need a unique `id` (use any string, e.g., `"n1"`, `"n2"`). TEXT nodes can use an empty string `""` for `id`.
 - TEXT nodes are always leaf nodes inside PARAGRAPH, HEADING, CODE_BLOCK, etc.
 - LIST_ITEM nodes contain PARAGRAPH nodes (not TEXT directly)
@@ -149,9 +154,7 @@ Emit a structured JSON block at the end of your completion message per `../share
   "scope": "seed",
   "summary": "Created and published {n} on-brand blog posts",
   "data": {
-    "blogPosts": [
-      { "id": "<uuid>", "title": "<title>" }
-    ]
+    "blogPosts": [{ "id": "<uuid>", "title": "<title>" }]
   },
   "files": [],
   "errors": []

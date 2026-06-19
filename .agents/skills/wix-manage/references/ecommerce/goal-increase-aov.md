@@ -19,17 +19,21 @@ references:
     path: ecommerce/guardrail-margin-protection.md
     load: false
 ---
+
 # Goal: Increase Average Order Value
 
 > **Before executing this skill**, read these referenced skills with `ReadFullDocsArticle`:
+>
 > - [Flow: Upsell Boost](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/flow-upsell-boost)
 > - [Flow: Bundle and Save](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/flow-bundle-and-save)
 >
 > **Shipping flows that also serve AOV goals** (load if shipping domain is active):
+>
 > - [Flow: Add Free Shipping](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/flow-add-free-shipping) — free shipping threshold pushes carts above AOV
 > - [Flow: Optimize Shipping Rates](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/flow-optimize-shipping-rates) — rate optimization improves conversion on higher-value orders
 >
 > **Related skills** (read with `ReadFullDocsArticle` if needed):
+>
 > - [Guardrail: Margin Protection](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/guardrail-margin-protection)
 
 Incentivize customers to spend above the store's current average order value (AOV) by creating threshold-based discounts that reward higher cart totals.
@@ -46,12 +50,12 @@ The merchant wants to increase the average amount customers spend per order. Thi
 
 ## KPIs
 
-| KPI | Definition | How to measure |
-|---|---|---|
-| Average Order Value (AOV) | Total revenue / total orders | `getSiteData` — revenue / ordersCount |
-| Revenue per order | Gross revenue attributed to each completed order | Track via order data before and after campaign |
-| Discount redemption rate | Orders qualifying for the discount / total orders | Count orders with the discount applied vs total |
-| Cart size increase | Change in items per order after campaign | Compare items per order pre/post |
+| KPI                       | Definition                                        | How to measure                                  |
+| ------------------------- | ------------------------------------------------- | ----------------------------------------------- |
+| Average Order Value (AOV) | Total revenue / total orders                      | `getSiteData` — revenue / ordersCount           |
+| Revenue per order         | Gross revenue attributed to each completed order  | Track via order data before and after campaign  |
+| Discount redemption rate  | Orders qualifying for the discount / total orders | Count orders with the discount applied vs total |
+| Cart size increase        | Change in items per order after campaign          | Compare items per order pre/post                |
 
 ---
 
@@ -79,6 +83,7 @@ The primary action for this goal. Creates a percentage discount with a `minSubTo
 **When to use:** Always the first recommendation for AOV-focused goals. Works best when the store has clear AOV data and margin information.
 
 **Key mechanics:**
+
 - minSubTotal set to 1.15x-1.5x the effective AOV (based on margin tier)
 - Discount percentage scaled to margin (10-20%)
 - Scope prioritized: CATEGORY (high-margin) > ITEMS (specific upsell candidates) > SITE (fallback)
@@ -90,6 +95,7 @@ A complementary action that increases AOV by encouraging multi-item purchases. I
 **When to use:** When the catalog has natural cross-sell opportunities (complementary products, accessories, related items). Particularly effective when the store has many lower-priced items where quantity-based incentives drive higher totals.
 
 **Key mechanics:**
+
 - minItemQuantity condition (typically 2-3 items)
 - Targets categories with cross-sell potential
 - Can run alongside an upsell boost if scoped to different categories
@@ -123,10 +129,10 @@ A complementary action that increases AOV by encouraging multi-item purchases. I
 
 ## Decision Matrix
 
-| Scenario | Recommended Flow | Rationale |
-|---|---|---|
-| Clear AOV data, margin data available | Upsell Boost (primary) | Full data enables optimal threshold + discount calculation |
-| Low-data store (few orders) | Upsell Boost with conservative defaults | Use price_p50 as AOV proxy, 10% discount, 1.15x threshold |
-| Catalog has natural bundles | Bundle & Save (secondary) | Multi-item incentive drives AOV through quantity |
-| Both AOV and cross-sell opportunity | Both flows, different scopes | Upsell Boost on high-value categories, Bundle & Save on accessories |
-| Merchant specifies exact values | Honor merchant input | User overrides always take priority over calculated values |
+| Scenario                              | Recommended Flow                        | Rationale                                                           |
+| ------------------------------------- | --------------------------------------- | ------------------------------------------------------------------- |
+| Clear AOV data, margin data available | Upsell Boost (primary)                  | Full data enables optimal threshold + discount calculation          |
+| Low-data store (few orders)           | Upsell Boost with conservative defaults | Use price_p50 as AOV proxy, 10% discount, 1.15x threshold           |
+| Catalog has natural bundles           | Bundle & Save (secondary)               | Multi-item incentive drives AOV through quantity                    |
+| Both AOV and cross-sell opportunity   | Both flows, different scopes            | Upsell Boost on high-value categories, Bundle & Save on accessories |
+| Merchant specifies exact values       | Honor merchant input                    | User overrides always take priority over calculated values          |

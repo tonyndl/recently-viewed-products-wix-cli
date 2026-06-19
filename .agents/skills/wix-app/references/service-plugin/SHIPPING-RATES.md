@@ -8,8 +8,8 @@ The Shipping Rates SPI lets you provide custom shipping options and calculate sh
 
 Before implementing, call `ReadFullDocsMethodSchema` on the docs URL to get the full request/response types.
 
-| Handler | Docs URL |
-| --- | --- |
+| Handler            | Docs URL                                                                                                                                                                |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `getShippingRates` | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/extensions/shipping-rates/shipping-rates-integration-service-plugin/get-shipping-rates?apiView=SDK |
 
 ## Example: International Shipping with Handling Fee

@@ -3,6 +3,7 @@
 This guide defines rules and guidance on **how to implement** production-quality Editor React components for Wix CLI applications. Editor React components are React components that integrate with the Wix Editor, allowing site owners to customize content, styling, and behavior through a visual interface.
 
 **Topic reference files:**
+
 - [`PARTS.md`](PARTS.md) — What qualifies as a named part (mandatory filter)
 - [`ACCESSIBILITY.md`](ACCESSIBILITY.md) — ARIA/a11y rules and patterns
 - [`DIRECTIONALITY.md`](DIRECTIONALITY.md) — RTL/LTR rules and patterns

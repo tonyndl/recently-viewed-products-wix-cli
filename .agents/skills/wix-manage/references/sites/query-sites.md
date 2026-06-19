@@ -2,6 +2,7 @@
 name: "Query Sites"
 description: Lists and queries all sites associated with a Wix account using Sites API. Covers pagination with cursor-based navigation.
 ---
+
 # Query Sites
 
 This recipe demonstrates how to list and query all sites associated with a Wix account.
@@ -22,6 +23,7 @@ This recipe demonstrates how to list and query all sites associated with a Wix a
 **Endpoint**: `POST https://www.wixapis.com/site-list/v2/sites/query`
 
 **Request Body**:
+
 ```json
 {
   "query": {
@@ -33,6 +35,7 @@ This recipe demonstrates how to list and query all sites associated with a Wix a
 ```
 
 **Request**:
+
 ```bash
 curl -X POST \
   'https://www.wixapis.com/site-list/v2/sites/query' \
@@ -81,6 +84,7 @@ curl -X POST \
 For accounts with many sites, use cursor-based pagination:
 
 **First Request**:
+
 ```json
 {
   "query": {
@@ -92,6 +96,7 @@ For accounts with many sites, use cursor-based pagination:
 ```
 
 **Next Page** (using cursor from response):
+
 ```json
 {
   "query": {
@@ -110,9 +115,11 @@ Continue until `hasNext` is `false`.
 ## Common Use Cases
 
 ### List All Sites
+
 Retrieve all sites without filtering - useful for account dashboards or site selection interfaces.
 
 ### Find a Specific Site
+
 After querying, filter results by name or ID to locate a specific site.
 
 ---
@@ -120,6 +127,7 @@ After querying, filter results by name or ID to locate a specific site.
 ## Next Steps
 
 After finding a site:
+
 - Use the site ID for site-level API calls
 - Create new sites using [Create Site from Template](create-site-from-template.md)
 - Manage site settings and content

@@ -8,13 +8,13 @@ This file hosts the astro-create **bootstrap cell** (run-step 0: `scaffold.sh` �
 
 Each phase is one of the two tracks (`PLAN.md` § "Two tracks"); all are background.
 
-| Phase | Track | Tier | What | When |
-|---|---|---|---|---|
-| **1 — Seed** | business | Fast | Per-pack seeders → orchestrator collects `seeded` map in scratch | Seed wave |
-| **2 — Design System** | frontend | Default (Designer) | **Designer** returns tokens + brand-voice JSON (authors `DESIGN.md`, no other files); **`compose.mjs`** (script, no subagent) writes the 6 files from it | Designer: run-step 0 · compose.mjs: Setup-window bridge |
-| **Image 1 — Decorative** | frontend | Fast | Hero/about/page-header decoratives | Seed wave (imagery-gated) |
-| **3 + 4 — Components + Pages (merged)** | frontend | Default | One merged "build" agent per vertical writes its islands **then** the routes that mount them | Build wave (§ "Step 4.5") |
-| **Image 2 — Entity** | business | Fast | Product/blog/CMS images PATCHed onto Wix entities | Build wave (imagery-gated) |
+| Phase                                   | Track    | Tier               | What                                                                                                                                                     | When                                                    |
+| --------------------------------------- | -------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| **1 — Seed**                            | business | Fast               | Per-pack seeders → orchestrator collects `seeded` map in scratch                                                                                         | Seed wave                                               |
+| **2 — Design System**                   | frontend | Default (Designer) | **Designer** returns tokens + brand-voice JSON (authors `DESIGN.md`, no other files); **`compose.mjs`** (script, no subagent) writes the 6 files from it | Designer: run-step 0 · compose.mjs: Setup-window bridge |
+| **Image 1 — Decorative**                | frontend | Fast               | Hero/about/page-header decoratives                                                                                                                       | Seed wave (imagery-gated)                               |
+| **3 + 4 — Components + Pages (merged)** | frontend | Default            | One merged "build" agent per vertical writes its islands **then** the routes that mount them                                                             | Build wave (§ "Step 4.5")                               |
+| **Image 2 — Entity**                    | business | Fast               | Product/blog/CMS images PATCHed onto Wix entities                                                                                                        | Build wave (imagery-gated)                              |
 
 > **Set the model tier on every dispatch** (`SKILL.md` § "Subagent model tier", by table lookup). Tier is the dispatch primitive's model parameter, not the prompt — omit it and Default-tier roles silently run under-powered.
 
@@ -25,6 +25,7 @@ The contract lives in scratch — no disk snapshot. Nothing is dispatched yet (t
 ### 0. Dispatch scaffold + Designer (background, one concurrent batch on entry)
 
 Independent — fire together (`PLAN.md` § "Batching discipline"):
+
 - **Scaffold** — `scaffold.sh <folder-name> "<brand>" --frontend <value>` (background; capture `scaffold_handle` + its stderr tempfile). Folder-name + command shape: `DISCOVERY-create.md` § "After Q1". It **flattens the project into CWD** — one folder, one `.wix/`, no subdir to `cd` into (`SKILL.md` § "Path resolution"). `npm install` is **not** chained here (Setup Step 4c). The stderr tempfile is for post-hoc error inspection only — not a progress file to poll.
 - **Designer** — background; capture `designer_handle`. Instruction file = `<SKILL_ROOT>/references/DESIGN_SYSTEM.md` (the subagent opens it — do **not** Read it in the orchestrator). Inline Discovery's aesthetic craft from scratch (brand, aesthetic direction, palette, type, mood, page color strategy). Pass `designMdPath` = `<cwd>/DESIGN.md`. The Designer **authors `DESIGN.md`** (frontmatter = the tokens) and returns only `data.shell` + `designMdPath` — tokens never round-trip through your output. Judgment-only (~10–15 s). Do **not** pass application inputs (packs, nav links) — those go to `compose.mjs`.
 
@@ -91,9 +92,10 @@ One concurrent batch (`PLAN.md` § "Batching discipline"). No design-system work
 
 ### Subagent dispatch
 
-Base prompt fields: `SEED.md` § "Subagent prompt template". Each merged build agent is dispatched with *"read your `<vertical>` slice from `.wix/seeded.json`"* — the page side reads its slice itself (§ "The `.wix/seeded.json` handoff") — and *"read `.wix/design-tokens.css` for the token vocabulary"*; the orchestrator does **not** inline the token block (§ "Styling contract coordination"). (Image Phase 2's single slice stays inlined.) Subagents read no shared state except their own `.wix/seeded.json` slice and the on-disk design-token artifacts (read-only).
+Base prompt fields: `SEED.md` § "Subagent prompt template". Each merged build agent is dispatched with _"read your `<vertical>` slice from `.wix/seeded.json`"_ — the page side reads its slice itself (§ "The `.wix/seeded.json` handoff") — and _"read `.wix/design-tokens.css` for the token vocabulary"_; the orchestrator does **not** inline the token block (§ "Styling contract coordination"). (Image Phase 2's single slice stays inlined.) Subagents read no shared state except their own `.wix/seeded.json` slice and the on-disk design-token artifacts (read-only).
 
 **`Instruction file` per loaded vertical** (one merged build agent each, writes components then pages in one dispatch):
+
 - `stores/INSTRUCTIONS.md` — components + pages (private pages merge; `pages-home-and-nav` is the serialized shell agent)
 - `ecom/INSTRUCTIONS.md` — components + cart/thank-you pages + CartBadge nav mount (shell chain; passive, required by stores)
 - `cms/INSTRUCTIONS.md` — CMS pages (no components scope)
@@ -121,6 +123,7 @@ Return contract (your sole output channel — end your message with this fenced 
 Seeded entity IDs reach the build-wave Page readers through a **write-once, read-only shared artifact** — not by re-inlining a slice into every prompt. The conductor writes it once at the seed gate; each reader reads its own `<vertical>` slice. (Image Phase 2 keeps its inlined slice; Phase 3 Components need no seeded IDs.) It is a safe exception to the "inputs inlined / don't read shared state" rule.
 
 **Scope of the exception (all three must hold):**
+
 - exactly one writer — the conductor at the seed gate, before any reader dispatch;
 - readers read only their own `<vertical>` slice; no reader writes the file;
 - it carries seeded entity IDs only, never observability fields.
@@ -131,10 +134,25 @@ Seeded entity IDs reach the build-wave Page readers through a **write-once, read
 
 ```json
 {
-  "stores": { "products": [{ "id": "...", "name": "...", "slug": "...", "variantId": "...", "price": 0 }], "productIds": ["..."], "categoryIds": ["..."] },
-  "cms":    { "collectionIds": { "about": "...", "faq": "..." }, "itemIds": { "about": ["..."], "faq": ["..."] } },
-  "blog":   { "postIds": ["..."], "categoryIds": ["..."] },
-  "forms":  { "formIds": ["..."] }
+  "stores": {
+    "products": [
+      {
+        "id": "...",
+        "name": "...",
+        "slug": "...",
+        "variantId": "...",
+        "price": 0
+      }
+    ],
+    "productIds": ["..."],
+    "categoryIds": ["..."]
+  },
+  "cms": {
+    "collectionIds": { "about": "...", "faq": "..." },
+    "itemIds": { "about": ["..."], "faq": ["..."] }
+  },
+  "blog": { "postIds": ["..."], "categoryIds": ["..."] },
+  "forms": { "formIds": ["..."] }
 }
 ```
 
@@ -185,12 +203,14 @@ cp "<SKILL_ROOT>/references/astro/templates/bookings/SeoTags.astro"          "sr
 One merged "build" agent per loaded vertical (Instruction file = that vertical's `INSTRUCTIONS.md`), owning its `components` scope **and** its private `pages` scopes, written islands-first then pages. Split by whether the agent's scopes touch a **shared shell** (`src/components/Navigation.astro` or `src/pages/index.astro`):
 
 **A · Concurrent batch — agents that own only private files:**
+
 - **stores-build** — `components` (AddToCartButton, ProductPurchase, BackInStockForm, SeoTags) → `pages-categories` (`category/[slug].astro`, `CategoryRail.astro`) → `pages-products` (`products/index.astro`, `products/[slug].astro`, `ProductCard.astro`). **Write order matters: islands → `pages-categories` (writes `CategoryRail.astro`) → `pages-products` (mounts it)** — every import a later scope mounts is already on disk.
 - **blog-build** — `components` (blog service module, RicosViewer, consts) → `pages` (listing, detail, RSS, BlogPost layout, all under `src/pages/blog/*`). No `home:` marker → no shared-shell patch, stays concurrent.
 - **cms-build** — `pages` (About + FAQ wired to live `@wix/data`). No `components` scope.
 - **forms-build** — `components` (ContactForm island) + `pages` (`contact.astro`, private).
 
 **B · Serialized shell chain — agents that patch `Navigation.astro` / `index.astro`** (read-modify-write a shared file → concurrent dispatch trips the staleness guard `File has been modified since read`, **per-file, not per-marker**). **Launch one, wait for its return, launch the next** — each sees the previous one's insertion. Runs **alongside** batch A, not after it. The shell-patchers (today): **ecom, stores `pages-home-and-nav`, bookings, gift-cards** — exactly the packs with `nav:`/`home:` markers:
+
 - **ecom-build** — `components` (CartView, CartBadge) → `pages` (`cart.astro`, `thank-you.astro` private, **+ CartBadge mount in `Navigation.astro` at `<!-- nav:actions -->`**).
 - **stores-home-and-nav** — patch `index.astro` product grid at `<!-- home:stores -->` + `Navigation.astro` Shop submenu at `<!-- nav:links -->`. Writes no islands; pure shell-patcher.
 - **bookings-build** — `components` (ServiceCard, AvailabilityCalendar, BookingForm, ServiceBookingFlow, ManageBooking) → `pages` (`services/index.astro`, `services/[slug].astro`, `booking-confirmation.astro`, `manage-booking.astro` private, **+ Services link in `Navigation.astro` at `<!-- nav:links -->` / services teaser in `index.astro` at `<!-- home:bookings -->`**).
@@ -210,6 +230,7 @@ Styling contract: read .wix/design-tokens.css (on disk, gate-verified) for the t
 ```
 
 Merged agents MUST NOT:
+
 - Modify files outside their declared scopes (the union in their prompt)
 - Modify CSS (`global.css` owned by `compose.mjs`; `components-<pack>.css` is pre-copied — never authored)
 - Patch a shared shell unless they are the chain agent assigned to it
@@ -219,6 +240,7 @@ Merged agents MUST NOT:
 ## Wait: build wave → Build
 
 Wait on **all** build-wave agents — batch A and the full serialized chain B — then:
+
 - **`ai-generated`** (wave dispatched `image-phase-2-entity`): wait that handle, hard **120 s timeout** from when build agents finish; on timeout, note it and proceed. (It's been running since the wave opened, so the timeout rarely fires.) Skipping this ships previews with entity images still attaching.
 - **`themed-blocks`**: no wait — proceed immediately.
 
@@ -239,8 +261,8 @@ Then **Final Message** (`BUILD.md` § "Final Message" — summary + `AGENTS.md` 
 
 Inspect `.wix/debug.log` after a failed build:
 
-| Failure | Detect | Fix |
-|---------|--------|-----|
-| `Legacy HTML single-line comments` | build stderr | An agent emitted HTML comments in `.astro` frontmatter — replace with `//` or `/* */` |
-| `Missing environment variable WIX_CLIENT_ID` | build stderr | `npx @wix/cli@latest env pull --json` then retry |
-| `Cannot find module '@wix/…'` | build stderr | npm install missed it; check the pack's `packages` list |
+| Failure                                      | Detect       | Fix                                                                                   |
+| -------------------------------------------- | ------------ | ------------------------------------------------------------------------------------- |
+| `Legacy HTML single-line comments`           | build stderr | An agent emitted HTML comments in `.astro` frontmatter — replace with `//` or `/* */` |
+| `Missing environment variable WIX_CLIENT_ID` | build stderr | `npx @wix/cli@latest env pull --json` then retry                                      |
+| `Cannot find module '@wix/…'`                | build stderr | npm install missed it; check the pack's `packages` list                               |

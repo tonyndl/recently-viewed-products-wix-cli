@@ -65,7 +65,7 @@ function findDocsDir() {
       "@wix",
       "design-system",
       "dist",
-      "docs"
+      "docs",
     );
     if (fs.existsSync(candidate)) return candidate;
 
@@ -107,7 +107,7 @@ function buildTermsPattern(args) {
 function validateComponentName(name) {
   if (!/^[A-Za-z0-9]+$/.test(name)) {
     console.error(
-      `Invalid component name "${name}". Names may only contain letters and digits.`
+      `Invalid component name "${name}". Names may only contain letters and digits.`,
     );
     process.exit(1);
   }
@@ -120,7 +120,7 @@ function validateComponentName(name) {
 function cmdSearch(docsDir, terms) {
   if (terms.length === 0) {
     console.error("Usage: wds.cjs search <keyword> [keyword...]");
-    console.error('Example: wds.cjs search form input validation');
+    console.error("Example: wds.cjs search form input validation");
     process.exit(1);
   }
 
@@ -138,12 +138,18 @@ function cmdSearch(docsDir, terms) {
     if (regex.test(section)) {
       const lines = section.split("\n");
       const name = lines[0].trim();
-      const descLine = lines.find((l) => l.trimStart().startsWith("- description:"));
-      const desc = descLine ? descLine.replace(/.*- description:/, "").trim() : "";
+      const descLine = lines.find((l) =>
+        l.trimStart().startsWith("- description:"),
+      );
+      const desc = descLine
+        ? descLine.replace(/.*- description:/, "").trim()
+        : "";
       const doLine = lines.find((l) => l.trimStart().startsWith("- do:"));
       const doText = doLine ? doLine.replace(/.*- do:/, "").trim() : "";
       const dontLine = lines.find((l) => l.trimStart().startsWith("- donts:"));
-      const dontText = dontLine ? dontLine.replace(/.*- donts:/, "").trim() : "";
+      const dontText = dontLine
+        ? dontLine.replace(/.*- donts:/, "").trim()
+        : "";
       matches.push({ name, description: desc, do: doText, donts: dontText });
     }
   }
@@ -176,7 +182,7 @@ function printComponent(docsDir, componentName) {
 
   if (!propsContent) {
     console.error(
-      `Component "${componentName}" not found. Run: wds.cjs search <keyword>`
+      `Component "${componentName}" not found. Run: wds.cjs search <keyword>`,
     );
     return false;
   }
@@ -192,7 +198,7 @@ function printComponent(docsDir, componentName) {
   } else {
     // Large file — summarize prop names and types only
     console.log(
-      `(Large props file — showing summary. Use grep for specific prop details.)\n`
+      `(Large props file — showing summary. Use grep for specific prop details.)\n`,
     );
     for (const line of propsLines) {
       if (line.startsWith("### ")) {
@@ -228,7 +234,7 @@ function printComponent(docsDir, componentName) {
         console.log(`  - ${ex}`);
       }
       console.log(
-        `\nGet an example: wds.cjs example ${componentName} "<ExampleName>"`
+        `\nGet an example: wds.cjs example ${componentName} "<ExampleName>"`,
       );
     }
   }
@@ -253,7 +259,7 @@ function cmdComponent(docsDir, componentName) {
 function componentExists(docsDir, componentName) {
   if (!/^[A-Za-z0-9]+$/.test(componentName)) return false;
   return fs.existsSync(
-    path.join(docsDir, "components", `${componentName}Props.md`)
+    path.join(docsDir, "components", `${componentName}Props.md`),
   );
 }
 
@@ -274,14 +280,14 @@ function cmdComponents(docsDir, args) {
     // instead of being lumped under "not found".
     if (!/^[A-Za-z0-9]+$/.test(name)) {
       console.error(
-        `Invalid component name "${name}". Names may only contain letters and digits.`
+        `Invalid component name "${name}". Names may only contain letters and digits.`,
       );
       anyFailed = true;
       continue;
     }
     if (!componentExists(docsDir, name)) {
       console.error(
-        `Component "${name}" not found. Run: wds.cjs search <keyword>`
+        `Component "${name}" not found. Run: wds.cjs search <keyword>`,
       );
       anyFailed = true;
       continue;
@@ -306,7 +312,7 @@ function cmdExample(docsDir, componentName, exampleName) {
   const filePath = path.join(
     docsDir,
     "components",
-    `${componentName}Examples.md`
+    `${componentName}Examples.md`,
   );
   const content = readFile(filePath);
 
@@ -335,9 +341,7 @@ function cmdExample(docsDir, componentName, exampleName) {
   }
 
   if (startLine < 0) {
-    console.error(
-      `Example "${exampleName}" not found for ${componentName}.\n`
-    );
+    console.error(`Example "${exampleName}" not found for ${componentName}.\n`);
     // List available examples
     const available = [];
     for (const line of lines) {
@@ -361,7 +365,7 @@ function cmdTestkit(docsDir, componentName, methodName) {
   if (!componentName) {
     console.error("Usage: wds.cjs testkit <ComponentName> [methodName]");
     console.error("Example: wds.cjs testkit Button");
-    console.error('Example: wds.cjs testkit Button click');
+    console.error("Example: wds.cjs testkit Button click");
     process.exit(1);
   }
   validateComponentName(componentName);
@@ -462,7 +466,7 @@ function cmdIcons(docsDir, terms) {
     console.log(`  ${m}`);
   }
   console.log(
-    "\nIcons are from @wix/wix-ui-icons-common. Each icon has a Small variant (e.g., Add + AddSmall)."
+    "\nIcons are from @wix/wix-ui-icons-common. Each icon has a Small variant (e.g., Add + AddSmall).",
   );
 }
 
@@ -499,7 +503,7 @@ const docsDir = findDocsDir();
 if (!docsDir) {
   console.error(
     "Error: @wix/design-system not found in node_modules.\n" +
-      "Install it first: npm i @wix/design-system"
+      "Install it first: npm i @wix/design-system",
   );
   process.exit(1);
 }

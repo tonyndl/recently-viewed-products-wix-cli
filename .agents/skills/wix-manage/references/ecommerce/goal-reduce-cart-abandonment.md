@@ -13,9 +13,11 @@ references:
     path: ecommerce/setup-store-pickup-location.md
     load: false
 ---
+
 # Goal: Reduce Cart Abandonment
 
 > **Related skills**:
+>
 > - [Flow: Fix Coverage Gaps](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/flow-fix-coverage-gaps) — shipping coverage gaps block checkout entirely
 > - [Recipe: Apply Shipping Recommendations](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/recipe-apply-shipping-recommendations)
 > - [Setup Store Pickup Location](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/setup-store-pickup-location)
@@ -34,12 +36,12 @@ The merchant wants to reduce the percentage of customers who abandon checkout, s
 
 ## KPIs
 
-| KPI | Definition | How to measure | Benchmark |
-|---|---|---|---|
-| Delivery step CVR | Customers completing delivery step / customers reaching delivery step | Site metrics: delivery_step_cvr | 65% |
-| Cart abandonment rate | Carts created but not converted to orders / total carts | 1 - (orders / carts) | Industry avg ~70% |
-| Free shipping qualification rate | Orders qualifying for free shipping / total orders | Track orders meeting free shipping threshold | Higher is better |
-| Revenue from recovered checkouts | Incremental revenue from improved conversion | (new_cvr - old_cvr) * checkout_sessions * AOV | - |
+| KPI                              | Definition                                                            | How to measure                                | Benchmark         |
+| -------------------------------- | --------------------------------------------------------------------- | --------------------------------------------- | ----------------- |
+| Delivery step CVR                | Customers completing delivery step / customers reaching delivery step | Site metrics: delivery_step_cvr               | 65%               |
+| Cart abandonment rate            | Carts created but not converted to orders / total carts               | 1 - (orders / carts)                          | Industry avg ~70% |
+| Free shipping qualification rate | Orders qualifying for free shipping / total orders                    | Track orders meeting free shipping threshold  | Higher is better  |
+| Revenue from recovered checkouts | Incremental revenue from improved conversion                          | (new_cvr - old_cvr) _ checkout_sessions _ AOV | -                 |
 
 ---
 
@@ -137,11 +139,11 @@ High shipping rates cause sticker shock even when coverage exists. Rate optimiza
 
 ## Decision Matrix
 
-| Scenario | Priority Action | Rationale |
-|---|---|---|
-| Regions without shipping options | Fix Coverage Gaps (P1) | Hard blocker — 0% conversion in uncovered regions |
-| No free shipping option exists | Add Free Shipping (P2) | #1 conversion driver for delivery step |
-| Free shipping exists but threshold too high | Add Free Shipping (recalibrate) | Lower threshold to match AOV |
-| High shipping rates, free shipping exists | Optimize Shipping Rates (P3) | Reduce sticker shock for below-threshold orders |
-| delivery_step_cvr >= 65% | No immediate action needed | Already at healthy benchmark |
-| Abandonment not at delivery step | Investigate other causes | Payment methods, UX, trust signals may be the issue |
+| Scenario                                    | Priority Action                 | Rationale                                           |
+| ------------------------------------------- | ------------------------------- | --------------------------------------------------- |
+| Regions without shipping options            | Fix Coverage Gaps (P1)          | Hard blocker — 0% conversion in uncovered regions   |
+| No free shipping option exists              | Add Free Shipping (P2)          | #1 conversion driver for delivery step              |
+| Free shipping exists but threshold too high | Add Free Shipping (recalibrate) | Lower threshold to match AOV                        |
+| High shipping rates, free shipping exists   | Optimize Shipping Rates (P3)    | Reduce sticker shock for below-threshold orders     |
+| delivery_step_cvr >= 65%                    | No immediate action needed      | Already at healthy benchmark                        |
+| Abandonment not at delivery step            | Investigate other causes        | Payment methods, UX, trust signals may be the issue |

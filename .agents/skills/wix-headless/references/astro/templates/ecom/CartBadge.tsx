@@ -31,7 +31,7 @@ export default function CartBadge() {
       const cart = await currentCart.getCurrentCart();
       const total = (cart.lineItems ?? []).reduce(
         (sum, item) => sum + (item.quantity ?? 0),
-        0
+        0,
       );
       setCount(total);
     } catch {
@@ -49,7 +49,7 @@ export default function CartBadge() {
       if (detail?.cart?.lineItems) {
         const total = (detail.cart.lineItems as any[]).reduce(
           (sum: number, item: any) => sum + (item.quantity ?? 0),
-          0
+          0,
         );
         setCount(total);
       } else if (detail?.delta) {
@@ -63,7 +63,11 @@ export default function CartBadge() {
   }, []);
 
   return (
-    <a href="/cart" className="cart-badge" aria-label={count > 0 ? `Cart, ${count} items` : "Cart"}>
+    <a
+      href="/cart"
+      className="cart-badge"
+      aria-label={count > 0 ? `Cart, ${count} items` : "Cart"}
+    >
       <svg
         className="cart-badge-icon"
         viewBox="0 0 24 24"

@@ -10,9 +10,11 @@ references:
     path: ecommerce/setup-discount-rules.md
     load: true
 ---
+
 # Flow: Bundle & Save Campaign
 
 > **Before executing this skill**, read these referenced skills with `ReadFullDocsArticle`:
+>
 > - [Guardrail: Discount Conflicts](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/guardrail-discount-conflicts)
 > - [Setup: Discount Rules](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/setup-discount-rules)
 
@@ -37,16 +39,19 @@ Creates a discount that rewards customers for purchasing multiple items, encoura
 Call `getCatalogAnalytics` and `getProductCatalogData` concurrently to assess the catalog's bundle potential.
 
 **getCatalogAnalytics** call:
+
 ```
 aggregates: min(price), max(price), avg(profitMargin), count
 ```
 
 **getProductCatalogData** call:
+
 ```
 ordered: price DESC, ordersCount DESC
 ```
 
 Save the following values:
+
 - `min_price`, `max_price` — price range determines viable bundle combinations
 - `avg_profit_margin` — sets the discount ceiling
 - `count` — catalog breadth; more products = more bundling options
@@ -69,13 +74,13 @@ Evaluate the catalog for bundling opportunities:
 
 Determine the `minItemQuantity` based on catalog characteristics:
 
-| Catalog Profile | Recommended minItemQuantity | Rationale |
-|---|---|---|
-| High-price items (avg price > price_p75) | 2 | Customers are less likely to buy 3+ expensive items |
-| Medium-price items | 2-3 | Standard bundle size |
-| Low-price items (avg price < price_p25) | 3-4 | Lower price per item makes larger bundles feasible |
-| Many items in category (count > 10) | 3 | More products to choose from |
-| Few items in category (count <= 5) | 2 | Limited selection constrains bundle size |
+| Catalog Profile                          | Recommended minItemQuantity | Rationale                                           |
+| ---------------------------------------- | --------------------------- | --------------------------------------------------- |
+| High-price items (avg price > price_p75) | 2                           | Customers are less likely to buy 3+ expensive items |
+| Medium-price items                       | 2-3                         | Standard bundle size                                |
+| Low-price items (avg price < price_p25)  | 3-4                         | Lower price per item makes larger bundles feasible  |
+| Many items in category (count > 10)      | 3                           | More products to choose from                        |
+| Few items in category (count <= 5)       | 2                           | Limited selection constrains bundle size            |
 
 Default to `minItemQuantity: 2` if data is ambiguous.
 
@@ -85,12 +90,12 @@ Default to `minItemQuantity: 2` if data is ambiguous.
 
 Scale the discount to the average margin, rewarding multi-item purchases without eroding profitability:
 
-| Margin Tier | Condition | Recommended Discount |
-|---|---|---|
-| Low margin | `avg_profit_margin < 25%` | 10% |
-| Medium margin | `25% <= avg_profit_margin <= 50%` | 15% |
-| High margin | `avg_profit_margin > 50%` | 20% |
-| No data | Margin unavailable | 10% |
+| Margin Tier   | Condition                         | Recommended Discount |
+| ------------- | --------------------------------- | -------------------- |
+| Low margin    | `avg_profit_margin < 25%`         | 10%                  |
+| Medium margin | `25% <= avg_profit_margin <= 50%` | 15%                  |
+| High margin   | `avg_profit_margin > 50%`         | 20%                  |
+| No data       | Margin unavailable                | 10%                  |
 
 Verify that the discount respects the global cap of 25% and the minimum margin threshold of 15% (`discount <= avg_profit_margin - 15%`).
 
@@ -125,6 +130,7 @@ If scope is CATEGORY, call `getCategoryIds` to convert category names to GUIDs.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/discount-rules/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -149,6 +155,7 @@ If scope is CATEGORY, call `getCategoryIds` to convert category names to GUIDs.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/discount-rules`
 
 **Request** — Buy 2+ items from a category, get 15% off:
+
 ```json
 {
   "discountRule": {
@@ -176,6 +183,7 @@ If scope is CATEGORY, call `getCategoryIds` to convert category names to GUIDs.
 ```
 
 **Response**:
+
 ```json
 {
   "discountRule": {
@@ -205,6 +213,7 @@ If scope is CATEGORY, call `getCategoryIds` to convert category names to GUIDs.
 ```
 
 **Request** — Buy 3+ specific items, get 10% off:
+
 ```json
 {
   "discountRule": {
@@ -266,24 +275,24 @@ Save the returned `id` and `revision` for later management.
 
 ## Branching logic
 
-| Merchant intent | Scope | minItemQuantity | Discount |
-|---|---|---|---|
-| "Encourage people to buy more" | Determined by analytics | 2-3 | Margin-tiered |
-| "Bundle accessories together" | COLLECTION with category GUID | 2 | Margin-tiered |
+| Merchant intent                               | Scope                                | minItemQuantity   | Discount            |
+| --------------------------------------------- | ------------------------------------ | ----------------- | ------------------- |
+| "Encourage people to buy more"                | Determined by analytics              | 2-3               | Margin-tiered       |
+| "Bundle accessories together"                 | COLLECTION with category GUID        | 2                 | Margin-tiered       |
 | "Buy 3 get 20% off these products" (explicit) | SPECIFIC_PRODUCTS with product GUIDs | 3 (user override) | 20% (user override) |
-| "Multi-buy deal on everything" | CATALOG (site-wide) | 2 | Margin-tiered |
-| "Promote these 4 items as a set" | SPECIFIC_PRODUCTS (max 5) | 2-4 | Margin-tiered |
+| "Multi-buy deal on everything"                | CATALOG (site-wide)                  | 2                 | Margin-tiered       |
+| "Promote these 4 items as a set"              | SPECIFIC_PRODUCTS (max 5)            | 2-4               | Margin-tiered       |
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| `DISCOUNT_RULE_NOT_FOUND` | Rule ID doesn't exist | Re-query discount rules for current IDs |
-| `REVISION_MISMATCH` | Revision doesn't match | Re-fetch rule for latest revision, then retry |
-| Too few products in category | Category has only 1 product — bundling not viable | Switch to SITE scope or suggest a different category |
-| Margin data unavailable | No profit margin data in catalog | Default to 10% discount |
-| Category GUID not found | Category name doesn't match any collection | Re-query categories or fall back to SITE scope |
-| Max items exceeded | More than 5 productIds specified | Reduce to top 5 by ordersCount or switch to CATEGORY scope |
+| Error                        | Cause                                             | Fix                                                        |
+| ---------------------------- | ------------------------------------------------- | ---------------------------------------------------------- |
+| `DISCOUNT_RULE_NOT_FOUND`    | Rule ID doesn't exist                             | Re-query discount rules for current IDs                    |
+| `REVISION_MISMATCH`          | Revision doesn't match                            | Re-fetch rule for latest revision, then retry              |
+| Too few products in category | Category has only 1 product — bundling not viable | Switch to SITE scope or suggest a different category       |
+| Margin data unavailable      | No profit margin data in catalog                  | Default to 10% discount                                    |
+| Category GUID not found      | Category name doesn't match any collection        | Re-query categories or fall back to SITE scope             |
+| Max items exceeded           | More than 5 productIds specified                  | Reduce to top 5 by ordersCount or switch to CATEGORY scope |
 
 ## References
 

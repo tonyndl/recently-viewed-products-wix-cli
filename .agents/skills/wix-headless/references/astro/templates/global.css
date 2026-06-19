@@ -26,7 +26,10 @@
    @apply it (a plain contract class is NOT @apply-able in Tailwind v4). */
 @utility btn {
   @apply inline-flex items-center justify-center px-lg py-md rounded-md font-medium;
-  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
 }
 
 @layer base {
@@ -44,7 +47,12 @@
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
     line-height: 1.15;
     margin: 0;
@@ -60,7 +68,9 @@
     font: inherit;
     cursor: pointer;
   }
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font: inherit;
   }
   img {
@@ -68,7 +78,8 @@
     max-width: 100%;
     height: auto;
   }
-  ul, ol {
+  ul,
+  ol {
     margin: 0;
     padding: 0;
     list-style: none;
@@ -173,12 +184,16 @@
 .nav-progress[data-state="loading"] {
   opacity: 1;
   transform: scaleX(0.85);
-  transition: transform 1.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 120ms ease;
+  transition:
+    transform 1.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 120ms ease;
 }
 .nav-progress[data-state="done"] {
   opacity: 0;
   transform: scaleX(1);
-  transition: transform 200ms ease, opacity 240ms ease 60ms;
+  transition:
+    transform 200ms ease,
+    opacity 240ms ease 60ms;
 }
 
 /* Dim the product grid while ClientRouter fetches/swaps for immediate feedback. */
@@ -212,7 +227,10 @@ body[data-navigating="true"] .product-grid {
   opacity: 0;
   visibility: hidden;
   transform: translateY(4px);
-  transition: opacity 160ms ease, transform 160ms ease, visibility 160ms;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    visibility 160ms;
 }
 .site-nav-item.has-submenu:hover .site-nav-submenu,
 .site-nav-item.has-submenu:focus-within .site-nav-submenu {
@@ -250,7 +268,10 @@ body[data-navigating="true"] .product-grid {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-ink-soft, var(--color-ink));
-  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    background-color 160ms ease;
 }
 .category-pill:hover {
   border-color: var(--color-accent);

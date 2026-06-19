@@ -12,7 +12,7 @@ interface DescriptionLine {
 }
 
 interface Availability {
-  status?: string;       // "AVAILABLE" | "NOT_AVAILABLE" | "NOT_FOUND" | "PARTIALLY_AVAILABLE"
+  status?: string; // "AVAILABLE" | "NOT_AVAILABLE" | "NOT_FOUND" | "PARTIALLY_AVAILABLE"
   quantityAvailable?: number;
 }
 
@@ -38,7 +38,7 @@ interface LineItem {
   price?: { amount?: string; formattedConvertedAmount?: string };
   fullPrice?: { formattedConvertedAmount?: string };
   lineItemPrice?: { amount?: string; formattedConvertedAmount?: string };
-  image?: string;  // "wix:image://v1/<mediaId>/..." — always a string, NOT an object
+  image?: string; // "wix:image://v1/<mediaId>/..." — always a string, NOT an object
   catalogReference?: { catalogItemId?: string };
   descriptionLines?: DescriptionLine[];
   availability?: Availability;
@@ -80,7 +80,11 @@ function formatDescriptionLine(line: DescriptionLine): string {
  * (NOT an object { url } despite what the REST docs say).
  * Parse it to a Wix static CDN URL with resizing.
  */
-function resolveCartImage(image: string | undefined, width: number, height: number): string | undefined {
+function resolveCartImage(
+  image: string | undefined,
+  width: number,
+  height: number,
+): string | undefined {
   if (!image) return undefined;
   if (image.startsWith("wix:image://")) {
     const match = image.match(/wix:image:\/\/v1\/([^/]+)/);
@@ -169,7 +173,14 @@ function extractSummary(
   // `lineItems` is `any[]` — the SDK's LineItem shape (string | null on
   // translated fields) is structurally incompatible with our narrower local
   // LineItem. We only read `lineItemPrice.amount` here, which is loose anyway.
-  cart: { priceSummary?: any; appliedDiscounts?: any[]; lineItems?: any[]; currency?: string } | undefined,
+  cart:
+    | {
+        priceSummary?: any;
+        appliedDiscounts?: any[];
+        lineItems?: any[];
+        currency?: string;
+      }
+    | undefined,
 ): CartSummary {
   const ps = cart?.priceSummary;
   let subtotal = ps?.subtotal?.formattedConvertedAmount as string | undefined;
@@ -195,7 +206,10 @@ function extractSummary(
   }
 
   const discountNames = (cart?.appliedDiscounts ?? [])
-    .map((d: any) => d?.discountName || d?.coupon?.name || d?.merchantDiscount?.discountName)
+    .map(
+      (d: any) =>
+        d?.discountName || d?.coupon?.name || d?.merchantDiscount?.discountName,
+    )
     .filter(Boolean);
 
   return { subtotal, discount, total, discountNames };
@@ -245,7 +259,7 @@ export default function CartView() {
   const handleUpdateQuantity = (itemId: string, quantity: number) => {
     // Optimistic: update local state immediately
     setItems((prev) =>
-      prev.map((it) => (it._id === itemId ? { ...it, quantity } : it))
+      prev.map((it) => (it._id === itemId ? { ...it, quantity } : it)),
     );
 
     // Debounce API call — rapid clicks coalesce into one request
@@ -260,7 +274,9 @@ export default function CartView() {
             { _id: itemId, quantity },
           ]);
           if (!cart) return;
-          window.dispatchEvent(new CustomEvent("cart-updated", { detail: { cart } }));
+          window.dispatchEvent(
+            new CustomEvent("cart-updated", { detail: { cart } }),
+          );
           const nextItems = (cart.lineItems as unknown as LineItem[]) ?? [];
           const nextSummary = extractSummary(cart);
           setItems(nextItems);
@@ -269,7 +285,7 @@ export default function CartView() {
         } catch {
           await loadCart();
         }
-      }, 300)
+      }, 300),
     );
   };
 
@@ -289,9 +305,13 @@ export default function CartView() {
     setItems((prev) => prev.filter((it) => it._id !== itemId));
 
     try {
-      const { cart } = await currentCart.removeLineItemsFromCurrentCart([itemId]);
+      const { cart } = await currentCart.removeLineItemsFromCurrentCart([
+        itemId,
+      ]);
       if (!cart) return;
-      window.dispatchEvent(new CustomEvent("cart-updated", { detail: { cart } }));
+      window.dispatchEvent(
+        new CustomEvent("cart-updated", { detail: { cart } }),
+      );
       const nextItems = (cart.lineItems as unknown as LineItem[]) ?? [];
       const nextSummary = extractSummary(cart);
       setItems(nextItems);
@@ -346,7 +366,9 @@ export default function CartView() {
     return (
       <div className="cart-empty">
         <p>Your cart is empty.</p>
-        <a href="/products" className="checkout-btn">Browse Products</a>
+        <a href="/products" className="checkout-btn">
+          Browse Products
+        </a>
       </div>
     );
   }
@@ -362,7 +384,8 @@ export default function CartView() {
           const maxQty = item.availability?.quantityAvailable ?? 99;
           const hasDiscount =
             item.fullPrice?.formattedConvertedAmount &&
-            item.fullPrice.formattedConvertedAmount !== item.price?.formattedConvertedAmount;
+            item.fullPrice.formattedConvertedAmount !==
+              item.price?.formattedConvertedAmount;
 
           return (
             <div
@@ -372,29 +395,48 @@ export default function CartView() {
               {/* Product image + name link back to the product detail page
                   for available items. Unavailable lines render as plain text. */}
               {(() => {
-                const productHref = !unavailable ? resolveProductHref(item) : undefined;
+                const productHref = !unavailable
+                  ? resolveProductHref(item)
+                  : undefined;
                 const imgSrc = resolveCartImage(item.image, 160, 160);
                 const imageNode = imgSrc ? (
-                  <img src={imgSrc} alt={item.productName?.translated ?? ""} className="cart-item-image" />
+                  <img
+                    src={imgSrc}
+                    alt={item.productName?.translated ?? ""}
+                    className="cart-item-image"
+                  />
                 ) : (
-                  <div className="cart-item-image cart-item-image-placeholder" aria-hidden="true" />
+                  <div
+                    className="cart-item-image cart-item-image-placeholder"
+                    aria-hidden="true"
+                  />
                 );
                 return productHref ? (
-                  <a href={productHref} className="cart-item-image-link" aria-label={item.productName?.translated ?? "Product"}>
+                  <a
+                    href={productHref}
+                    className="cart-item-image-link"
+                    aria-label={item.productName?.translated ?? "Product"}
+                  >
                     {imageNode}
                   </a>
-                ) : imageNode;
+                ) : (
+                  imageNode
+                );
               })()}
 
               <div className="cart-item-info">
                 <h3 className="cart-item-name">
                   {(() => {
-                    const productHref = !unavailable ? resolveProductHref(item) : undefined;
+                    const productHref = !unavailable
+                      ? resolveProductHref(item)
+                      : undefined;
                     return productHref ? (
                       <a href={productHref} className="cart-item-name-link">
                         {item.productName?.translated}
                       </a>
-                    ) : item.productName?.translated;
+                    ) : (
+                      item.productName?.translated
+                    );
                   })()}
                 </h3>
 
@@ -403,7 +445,9 @@ export default function CartView() {
                 {(item.descriptionLines ?? []).map((line, i) => {
                   const text = formatDescriptionLine(line);
                   return text ? (
-                    <p key={i} className="cart-item-option">{text}</p>
+                    <p key={i} className="cart-item-option">
+                      {text}
+                    </p>
                   ) : null;
                 })}
 
@@ -413,7 +457,9 @@ export default function CartView() {
                     {(group.modifiers ?? []).map((mod, mi) => (
                       <p key={mi} className="cart-item-option">
                         {mod.label?.translated}
-                        {mod.quantity && mod.quantity > 1 ? ` ×${mod.quantity}` : ""}
+                        {mod.quantity && mod.quantity > 1
+                          ? ` ×${mod.quantity}`
+                          : ""}
                         {mod.price?.formattedConvertedAmount
                           ? ` (+${mod.price.formattedConvertedAmount})`
                           : ""}
@@ -435,7 +481,8 @@ export default function CartView() {
                       className="qty-btn"
                       disabled={!item.quantity || item.quantity <= 1}
                       onClick={() =>
-                        item._id && handleUpdateQuantity(item._id, (item.quantity ?? 1) - 1)
+                        item._id &&
+                        handleUpdateQuantity(item._id, (item.quantity ?? 1) - 1)
                       }
                     >
                       −
@@ -445,7 +492,8 @@ export default function CartView() {
                       className="qty-btn"
                       disabled={(item.quantity ?? 0) >= maxQty}
                       onClick={() =>
-                        item._id && handleUpdateQuantity(item._id, (item.quantity ?? 1) + 1)
+                        item._id &&
+                        handleUpdateQuantity(item._id, (item.quantity ?? 1) + 1)
                       }
                     >
                       +
@@ -463,9 +511,13 @@ export default function CartView() {
               <div className="cart-item-actions">
                 <div className="cart-item-prices">
                   {hasDiscount && (
-                    <span className="cart-item-full-price">{item.fullPrice!.formattedConvertedAmount}</span>
+                    <span className="cart-item-full-price">
+                      {item.fullPrice!.formattedConvertedAmount}
+                    </span>
                   )}
-                  <span className="cart-item-unit-price">{item.price?.formattedConvertedAmount}</span>
+                  <span className="cart-item-unit-price">
+                    {item.price?.formattedConvertedAmount}
+                  </span>
                 </div>
                 {(item.quantity ?? 1) > 1 && (
                   <p className="cart-item-line-total">
@@ -508,7 +560,10 @@ export default function CartView() {
             <span>
               Discount
               {summary.discountNames.length > 0 && (
-                <span className="cart-discount-name"> · {summary.discountNames.join(", ")}</span>
+                <span className="cart-discount-name">
+                  {" "}
+                  · {summary.discountNames.join(", ")}
+                </span>
               )}
             </span>
             <span className="cart-discount-amount">−{summary.discount}</span>
@@ -516,7 +571,9 @@ export default function CartView() {
         ) : summary.discountNames.length > 0 ? (
           <div className="cart-applied-discounts">
             <span>Applied discount</span>
-            <span className="cart-applied-discounts-name">{summary.discountNames.join(", ")}</span>
+            <span className="cart-applied-discounts-name">
+              {summary.discountNames.join(", ")}
+            </span>
           </div>
         ) : null}
         {summary.total && summary.total !== summary.subtotal && (

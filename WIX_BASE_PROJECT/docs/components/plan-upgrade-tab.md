@@ -21,6 +21,7 @@ PlanUpgradeTab/
 ```
 
 Also depends on:
+
 - `CurrentPlanCard/` (sibling component — see below)
 - `upgradeUtils.ts` (sibling file — see `WIX_BASE_PROJECT/docs/api/upgrade-utils.md`)
 - `src/extensions/dashboard/types.d.ts` for `PlanPricing`, `AppPlan`, `PricingTier` types
@@ -78,25 +79,27 @@ When `plans.length === 0` (API not configured or fetch failed), a static fallbac
 
 ```ts
 // PlanUpgradeTab/utils.ts
-import { FREE_FEATURES, PREMIUM_FEATURES } from '../upgradeUtils';
+import { FREE_FEATURES, PREMIUM_FEATURES } from "../upgradeUtils";
 
-export const buildPricingTiers = (planPricing: PlanPricing | null): PricingTier[] => {
+export const buildPricingTiers = (
+  planPricing: PlanPricing | null,
+): PricingTier[] => {
   if (!planPricing) return [];
 
   const { plans, showPriceWithTax } = planPricing;
 
-  const freeTier: PricingTier = { name: 'Free', features: FREE_FEATURES };
+  const freeTier: PricingTier = { name: "Free", features: FREE_FEATURES };
 
   if (!plans.length) {
     // API returned no plans (not yet configured in Dev Center, or fetch failed).
     // Show a static fallback premium card so the upgrade path is never broken.
     // yearlyPrice is the monthly-equivalent price when billed yearly (same unit as monthlyPrice).
     const fallbackPremium: PricingTier = {
-      name: 'Premium',
+      name: "Premium",
       features: PREMIUM_FEATURES,
       popular: true,
-      monthlyPrice: '2.0',
-      yearlyPrice: '2.99',
+      monthlyPrice: "2.0",
+      yearlyPrice: "2.99",
       savingsPercent: 20,
       // No planId/yearlyPlanId — PricingTierCard falls through to the upgrade URL.
     };
@@ -104,9 +107,13 @@ export const buildPricingTiers = (planPricing: PlanPricing | null): PricingTier[
   }
 
   const premiumTiers: PricingTier[] = plans.map((plan) => {
-    const monthlyPrice = plan.prices.find((p) => p.billingCycle.cycleType === 'MONTHLY');
-    const yearlyPrice = plan.prices.find((p) => p.billingCycle.cycleType === 'YEARLY');
-    const priceKey = showPriceWithTax ? 'totalPrice' : 'priceBeforeTax';
+    const monthlyPrice = plan.prices.find(
+      (p) => p.billingCycle.cycleType === "MONTHLY",
+    );
+    const yearlyPrice = plan.prices.find(
+      (p) => p.billingCycle.cycleType === "YEARLY",
+    );
+    const priceKey = showPriceWithTax ? "totalPrice" : "priceBeforeTax";
     const monthly = monthlyPrice?.[priceKey];
     const yearly = yearlyPrice?.[priceKey];
 
@@ -139,13 +146,13 @@ export const buildPricingTiers = (planPricing: PlanPricing | null): PricingTier[
 ## `styles/index.ts`
 
 ```ts
-import type { CSSProperties } from 'react';
+import type { CSSProperties } from "react";
 
 export const styles = {
   plansGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '16px',
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+    gap: "16px",
   } as CSSProperties,
 };
 ```
@@ -157,47 +164,47 @@ export const styles = {
 The header has a title/subtitle on the left and a segmented Monthly/Yearly control on the right. The active pill gets a white background + blue border; the inactive pill is transparent on the gray container. The Save badge lives inside the Yearly pill.
 
 ```ts
-import type { CSSProperties } from 'react';
+import type { CSSProperties } from "react";
 
 export const styles = {
   header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '16px 24px',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "16px 24px",
   } as CSSProperties,
   titleSection: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2px',
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px",
   } as CSSProperties,
   pillToggle: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
   } as CSSProperties,
   segmentedControl: {
-    display: 'flex',
-    alignItems: 'center',
-    background: '#F3F3F3',
-    borderRadius: '8px',
-    padding: '3px',
-    gap: '2px',
+    display: "flex",
+    alignItems: "center",
+    background: "#F3F3F3",
+    borderRadius: "8px",
+    padding: "3px",
+    gap: "2px",
   } as CSSProperties,
   pill: {
-    padding: '5px 14px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    userSelect: 'none',
-    background: 'transparent',
+    padding: "5px 14px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    userSelect: "none",
+    background: "transparent",
   } as CSSProperties,
   pillActive: {
-    padding: '5px 14px',
-    borderRadius: '6px',
-    border: '2px solid #116DFF',
-    background: '#fff',
-    cursor: 'pointer',
-    userSelect: 'none',
+    padding: "5px 14px",
+    borderRadius: "6px",
+    border: "2px solid #116DFF",
+    background: "#fff",
+    cursor: "pointer",
+    userSelect: "none",
   } as CSSProperties,
 };
 ```
@@ -209,9 +216,9 @@ export const styles = {
 Title "Plans & Pricing" with subtitle on the left. Segmented control on the right with Monthly/Yearly pills inside a gray rounded container. The active pill has a white background + blue border. The Save % badge lives inside the Yearly pill. No `ToggleSwitch` — use the custom segmented control below.
 
 ```tsx
-import { type FC } from 'react';
-import { Text, Badge } from '@wix/design-system';
-import { styles } from './styles/cardHeader';
+import { type FC } from "react";
+import { Text, Badge } from "@wix/design-system";
+import { styles } from "./styles/cardHeader";
 
 type Props = {
   plansLoading: boolean;
@@ -231,18 +238,38 @@ const PricingCardHeader: FC<Props> = ({
   <div style={styles.header}>
     <div style={styles.titleSection}>
       <Text weight="bold">Plans & Pricing</Text>
-      <Text size="small" secondary>Choose the plan that fits your needs.</Text>
+      <Text size="small" secondary>
+        Choose the plan that fits your needs.
+      </Text>
     </div>
     {!plansLoading && hasYearlyOption && (
       <div style={styles.pillToggle}>
         <div style={styles.segmentedControl}>
-          <div style={isYearly ? styles.pill : styles.pillActive} onClick={() => onSetYearly(false)}>
-            <Text size="small" weight={isYearly ? 'normal' : 'bold'}>Monthly</Text>
+          <div
+            style={isYearly ? styles.pill : styles.pillActive}
+            onClick={() => onSetYearly(false)}
+          >
+            <Text size="small" weight={isYearly ? "normal" : "bold"}>
+              Monthly
+            </Text>
           </div>
-          <div style={{ ...styles.pill, ...(isYearly ? styles.pillActive : {}), display: 'flex', alignItems: 'center', gap: '6px' }} onClick={() => onSetYearly(true)}>
-            <Text size="small" weight={isYearly ? 'bold' : 'normal'}>Yearly</Text>
+          <div
+            style={{
+              ...styles.pill,
+              ...(isYearly ? styles.pillActive : {}),
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+            onClick={() => onSetYearly(true)}
+          >
+            <Text size="small" weight={isYearly ? "bold" : "normal"}>
+              Yearly
+            </Text>
             {savingsPercent !== undefined && (
-              <Badge skin="success" size="tiny">Save {savingsPercent}%</Badge>
+              <Badge skin="success" size="tiny">
+                Save {savingsPercent}%
+              </Badge>
             )}
           </div>
         </div>
@@ -261,43 +288,43 @@ export default PricingCardHeader;
 Non-free cards always get a blue border (`2px solid #116DFF`). Free card gets a gray border. Badges are inline with the plan name. Features use a plain blue `✓` checkmark (no icon component, no circle border).
 
 ```ts
-import type { CSSProperties } from 'react';
+import type { CSSProperties } from "react";
 
 export const getCardStyle = (isPremiumCard: boolean): CSSProperties => ({
-  border: isPremiumCard ? '2px solid #116DFF' : '1px solid #E5E5E5',
-  borderRadius: '8px',
-  padding: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
+  border: isPremiumCard ? "2px solid #116DFF" : "1px solid #E5E5E5",
+  borderRadius: "8px",
+  padding: "20px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
 });
 
 export const styles = {
   nameRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    flexWrap: 'wrap',
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    flexWrap: "wrap",
   } as CSSProperties,
   priceRow: {
-    display: 'flex',
-    alignItems: 'baseline',
-    gap: '4px',
+    display: "flex",
+    alignItems: "baseline",
+    gap: "4px",
   } as CSSProperties,
   featureList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
     flex: 1,
   } as CSSProperties,
   featureRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
   } as CSSProperties,
   circleCheck: {
-    color: '#116DFF',
-    fontSize: '14px',
+    color: "#116DFF",
+    fontSize: "14px",
     fontWeight: 700,
     flexShrink: 0,
     lineHeight: 1,
@@ -310,6 +337,7 @@ export const styles = {
 ## `ui/pricingTierCard.tsx`
 
 Card design rules:
+
 - Non-free cards always have a blue border (`getCardStyle(!isFree)`).
 - Plan name + `Current Plan` (blue) or `Most Popular` (green) badge are on the same row.
 - Free card shows `$0 forever`. Premium shows `{price} /month`. No price shows `See pricing →`.
@@ -318,11 +346,11 @@ Card design rules:
 - Buttons are full width (no `size="small"`).
 
 ```tsx
-import { type FC } from 'react';
-import { Text, Button, Badge } from '@wix/design-system';
-import * as Icons from '@wix/wix-ui-icons-common';
-import { formatPrice, openUpgradeUrl } from '../../upgradeUtils';
-import { getCardStyle, styles } from './styles/pricingTierCard';
+import { type FC } from "react";
+import { Text, Button, Badge } from "@wix/design-system";
+import * as Icons from "@wix/wix-ui-icons-common";
+import { formatPrice, openUpgradeUrl } from "../../upgradeUtils";
+import { getCardStyle, styles } from "./styles/pricingTierCard";
 
 type Props = {
   tier: PricingTier;
@@ -331,20 +359,31 @@ type Props = {
   resolvedUpgradeUrl: string;
 };
 
-const PricingTierCard: FC<Props> = ({ tier, isPremium, isYearly, resolvedUpgradeUrl }) => {
-  const isFree = tier.name.toLowerCase() === 'free';
+const PricingTierCard: FC<Props> = ({
+  tier,
+  isPremium,
+  isYearly,
+  resolvedUpgradeUrl,
+}) => {
+  const isFree = tier.name.toLowerCase() === "free";
   const isCurrentPlan = isFree ? !isPremium : isPremium;
   const price = isYearly ? tier.yearlyPrice : tier.monthlyPrice;
   // Both monthlyPrice and yearlyPrice are already monthly-equivalent amounts from the API.
-  const displayPrice = price ? formatPrice(price, 'USD') : null;
+  const displayPrice = price ? formatPrice(price, "USD") : null;
 
   return (
     <div style={getCardStyle(!isFree)}>
       <div style={styles.nameRow}>
         <Text weight="bold">{tier.name}</Text>
-        {isCurrentPlan && <Badge skin="standard" size="tiny">Current Plan</Badge>}
+        {isCurrentPlan && (
+          <Badge skin="standard" size="tiny">
+            Current Plan
+          </Badge>
+        )}
         {tier.popular && !isFree && !isCurrentPlan && (
-          <Badge skin="success" size="tiny">Most Popular</Badge>
+          <Badge skin="success" size="tiny">
+            Most Popular
+          </Badge>
         )}
       </div>
 
@@ -352,15 +391,21 @@ const PricingTierCard: FC<Props> = ({ tier, isPremium, isYearly, resolvedUpgrade
         {isFree ? (
           <>
             <Text weight="bold">$0</Text>
-            <Text size="small" secondary>forever</Text>
+            <Text size="small" secondary>
+              forever
+            </Text>
           </>
         ) : displayPrice ? (
           <>
             <Text weight="bold">{displayPrice}</Text>
-            <Text size="small" secondary>/month</Text>
+            <Text size="small" secondary>
+              /month
+            </Text>
           </>
         ) : (
-          <Text size="small" secondary>See pricing →</Text>
+          <Text size="small" secondary>
+            See pricing →
+          </Text>
         )}
       </div>
 
@@ -374,7 +419,9 @@ const PricingTierCard: FC<Props> = ({ tier, isPremium, isYearly, resolvedUpgrade
       </div>
 
       {isCurrentPlan ? (
-        <Button priority="secondary" disabled>Current Plan</Button>
+        <Button priority="secondary" disabled>
+          Current Plan
+        </Button>
       ) : isFree ? null : (
         <Button
           skin="premium"
@@ -396,39 +443,39 @@ export default PricingTierCard;
 ## `CurrentPlanCard/styles/index.ts`
 
 ```ts
-import type { CSSProperties } from 'react';
+import type { CSSProperties } from "react";
 
 export const styles = {
   card: {
-    border: '1px solid #E5E5E5',
-    borderRadius: '8px',
-    padding: '20px 24px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '16px',
+    border: "1px solid #E5E5E5",
+    borderRadius: "8px",
+    padding: "20px 24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "16px",
   } as CSSProperties,
   infoRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    flexWrap: 'wrap',
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    flexWrap: "wrap",
   } as CSSProperties,
   featuresRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-    flexWrap: 'wrap',
-    marginTop: '8px',
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    flexWrap: "wrap",
+    marginTop: "8px",
   } as CSSProperties,
   featureItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
   } as CSSProperties,
   circleCheck: {
-    color: '#116DFF',
-    fontSize: '14px',
+    color: "#116DFF",
+    fontSize: "14px",
     fontWeight: 700,
     flexShrink: 0,
     lineHeight: 1,
@@ -443,11 +490,11 @@ export const styles = {
 Shows "Your Current Plan: [FREE/PREMIUM badge] $0 forever" on one row, features with blue `✓` checkmarks below, and "Upgrade to Premium" button on the right (hidden when already premium).
 
 ```tsx
-import { type FC } from 'react';
-import { Text, Button, Badge } from '@wix/design-system';
-import * as Icons from '@wix/wix-ui-icons-common';
-import { openUpgradeUrl } from '../upgradeUtils';
-import { styles } from './styles';
+import { type FC } from "react";
+import { Text, Button, Badge } from "@wix/design-system";
+import * as Icons from "@wix/wix-ui-icons-common";
+import { openUpgradeUrl } from "../upgradeUtils";
+import { styles } from "./styles";
 
 type Props = {
   isPremium: boolean;
@@ -463,17 +510,21 @@ const CurrentPlanCard: FC<Props> = ({ isPremium, currentTier, upgradeUrl }) => {
       <div>
         <div style={styles.infoRow}>
           <Text weight="bold">Your Current Plan:</Text>
-          <Badge skin={isPremium ? 'premium' : 'standard'} size="tiny">
-            {isPremium ? 'PREMIUM' : 'FREE'}
+          <Badge skin={isPremium ? "premium" : "standard"} size="tiny">
+            {isPremium ? "PREMIUM" : "FREE"}
           </Badge>
-          <Text secondary>{isPremium ? currentTier?.name ?? 'Premium' : '$0 forever'}</Text>
+          <Text secondary>
+            {isPremium ? (currentTier?.name ?? "Premium") : "$0 forever"}
+          </Text>
         </div>
         {features.length > 0 && (
           <div style={styles.featuresRow}>
             {features.map((f) => (
               <div key={f} style={styles.featureItem}>
                 <span style={styles.circleCheck}>✓</span>
-                <Text size="small" secondary>{f}</Text>
+                <Text size="small" secondary>
+                  {f}
+                </Text>
               </div>
             ))}
           </div>
@@ -500,13 +551,13 @@ export default CurrentPlanCard;
 ## `index.tsx`
 
 ```tsx
-import { type FC, useState } from 'react';
-import { Box, Card, Loader } from '@wix/design-system';
-import CurrentPlanCard from '../CurrentPlanCard';
-import { styles } from './styles';
-import { buildPricingTiers } from './utils';
-import PricingCardHeader from './ui/cardHeader';
-import PricingTierCard from './ui/pricingTierCard';
+import { type FC, useState } from "react";
+import { Box, Card, Loader } from "@wix/design-system";
+import CurrentPlanCard from "../CurrentPlanCard";
+import { styles } from "./styles";
+import { buildPricingTiers } from "./utils";
+import PricingCardHeader from "./ui/cardHeader";
+import PricingTierCard from "./ui/pricingTierCard";
 
 type Props = {
   isPremium: boolean;
@@ -518,18 +569,24 @@ const PlanUpgradeTab: FC<Props> = ({ isPremium, upgradeUrl, planPricing }) => {
   const [isYearly, setIsYearly] = useState(false);
   const plansLoading = planPricing === null;
   const pricingTiers = buildPricingTiers(planPricing);
-  const resolvedUpgradeUrl = upgradeUrl ?? '';
+  const resolvedUpgradeUrl = upgradeUrl ?? "";
   const hasYearlyOption = pricingTiers.some((t) => t.yearlyPrice);
-  const savingsPercent = pricingTiers.find((t) => t.savingsPercent)?.savingsPercent;
+  const savingsPercent = pricingTiers.find(
+    (t) => t.savingsPercent,
+  )?.savingsPercent;
   const currentTier = pricingTiers.find((tier) => {
-    const isFreeOrBasic = ['free', 'basic'].includes(tier.name.toLowerCase());
+    const isFreeOrBasic = ["free", "basic"].includes(tier.name.toLowerCase());
     return isFreeOrBasic ? !isPremium : isPremium;
   });
 
   return (
     <Box marginTop="SP5" direction="vertical" gap="SP4">
       <div>
-        <CurrentPlanCard isPremium={isPremium} currentTier={currentTier} upgradeUrl={resolvedUpgradeUrl} />
+        <CurrentPlanCard
+          isPremium={isPremium}
+          currentTier={currentTier}
+          upgradeUrl={resolvedUpgradeUrl}
+        />
       </div>
       <div>
         <Card>
@@ -574,9 +631,9 @@ export default PlanUpgradeTab;
 ## Loading plan pricing in the dashboard page
 
 ```tsx
-import { appPlans } from '@wix/app-management';
+import { appPlans } from "@wix/app-management";
 
-const APP_ID = '<your-app-id>';
+const APP_ID = "<your-app-id>";
 
 const loadAppPlans = useCallback(
   () =>
@@ -586,11 +643,13 @@ const loadAppPlans = useCallback(
         const plans = result.appPlans?.[0]?.plans ?? [];
         setPlanPricing({
           plans: plans as AppPlan[],
-          currency: result.currency ?? 'USD',
+          currency: result.currency ?? "USD",
           showPriceWithTax: result.taxSettings?.showPriceWithTax ?? false,
         });
       })
-      .catch(() => setPlanPricing({ plans: [], currency: 'USD', showPriceWithTax: false })),
+      .catch(() =>
+        setPlanPricing({ plans: [], currency: "USD", showPriceWithTax: false }),
+      ),
   [],
 );
 
@@ -602,11 +661,13 @@ useEffect(() => {
 Then pass `planPricing` as a prop:
 
 ```tsx
-{activeTab === 1 && (
-  <PlanUpgradeTab
-    isPremium={isPremium}
-    upgradeUrl={upgradeUrl}
-    planPricing={planPricing}
-  />
-)}
+{
+  activeTab === 1 && (
+    <PlanUpgradeTab
+      isPremium={isPremium}
+      upgradeUrl={upgradeUrl}
+      planPricing={planPricing}
+    />
+  );
+}
 ```

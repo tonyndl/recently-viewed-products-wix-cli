@@ -20,37 +20,37 @@ OnboardingSlideshow/
 ## `styles/index.ts`
 
 ```ts
-import type { CSSProperties } from 'react';
+import type { CSSProperties } from "react";
 
 export const styles = {
   container: {
-    height: '340px',
-    gap: '24px',
+    height: "340px",
+    gap: "24px",
   } as CSSProperties,
   textWrapper: {
-    maxWidth: '420px',
+    maxWidth: "420px",
   } as CSSProperties,
 };
 
 export const getIconCircleStyle = (gradient: string): CSSProperties => ({
-  width: '80px',
-  height: '80px',
-  borderRadius: '50%',
+  width: "80px",
+  height: "80px",
+  borderRadius: "50%",
   background: gradient,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
   flexShrink: 0,
-  transition: 'background 0.4s ease',
+  transition: "background 0.4s ease",
 });
 
 export const getDotStyle = (active: boolean): CSSProperties => ({
-  width: active ? '20px' : '8px',
-  height: '8px',
-  borderRadius: '4px',
-  background: active ? '#116DFF' : '#D9D9D9',
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
+  width: active ? "20px" : "8px",
+  height: "8px",
+  borderRadius: "4px",
+  background: active ? "#116DFF" : "#D9D9D9",
+  cursor: "pointer",
+  transition: "all 0.3s ease",
 });
 ```
 
@@ -61,40 +61,40 @@ export const getDotStyle = (active: boolean): CSSProperties => ({
 Replace the slide content, icons, gradients, and button labels to match your app. Keep the structure identical.
 
 ```tsx
-import { type FC, useState, useEffect } from 'react';
-import { Box, Text, Heading, Button, Card } from '@wix/design-system';
-import * as Icons from '@wix/wix-ui-icons-common';
-import { Add } from '@wix/wix-ui-icons-common/classic-editor';
-import { styles, getIconCircleStyle, getDotStyle } from './styles';
+import { type FC, useState, useEffect } from "react";
+import { Box, Text, Heading, Button, Card } from "@wix/design-system";
+import * as Icons from "@wix/wix-ui-icons-common";
+import { Add } from "@wix/wix-ui-icons-common/classic-editor";
+import { styles, getIconCircleStyle, getDotStyle } from "./styles";
 
 // Persist dismissal across sessions
-export const ONBOARDING_STORAGE_KEY = '<your-app>_onboarding_done';
+export const ONBOARDING_STORAGE_KEY = "<your-app>_onboarding_done";
 
 // ─── Customise slides for your app ───────────────────────────────────────────
 const SLIDES = [
   {
-    gradient: 'linear-gradient(135deg, #116DFF 0%, #4A90E2 100%)',
-    icon: <Icons.Star style={{ color: '#fff', fontSize: '32px' }} />,
-    title: 'Welcome to [App Name]',
-    description: 'Short intro about what the app does for the user.',
+    gradient: "linear-gradient(135deg, #116DFF 0%, #4A90E2 100%)",
+    icon: <Icons.Star style={{ color: "#fff", fontSize: "32px" }} />,
+    title: "Welcome to [App Name]",
+    description: "Short intro about what the app does for the user.",
   },
   {
-    gradient: 'linear-gradient(135deg, #1EB464 0%, #10B981 100%)',
-    icon: <Icons.Add style={{ color: '#fff', fontSize: '32px' }} />,
-    title: 'Get started in seconds',
-    description: 'Explain the first action the user should take.',
+    gradient: "linear-gradient(135deg, #1EB464 0%, #10B981 100%)",
+    icon: <Icons.Add style={{ color: "#fff", fontSize: "32px" }} />,
+    title: "Get started in seconds",
+    description: "Explain the first action the user should take.",
   },
   {
-    gradient: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-    icon: <Icons.Globe style={{ color: '#fff', fontSize: '32px' }} />,
-    title: 'Always live on your site',
-    description: 'Explain how changes sync automatically.',
+    gradient: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
+    icon: <Icons.Globe style={{ color: "#fff", fontSize: "32px" }} />,
+    title: "Always live on your site",
+    description: "Explain how changes sync automatically.",
   },
   {
-    gradient: 'linear-gradient(135deg, #F5A524 0%, #FF6B35 100%)',
-    icon: <Icons.PremiumFilled style={{ color: '#fff', fontSize: '32px' }} />,
-    title: 'Unlock more with Premium',
-    description: 'Explain the free limit and what upgrading unlocks.',
+    gradient: "linear-gradient(135deg, #F5A524 0%, #FF6B35 100%)",
+    icon: <Icons.PremiumFilled style={{ color: "#fff", fontSize: "32px" }} />,
+    title: "Unlock more with Premium",
+    description: "Explain the free limit and what upgrading unlocks.",
   },
 ] as const;
 // ─────────────────────────────────────────────────────────────────────────────
@@ -131,9 +131,16 @@ export const OnboardingSlideshow: FC<OnboardingSlideshowProps> = ({
           >
             <div style={getIconCircleStyle(slide.gradient)}>{slide.icon}</div>
 
-            <Box direction="vertical" align="center" gap="SP2" style={styles.textWrapper}>
+            <Box
+              direction="vertical"
+              align="center"
+              gap="SP2"
+              style={styles.textWrapper}
+            >
               <Heading size="small">{slide.title}</Heading>
-              <Text secondary align="center">{slide.description}</Text>
+              <Text secondary align="center">
+                {slide.description}
+              </Text>
             </Box>
 
             {/* Dot navigation */}
@@ -145,7 +152,7 @@ export const OnboardingSlideshow: FC<OnboardingSlideshowProps> = ({
                   tabIndex={0}
                   aria-label={`Go to slide ${i + 1}`}
                   onClick={() => setSlideIndex(i)}
-                  onKeyDown={(e) => e.key === 'Enter' && setSlideIndex(i)}
+                  onKeyDown={(e) => e.key === "Enter" && setSlideIndex(i)}
                   style={getDotStyle(i === slideIndex)}
                 />
               ))}

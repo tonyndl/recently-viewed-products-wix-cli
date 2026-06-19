@@ -4,12 +4,12 @@ Operational calls in this skill use `npx @wix/cli@latest token --site "$SITE_ID"
 
 ## Doc search
 
-| Need | Endpoint |
-|---|---|
+| Need                              | Endpoint                                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Search REST / SDK / headless docs | `GET https://www.wixapis.com/mcp-docs-search/v1/search?kbName=<KB>&searchTerm=<q>&maxResults=<n>` |
-| Read a full article | `GET https://dev.wix.com/rawdocs/api/get-article-content?articleUrl=<url>&schema=false` |
-| Read method schema | Same URL with `schema=true` |
-| Browse REST docs menu | `GET https://dev.wix.com/docs/api/v1/get-menu-content?url=<url>&format=markdown` |
+| Read a full article               | `GET https://dev.wix.com/rawdocs/api/get-article-content?articleUrl=<url>&schema=false`           |
+| Read method schema                | Same URL with `schema=true`                                                                       |
+| Browse REST docs menu             | `GET https://dev.wix.com/docs/api/v1/get-menu-content?url=<url>&format=markdown`                  |
 
 **kbName values** (common): `REST_METHODS_KB_ID`, `SDK_KB_ID`, `HEADLESS_KB_ID`.
 

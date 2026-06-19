@@ -20,23 +20,35 @@ You wire the **blog capability** into a brought-in static site (`frontend = "cus
   import { createClient, OAuthStrategy } from "https://esm.sh/@wix/sdk@1";
   import { posts } from "https://esm.sh/@wix/blog@1";
 
-  const wix = createClient({ modules: { posts }, auth: OAuthStrategy({ clientId: "REPLACE_WITH_APP_ID" }) });
+  const wix = createClient({
+    modules: { posts },
+    auth: OAuthStrategy({ clientId: "REPLACE_WITH_APP_ID" }),
+  });
 
-  const list = document.querySelector("[data-blog-list], .post-list");   // binding-map anchor
-  const tpl  = list?.querySelector(".post-card");                         // binding-map template
+  const list = document.querySelector("[data-blog-list], .post-list"); // binding-map anchor
+  const tpl = list?.querySelector(".post-card"); // binding-map template
   if (list && tpl) {
     try {
       const { posts: items } = await wix.posts.queryPosts().limit(10).find();
       const proto = tpl.cloneNode(true);
-      list.replaceChildren(...items.map((post) => {
-        const card = proto.cloneNode(true);
-        const t = card.querySelector(".title");   if (t) t.textContent = post.title ?? "";
-        const ex = card.querySelector(".excerpt"); if (ex) ex.textContent = post.excerpt ?? "";
-        const link = card.querySelector("a");      if (link && post.slug) link.href = `/post/${post.slug}`;
-        const img = card.querySelector("img");     if (img && post.media?.wixMedia?.image) img.src = post.media.wixMedia.image.url ?? img.src;
-        return card;
-      }));
-    } catch (err) { console.error("[wix-blog] post query failed:", err); }
+      list.replaceChildren(
+        ...items.map((post) => {
+          const card = proto.cloneNode(true);
+          const t = card.querySelector(".title");
+          if (t) t.textContent = post.title ?? "";
+          const ex = card.querySelector(".excerpt");
+          if (ex) ex.textContent = post.excerpt ?? "";
+          const link = card.querySelector("a");
+          if (link && post.slug) link.href = `/post/${post.slug}`;
+          const img = card.querySelector("img");
+          if (img && post.media?.wixMedia?.image)
+            img.src = post.media.wixMedia.image.url ?? img.src;
+          return card;
+        }),
+      );
+    } catch (err) {
+      console.error("[wix-blog] post query failed:", err);
+    }
   }
 </script>
 ```

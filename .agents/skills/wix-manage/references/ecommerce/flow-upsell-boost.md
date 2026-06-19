@@ -13,9 +13,11 @@ references:
     path: ecommerce/setup-discount-rules.md
     load: true
 ---
+
 # Flow: Upsell Boost Campaign
 
 > **Before executing this skill**, read these referenced skills with `ReadFullDocsArticle`:
+>
 > - [Guardrail: Discount Conflicts](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/guardrail-discount-conflicts)
 > - [Guardrail: Margin Protection](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/guardrail-margin-protection)
 > - [Setup: Discount Rules](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/setup-discount-rules)
@@ -41,11 +43,13 @@ Creates a discount that incentivizes customers to spend more per order by settin
 Call `getCatalogAnalytics` and `getProductCatalogData` concurrently to collect pricing, margin, and product data.
 
 **getCatalogAnalytics** call:
+
 ```
 aggregates: count, quantiles([0.5, 0.75, 0.9], price), avg(profitMargin)
 ```
 
 **getProductCatalogData** call:
+
 ```
 ordered: price DESC, ordersCount DESC
 ```
@@ -53,6 +57,7 @@ ordered: price DESC, ordersCount DESC
 Also retrieve site-level AOV from `getSiteData` (AOV = revenue / ordersCount). Run the AOV sanity check: if AOV < price_p25, override with price_p50 as the effective AOV.
 
 Save the following values:
+
 - `effective_aov` — the validated average order value
 - `avg_profit_margin` — average profit margin across the catalog
 - `price_p50`, `price_p75`, `price_p90` — pricing quantiles
@@ -64,12 +69,12 @@ Save the following values:
 
 Use the average profit margin to select the appropriate discount and threshold tier.
 
-| Margin Tier | Condition | Max Discount | minSubTotal Formula |
-|---|---|---|---|
-| Low margin | `avg_profit_margin < 25%` | 10% | `1.15 x effective_aov` |
-| Medium margin | `25% <= avg_profit_margin <= 50%` | 15% | `1.3 x effective_aov` |
-| High margin | `avg_profit_margin > 50%` | 20% | `1.5 x effective_aov` |
-| No data | Margin data unavailable | 10% | `1.15 x effective_aov` |
+| Margin Tier   | Condition                         | Max Discount | minSubTotal Formula    |
+| ------------- | --------------------------------- | ------------ | ---------------------- |
+| Low margin    | `avg_profit_margin < 25%`         | 10%          | `1.15 x effective_aov` |
+| Medium margin | `25% <= avg_profit_margin <= 50%` | 15%          | `1.3 x effective_aov`  |
+| High margin   | `avg_profit_margin > 50%`         | 20%          | `1.5 x effective_aov`  |
+| No data       | Margin data unavailable           | 10%          | `1.15 x effective_aov` |
 
 Example: If `effective_aov` = $150 and `avg_profit_margin` = 35% (medium), then max discount = 15% and raw minSubTotal = $195.
 
@@ -79,14 +84,14 @@ Example: If `effective_aov` = $150 and `avg_profit_margin` = 35% (medium), then 
 
 **minSubTotal MUST be rounded UP to the nearest $5 increment** (the result mod 5 must equal 0). Always round UP, never down.
 
-| Raw Value | Rounded Value |
-|---|---|
-| $195 | $195 (already divisible by 5) |
-| $217 | $220 |
-| $223 | $225 |
-| $199 | $200 |
-| $172.50 | $175 |
-| $201 | $205 |
+| Raw Value | Rounded Value                 |
+| --------- | ----------------------------- |
+| $195      | $195 (already divisible by 5) |
+| $217      | $220                          |
+| $223      | $225                          |
+| $199      | $200                          |
+| $172.50   | $175                          |
+| $201      | $205                          |
 
 Formula: `minSubTotal = ceil(raw_value / 5) * 5`
 
@@ -123,6 +128,7 @@ Max 3 categoryIds per discount rule.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/discount-rules/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -152,6 +158,7 @@ The global discount cap is 25%. Do not exceed this unless the merchant explicitl
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/discount-rules`
 
 **Request** — 15% off orders over $195, scoped to a category:
+
 ```json
 {
   "discountRule": {
@@ -179,6 +186,7 @@ The global discount cap is 25%. Do not exceed this unless the merchant explicitl
 ```
 
 **Response**:
+
 ```json
 {
   "discountRule": {
@@ -208,6 +216,7 @@ The global discount cap is 25%. Do not exceed this unless the merchant explicitl
 ```
 
 **Request** — site-wide fallback example:
+
 ```json
 {
   "discountRule": {
@@ -249,22 +258,22 @@ Save the returned `id` and `revision` for later management.
 
 ## Branching logic
 
-| Merchant intent | Scope | Discount | minSubTotal |
-|---|---|---|---|
-| "Increase average order value" | Determined by analytics (CATEGORY preferred) | Margin-tiered | Calculated from AOV |
-| "Get people to spend more on electronics" | COLLECTION with electronics category GUID | Margin-tiered | Calculated from AOV |
-| "20% off orders over $200" (explicit) | As specified by merchant | 20% (user override) | $200 (user override) |
-| "Reward big spenders" | CATALOG (site-wide) | Margin-tiered | Calculated from AOV |
+| Merchant intent                           | Scope                                        | Discount            | minSubTotal          |
+| ----------------------------------------- | -------------------------------------------- | ------------------- | -------------------- |
+| "Increase average order value"            | Determined by analytics (CATEGORY preferred) | Margin-tiered       | Calculated from AOV  |
+| "Get people to spend more on electronics" | COLLECTION with electronics category GUID    | Margin-tiered       | Calculated from AOV  |
+| "20% off orders over $200" (explicit)     | As specified by merchant                     | 20% (user override) | $200 (user override) |
+| "Reward big spenders"                     | CATALOG (site-wide)                          | Margin-tiered       | Calculated from AOV  |
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| `DISCOUNT_RULE_NOT_FOUND` | Rule ID doesn't exist | Re-query discount rules for current IDs |
-| `REVISION_MISMATCH` | Revision doesn't match | Re-fetch rule for latest revision, then retry |
-| AOV unavailable | No revenue or order data | Use price_p50 from catalog analytics as AOV proxy |
-| Margin data unavailable | No profit margin data in catalog | Default to low-margin tier (10% discount, 1.15x AOV) |
-| Category GUID not found | Category name doesn't match any collection | Re-query categories or fall back to SITE scope |
+| Error                     | Cause                                      | Fix                                                  |
+| ------------------------- | ------------------------------------------ | ---------------------------------------------------- |
+| `DISCOUNT_RULE_NOT_FOUND` | Rule ID doesn't exist                      | Re-query discount rules for current IDs              |
+| `REVISION_MISMATCH`       | Revision doesn't match                     | Re-fetch rule for latest revision, then retry        |
+| AOV unavailable           | No revenue or order data                   | Use price_p50 from catalog analytics as AOV proxy    |
+| Margin data unavailable   | No profit margin data in catalog           | Default to low-margin tier (10% discount, 1.15x AOV) |
+| Category GUID not found   | Category name doesn't match any collection | Re-query categories or fall back to SITE scope       |
 
 ## References
 

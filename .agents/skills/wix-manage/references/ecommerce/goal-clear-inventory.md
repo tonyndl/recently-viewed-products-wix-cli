@@ -10,12 +10,15 @@ references:
     path: ecommerce/guardrail-margin-protection.md
     load: false
 ---
+
 # Goal: Clear Slow-Moving Inventory
 
 > **Before executing this skill**, read these referenced skills with `ReadFullDocsArticle`:
+>
 > - [Flow: Stock Mover](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/flow-stock-mover)
 >
 > **Related skills** (read with `ReadFullDocsArticle` if needed):
+>
 > - [Guardrail: Margin Protection](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/guardrail-margin-protection)
 
 Automate clearance discounts for products with high stock levels and low sales velocity, converting stagnant inventory into revenue before it becomes a carrying cost liability.
@@ -32,12 +35,12 @@ The merchant wants to reduce excess inventory for products that are not selling 
 
 ## KPIs
 
-| KPI | Definition | How to measure |
-|---|---|---|
-| Inventory turnover ratio | ordersCount / quantity for each product | `getProductCatalogData` — compare ordersCount to current quantity |
-| Days of supply | Current stock / average daily sales rate | Estimate from ordersCount over the product's listing period |
-| Clearance conversion rate | Units sold during clearance / units available at start | Track stock levels before and after campaign |
-| Revenue recovered | Revenue from clearance sales that would not have occurred organically | Compare sales velocity before and during campaign |
+| KPI                       | Definition                                                            | How to measure                                                    |
+| ------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Inventory turnover ratio  | ordersCount / quantity for each product                               | `getProductCatalogData` — compare ordersCount to current quantity |
+| Days of supply            | Current stock / average daily sales rate                              | Estimate from ordersCount over the product's listing period       |
+| Clearance conversion rate | Units sold during clearance / units available at start                | Track stock levels before and after campaign                      |
+| Revenue recovered         | Revenue from clearance sales that would not have occurred organically | Compare sales velocity before and during campaign                 |
 
 ---
 
@@ -67,12 +70,14 @@ The sole action for this goal. Identifies slow-moving products using the velocit
 **When to use:** Whenever the merchant wants to reduce stock levels for underperforming products.
 
 **Key mechanics:**
+
 - Velocity analysis: products with low ordersCount relative to quantity are clearance candidates
 - Discount depth scales with overstock severity (deeper discounts for more stagnant items)
 - Scope is typically ITEMS (specific slow-moving products) or CATEGORY (if an entire category is underperforming)
 - Margin protection is critical — clearance discounts push closer to cost, so the guardrail must verify effective margin stays above 15%
 
 **Product selection criteria:**
+
 - High quantity + low ordersCount = primary candidates
 - Products with 0 orders in 30+ days = urgent candidates
 - Products approaching seasonal irrelevance = time-sensitive candidates
@@ -109,10 +114,10 @@ The sole action for this goal. Identifies slow-moving products using the velocit
 
 ## Decision Matrix
 
-| Scenario | Approach | Rationale |
-|---|---|---|
-| Few specific slow products | ITEMS scope, targeted discounts | Surgical clearance avoids discounting healthy inventory |
-| Entire category underperforming | CATEGORY scope | Broader clearance when the problem is category-wide |
-| Products near zero velocity | Deeper discounts (up to margin floor) | Aggressive clearance justified for truly stagnant stock |
-| Seasonal items approaching end of season | Time-limited clearance with urgency | Combine with end date to create customer urgency |
-| Merchant specifies products or percentages | Honor merchant input | User overrides always take priority |
+| Scenario                                   | Approach                              | Rationale                                               |
+| ------------------------------------------ | ------------------------------------- | ------------------------------------------------------- |
+| Few specific slow products                 | ITEMS scope, targeted discounts       | Surgical clearance avoids discounting healthy inventory |
+| Entire category underperforming            | CATEGORY scope                        | Broader clearance when the problem is category-wide     |
+| Products near zero velocity                | Deeper discounts (up to margin floor) | Aggressive clearance justified for truly stagnant stock |
+| Seasonal items approaching end of season   | Time-limited clearance with urgency   | Combine with end date to create customer urgency        |
+| Merchant specifies products or percentages | Honor merchant input                  | User overrides always take priority                     |

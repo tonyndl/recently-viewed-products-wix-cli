@@ -1,6 +1,6 @@
 # Phase 4 Pages — Gift Cards
 
-The **pages** portion of the gift-cards **merged build agent** (the build wave) — written *after* its `components`. Writes the `/gift-cards` route and patches `Navigation.astro` + `index.astro` at their declared markers. Because it patches the shared shells, the gift-cards agent runs in the build wave's **serialized shell chain** (one shell-patcher at a time — `BUILD-astro.md` § "Step 4.5"). The components outputs (`src/utils/gift-cards.ts`, `src/components/GiftCardPurchase.tsx`, `src/styles/components-gift-cards.css`) were written earlier in this same agent, so they're already on disk.
+The **pages** portion of the gift-cards **merged build agent** (the build wave) — written _after_ its `components`. Writes the `/gift-cards` route and patches `Navigation.astro` + `index.astro` at their declared markers. Because it patches the shared shells, the gift-cards agent runs in the build wave's **serialized shell chain** (one shell-patcher at a time — `BUILD-astro.md` § "Step 4.5"). The components outputs (`src/utils/gift-cards.ts`, `src/components/GiftCardPurchase.tsx`, `src/styles/components-gift-cards.css`) were written earlier in this same agent, so they're already on disk.
 
 ## Scope
 
@@ -14,6 +14,7 @@ Files this agent PATCHES (insert at marker, preserve everything else):
 - `src/pages/index.astro` — insert home teaser at `<!-- home:gift-cards -->`
 
 Files this agent MUST NOT touch:
+
 - `src/utils/gift-cards.ts`, `src/components/GiftCardPurchase.tsx`, `src/styles/components-gift-cards.css` — Components scope.
 - Any other vertical's nav/home contributions.
 - `Layout.astro`, `global.css`, or any product/cart/checkout page.
@@ -43,6 +44,7 @@ Snippets to insert at markers live as standalone template fragments. Read each, 
 Use template `templates/gift-cards.astro`.
 
 Frontmatter:
+
 ```astro
 ---
 import Layout from "../layouts/Layout.astro";
@@ -73,6 +75,7 @@ Body: hero image + name + description + `<GiftCardPurchase client:load product={
 
 1. Read the file.
 2. Add to frontmatter:
+
    ```astro
    import { getGiftCardProduct } from "../utils/gift-cards";
    import { resolveWixImageUrl } from "../utils/wix-image";
@@ -82,12 +85,15 @@ Body: hero image + name + description + `<GiftCardPurchase client:load product={
      ? resolveWixImageUrl(giftCardProduct.image, 800, 600)
      : null;
    ```
+
    (`resolveWixImageUrl` import may already be present from the stores patcher — if so, do not re-import.)
+
 3. Locate the line containing `<!-- home:gift-cards -->`. Insert the teaser snippet immediately after it (see `templates/_home-teaser-snippet.astro`).
 
 ## Verification
 
 After writing/patching, grep the project to confirm:
+
 - `Navigation.astro` contains both the marker and the new link expression.
 - `index.astro` contains both the marker and the new `<section class="gift-card-teaser">` block.
 - `/gift-cards.astro` exists and references `GiftCardPurchase` (Components scope's island).
@@ -119,11 +125,11 @@ If a marker is missing, return `status: "partial"` with `errors: [{ code: "MARKE
 
 ## Anti-patterns
 
-| WRONG | CORRECT |
-|-------|---------|
-| Render the page when probe returns null | `Astro.redirect("/", 302)` |
-| Skip the import-injection step (assume another vertical added `getGiftCardProduct`) | Always inject the import + the `await` call when patching, scoped to the file you're touching |
-| Replace the marker comment with the inserted snippet | Insert AFTER the marker; preserve the marker line |
-| Move CSS into `<style>` blocks inside `.astro` files | Page/teaser CSS lives in `components-gift-cards.css` (Components scope) |
-| Hardcode `<title>"Gift Cards"</title>` | Use `title={\`${product.name}\`}` so the dashboard owner controls naming |
-| Conditionally re-render the page when the app is enabled later | The Astro page is server-rendered each request — the probe runs every time, so dashboard changes are picked up without rebuild |
+| WRONG                                                                               | CORRECT                                                                                                                        |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Render the page when probe returns null                                             | `Astro.redirect("/", 302)`                                                                                                     |
+| Skip the import-injection step (assume another vertical added `getGiftCardProduct`) | Always inject the import + the `await` call when patching, scoped to the file you're touching                                  |
+| Replace the marker comment with the inserted snippet                                | Insert AFTER the marker; preserve the marker line                                                                              |
+| Move CSS into `<style>` blocks inside `.astro` files                                | Page/teaser CSS lives in `components-gift-cards.css` (Components scope)                                                        |
+| Hardcode `<title>"Gift Cards"</title>`                                              | Use `title={\`${product.name}\`}` so the dashboard owner controls naming                                                       |
+| Conditionally re-render the page when the app is enabled later                      | The Astro page is server-rendered each request — the probe runs every time, so dashboard changes are picked up without rebuild |

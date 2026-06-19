@@ -1,4 +1,3 @@
-
 # Wix Site Plugin Builder
 
 Site plugins are custom elements that integrate into predefined **slots** within Wix business solutions (Wix Stores, Wix Bookings, Wix eCommerce, etc.), extending their functionality and user experience. Site owners place site plugins into UI slots using the plugin explorer in Wix editors.
@@ -44,7 +43,7 @@ Site plugins use native `HTMLElement` custom elements:
 // my-site-plugin.tsx
 class MyElement extends HTMLElement {
   static get observedAttributes() {
-    return ['display-name'];
+    return ["display-name"];
   }
 
   constructor() {
@@ -60,7 +59,8 @@ class MyElement extends HTMLElement {
   }
 
   render() {
-    const displayName = this.getAttribute('display-name') || "Your Plugin's Title";
+    const displayName =
+      this.getAttribute("display-name") || "Your Plugin's Title";
 
     this.innerHTML = `
       <div style="font-size: 16px; padding: 16px; border: 1px solid #ccc; border-radius: 8px; margin: 16px;">
@@ -229,6 +229,7 @@ export const FontPickerField: FC<FontPickerFieldProps> = ({
 ```
 
 **Important:**
+
 - Always use `inputs.selectColor()` from `@wix/editor` with `FillPreview` — do NOT use `<Input type="color">`
 - Always use `inputs.selectFont()` from `@wix/editor` with the callback pattern `inputs.selectFont(value, { onChange })`
 - Import `inputs` from `@wix/editor` (not from `@wix/sdk`)
@@ -237,19 +238,19 @@ export const FontPickerField: FC<FontPickerFieldProps> = ({
 
 Site plugins use **kebab-case** consistently for HTML attributes:
 
-| File                              | Convention | Example                            |
-| --------------------------------- | ---------- | ---------------------------------- |
-| `<plugin>.tsx` (getAttribute)     | kebab-case | `this.getAttribute('display-name')` |
-| `<plugin>.tsx` (observedAttributes) | kebab-case | `['display-name', 'bg-color']`     |
-| `<plugin>.panel.tsx` (widget API) | kebab-case | `widget.getProp('display-name')`   |
+| File                                | Convention | Example                             |
+| ----------------------------------- | ---------- | ----------------------------------- |
+| `<plugin>.tsx` (getAttribute)       | kebab-case | `this.getAttribute('display-name')` |
+| `<plugin>.tsx` (observedAttributes) | kebab-case | `['display-name', 'bg-color']`      |
+| `<plugin>.panel.tsx` (widget API)   | kebab-case | `widget.getProp('display-name')`    |
 
 ## References
 
-| Topic | Reference |
-| --- | --- |
-| Complete Examples | [EXAMPLES.md](site-plugin/EXAMPLES.md) |
+| Topic                                                                 | Reference                                                                                                           |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Complete Examples                                                     | [EXAMPLES.md](site-plugin/EXAMPLES.md)                                                                              |
 | Slots (App IDs, runtime APIs, design guidelines, multiple placements) | [SLOTS.md](site-plugin/SLOTS.md) — run `wix schema generate --type SITE_PLUGIN` for the authoritative `slotId` enum |
-| WDS Components | the `wix-design-system` skill |
+| WDS Components                                                        | the `wix-design-system` skill                                                                                       |
 
 ## Available Slots
 
@@ -296,6 +297,7 @@ For complete examples with all three required files (plugin component, settings 
 Site plugins are sandboxed when rendered in the editor. This means they're treated as if they come from a different domain, which impacts access to browser storage APIs.
 
 **Restricted APIs in the editor:**
+
 - `localStorage` and `sessionStorage` (Web Storage API)
 - `document.cookie` (Cookie Store API)
 - IndexedDB API
@@ -306,12 +308,12 @@ Site plugins are sandboxed when rendered in the editor. This means they're treat
 Use the `viewMode()` function from `@wix/site-window` to check the current mode before accessing restricted APIs:
 
 ```typescript
-import { window as wixWindow } from '@wix/site-window';
+import { window as wixWindow } from "@wix/site-window";
 
 const viewMode = await wixWindow.viewMode();
 
-if (viewMode === 'Site') {
-  const item = localStorage.getItem('myKey');
+if (viewMode === "Site") {
+  const item = localStorage.getItem("myKey");
 } else {
   // Mock storage or modify API usage for editor mode
 }

@@ -2,6 +2,7 @@
 name: "CMS Data Items CRUD"
 description: "Add, query, update, and delete items in CMS collections. Use this to insert content, bulk insert/update/patch/delete items, query with filters, and manage collection data. Key endpoints: /wix-data/v2/items, /wix-data/v2/bulk/items/*."
 ---
+
 # CMS Data Items CRUD
 
 > **Standard call shape (every curl below).** The `<AUTH>` placeholder is shorthand for `Authorization: Bearer <TOKEN>` only. Body-bearing requests also need `Content-Type: application/json`.
@@ -37,6 +38,7 @@ It may be, that user refers to schema by its `displayName` rather than `id`, if 
 **Endpoint**: `POST /wix-data/v2/items`
 
 **Request Body**:
+
 ```json
 {
   "dataCollectionId": "Products",
@@ -53,6 +55,7 @@ It may be, that user refers to schema by its `displayName` rather than `id`, if 
 ```
 
 **Response**:
+
 ```json
 {
   "dataItem": {
@@ -74,6 +77,7 @@ It may be, that user refers to schema by its `displayName` rather than `id`, if 
 **Endpoint**: `POST /wix-data/v2/bulk/items/insert`
 
 **Request Body**:
+
 ```json
 {
   "dataCollectionId": "Products",
@@ -109,6 +113,7 @@ It may be, that user refers to schema by its `displayName` rather than `id`, if 
 **Endpoint**: `POST /wix-data/v2/items/query`
 
 **Basic Query**:
+
 ```json
 {
   "dataCollectionId": "Products",
@@ -131,21 +136,20 @@ It may be, that user refers to schema by its `displayName` rather than `id`, if 
 ```
 
 **Advanced Query with Multiple Conditions**:
+
 ```json
 {
   "dataCollectionId": "Products",
   "query": {
     "filter": {
-      "$and": [
-        { "inStock": true },
-        { "price": { "$gte": 50, "$lte": 200 } }
-      ]
+      "$and": [{ "inStock": true }, { "price": { "$gte": 50, "$lte": 200 } }]
     }
   }
 }
 ```
 
 **Text Search**:
+
 ```json
 {
   "dataCollectionId": "Products",
@@ -174,6 +178,7 @@ curl -X GET \
 **Endpoint**: `PUT /wix-data/v2/items/{itemId}`
 
 **Request Body**:
+
 ```json
 {
   "dataCollectionId": "Products",
@@ -296,6 +301,7 @@ Unlike bulk update, this only modifies the specified fields - other fields remai
 ```
 
 **Setting a reference field** (single REFERENCE only):
+
 ```json
 {
   "dataCollectionId": "events",
@@ -323,11 +329,13 @@ Unlike bulk update, this only modifies the specified fields - other fields remai
 > **Recommended**: Use bulk patch instead of bulk update when you only need to change specific fields.
 
 > **Reference Fields**:
+>
 > - **Single REFERENCE**: CAN be set during insert/update by providing the referenced item's ID as the field value (e.g., `"venue": "venue-item-id"`)
 > - **MULTI_REFERENCE**: **STOP** - You cannot use this recipe for multi-reference fields. They cannot be set via insert/update/patch.
 >
 > **For MULTI_REFERENCE operations (add speakers, assign tags, link categories, etc.):**
 > **READ [CMS References & Relationships](cms-references-and-relationships.md)** for the exact endpoints and request bodies:
+>
 > - `POST /wix-data/v2/bulk/items/insert-references` - add references
 > - `POST /wix-data/v2/items/replace-references` - replace all references
 > - `POST /wix-data/v2/bulk/items/remove-references` - remove references
@@ -357,51 +365,52 @@ curl -X DELETE \
 
 ## Field Types Reference
 
-| Type | Description | Example Value |
-|------|-------------|---------------|
-| `TEXT` | String | `"Hello World"` |
-| `NUMBER` | Numeric | `99.99` |
-| `BOOLEAN` | True/false | `true` |
-| `DATE` | Date only | `"2024-01-15"` |
-| `DATETIME` | Date and time | `{ "$date": "2024-01-15T10:00:00.000Z" }` |
-| `IMAGE` | Image reference (HTTP url or wix:image://v1/{mediaId}/{friendlyName}) | `"wix:image://v1/3f72369f2219e2ee853e9e3df0217ce1.jpg/Colorful%20Business%20Cards.jpg"` |
-| `VIDEO` | Video reference (HTTP url or wix:video://v1/{mediaId}/{friendlyName}) | `"wix:video://v1/11062b_484182533ede4b9a81329daf20238867/Sketching%20Design%20Concepts#posterUri=11062b_484182533ede4b9a81329daf20238867f000.jpg&posterWidth=1920&posterHeight=1080"` |
-| `DOCUMENT` | Document reference  (HTTP url or wix:document://v1/{mediaId}) | `"wix:document://v1/..."` |
-| `MEDIA_IMAGE` | Wix Media Image | `{ "url": "http://...", "height": 640, "width": 480, "alt": "Picture" }` |
-| `MEDIA_VECTOR_ART` | Wix Media Vector Art | `{ "uri": "wix:vector://v1/...", "viewBox": "0 0 100 100", "contentType": "shape", "svgContent": "<svg>...</svg>" }` |
-| `URL` | Web URL | `"https://example.com"` |
-| `RICH_TEXT` | HTML content | `"<p>Rich text</p>"` |
-| `EMAIL` | Email | `"example@wix.com"` |
-| `RICH_CONTENT` | Structured content | Complex object |
-| `ADDRESS` | Address object | Address fields |
-| `ARRAY_STRING` | Array of strings | `["tag1", "tag2"]` |
-| `OBJECT` | JSON object | `{"key": "value"}` |
-| `REFERENCE` | Single reference | Item ID string |
-| `MULTI_REFERENCE` | Multiple references, use separate *reference* endpoints to manipulate, `include` to include in queries | Array of IDs |
+| Type               | Description                                                                                            | Example Value                                                                                                                                                                         |
+| ------------------ | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TEXT`             | String                                                                                                 | `"Hello World"`                                                                                                                                                                       |
+| `NUMBER`           | Numeric                                                                                                | `99.99`                                                                                                                                                                               |
+| `BOOLEAN`          | True/false                                                                                             | `true`                                                                                                                                                                                |
+| `DATE`             | Date only                                                                                              | `"2024-01-15"`                                                                                                                                                                        |
+| `DATETIME`         | Date and time                                                                                          | `{ "$date": "2024-01-15T10:00:00.000Z" }`                                                                                                                                             |
+| `IMAGE`            | Image reference (HTTP url or wix:image://v1/{mediaId}/{friendlyName})                                  | `"wix:image://v1/3f72369f2219e2ee853e9e3df0217ce1.jpg/Colorful%20Business%20Cards.jpg"`                                                                                               |
+| `VIDEO`            | Video reference (HTTP url or wix:video://v1/{mediaId}/{friendlyName})                                  | `"wix:video://v1/11062b_484182533ede4b9a81329daf20238867/Sketching%20Design%20Concepts#posterUri=11062b_484182533ede4b9a81329daf20238867f000.jpg&posterWidth=1920&posterHeight=1080"` |
+| `DOCUMENT`         | Document reference (HTTP url or wix:document://v1/{mediaId})                                           | `"wix:document://v1/..."`                                                                                                                                                             |
+| `MEDIA_IMAGE`      | Wix Media Image                                                                                        | `{ "url": "http://...", "height": 640, "width": 480, "alt": "Picture" }`                                                                                                              |
+| `MEDIA_VECTOR_ART` | Wix Media Vector Art                                                                                   | `{ "uri": "wix:vector://v1/...", "viewBox": "0 0 100 100", "contentType": "shape", "svgContent": "<svg>...</svg>" }`                                                                  |
+| `URL`              | Web URL                                                                                                | `"https://example.com"`                                                                                                                                                               |
+| `RICH_TEXT`        | HTML content                                                                                           | `"<p>Rich text</p>"`                                                                                                                                                                  |
+| `EMAIL`            | Email                                                                                                  | `"example@wix.com"`                                                                                                                                                                   |
+| `RICH_CONTENT`     | Structured content                                                                                     | Complex object                                                                                                                                                                        |
+| `ADDRESS`          | Address object                                                                                         | Address fields                                                                                                                                                                        |
+| `ARRAY_STRING`     | Array of strings                                                                                       | `["tag1", "tag2"]`                                                                                                                                                                    |
+| `OBJECT`           | JSON object                                                                                            | `{"key": "value"}`                                                                                                                                                                    |
+| `REFERENCE`        | Single reference                                                                                       | Item ID string                                                                                                                                                                        |
+| `MULTI_REFERENCE`  | Multiple references, use separate _reference_ endpoints to manipulate, `include` to include in queries | Array of IDs                                                                                                                                                                          |
 
 ---
 
 ## Query Operators
 
-| Operator | Description | Example |
-|----------|-------------|---------|
-| `$eq` | Equal | `{ "status": { "$eq": "active" } }` |
-| `$ne` | Not equal | `{ "status": { "$ne": "archived" } }` |
-| `$gt` | Greater than | `{ "price": { "$gt": 100 } }` |
-| `$gte` | Greater or equal | `{ "price": { "$gte": 100 } }` |
-| `$lt` | Less than | `{ "price": { "$lt": 50 } }` |
-| `$lte` | Less or equal | `{ "price": { "$lte": 50 } }` |
-| `$in` | In array | `{ "status": { "$in": ["active", "pending"] } }` |
-| `$contains` | Contains string | `{ "title": { "$contains": "pro" } }` |
-| `$startsWith` | Starts with | `{ "title": { "$startsWith": "Wireless" } }` |
-| `$and` | All conditions | `{ "$and": [{...}, {...}] }` |
-| `$or` | Any condition | `{ "$or": [{...}, {...}] }` |
+| Operator      | Description      | Example                                          |
+| ------------- | ---------------- | ------------------------------------------------ |
+| `$eq`         | Equal            | `{ "status": { "$eq": "active" } }`              |
+| `$ne`         | Not equal        | `{ "status": { "$ne": "archived" } }`            |
+| `$gt`         | Greater than     | `{ "price": { "$gt": 100 } }`                    |
+| `$gte`        | Greater or equal | `{ "price": { "$gte": 100 } }`                   |
+| `$lt`         | Less than        | `{ "price": { "$lt": 50 } }`                     |
+| `$lte`        | Less or equal    | `{ "price": { "$lte": 50 } }`                    |
+| `$in`         | In array         | `{ "status": { "$in": ["active", "pending"] } }` |
+| `$contains`   | Contains string  | `{ "title": { "$contains": "pro" } }`            |
+| `$startsWith` | Starts with      | `{ "title": { "$startsWith": "Wireless" } }`     |
+| `$and`        | All conditions   | `{ "$and": [{...}, {...}] }`                     |
+| `$or`         | Any condition    | `{ "$or": [{...}, {...}] }`                      |
 
 ---
 
 ## Pagination
 
 ### Offset-Based (Simple)
+
 ```json
 {
   "query": {
@@ -414,6 +423,7 @@ curl -X DELETE \
 ```
 
 ### Cursor-Based (Large Datasets)
+
 ```json
 {
   "query": {
@@ -429,16 +439,16 @@ curl -X DELETE \
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `COLLECTION_NOT_FOUND` | Invalid collection ID | Check collection exists |
-| `ITEM_NOT_FOUND` | Invalid item ID | Verify item exists |
-| `VALIDATION_ERROR` | Invalid field value | Check field types |
-| `DUPLICATE_KEY` | Duplicate unique field | Use unique values |
-| `PERMISSION_DENIED` | Insufficient access | Check API permissions |
-| `WDE0007` | Bulk update: wrong ID field name | Use `id` not `_id` at element level |
-| `WDE0080` | Validation failed (multiple causes) | Bulk update: don't include `_id` in `data`; Bulk patch: use `patches` array not `dataItems` |
-| `WDE0303` | Can't set multi-reference field via data operations | Use reference endpoints: `insert-references`, `replace-references` |
+| Error                  | Cause                                               | Solution                                                                                    |
+| ---------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `COLLECTION_NOT_FOUND` | Invalid collection ID                               | Check collection exists                                                                     |
+| `ITEM_NOT_FOUND`       | Invalid item ID                                     | Verify item exists                                                                          |
+| `VALIDATION_ERROR`     | Invalid field value                                 | Check field types                                                                           |
+| `DUPLICATE_KEY`        | Duplicate unique field                              | Use unique values                                                                           |
+| `PERMISSION_DENIED`    | Insufficient access                                 | Check API permissions                                                                       |
+| `WDE0007`              | Bulk update: wrong ID field name                    | Use `id` not `_id` at element level                                                         |
+| `WDE0080`              | Validation failed (multiple causes)                 | Bulk update: don't include `_id` in `data`; Bulk patch: use `patches` array not `dataItems` |
+| `WDE0303`              | Can't set multi-reference field via data operations | Use reference endpoints: `insert-references`, `replace-references`                          |
 
 ---
 

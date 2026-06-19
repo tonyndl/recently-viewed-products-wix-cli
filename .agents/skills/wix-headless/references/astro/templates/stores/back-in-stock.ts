@@ -30,8 +30,7 @@ import { auth, httpClient } from "@wix/essentials";
 
 export const WIX_STORES_BACK_IN_STOCK_APP_ID =
   "1380b703-ce81-ff05-f115-39571d94dfcd";
-export const WIX_STORES_INSTALL_APP_ID =
-  "215238eb-22a5-4c36-9e7b-e7c08025e04e";
+export const WIX_STORES_INSTALL_APP_ID = "215238eb-22a5-4c36-9e7b-e7c08025e04e";
 
 export const SETTINGS_URL =
   "https://www.wixapis.com/back-in-stock-service/v1/back-in-stock-notification-requests/settings";

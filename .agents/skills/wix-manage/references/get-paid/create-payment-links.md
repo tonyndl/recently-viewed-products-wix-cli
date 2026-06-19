@@ -2,6 +2,7 @@
 name: "Create Payment Links"
 description: Creates payment links for collecting payments without a checkout flow. Covers store products (catalog items), custom line items, variants, due dates, and sending links via email.
 ---
+
 # Create Payment Links
 
 This recipe shows how to create and manage payment links using the current Payment Links REST API.
@@ -178,23 +179,23 @@ Delete (only when no payments were received):
 
 ## Payment Link Statuses
 
-| Status | Description |
-|--------|-------------|
-| `ACTIVE` | Link is active and can receive payments |
+| Status     | Description                                  |
+| ---------- | -------------------------------------------- |
+| `ACTIVE`   | Link is active and can receive payments      |
 | `INACTIVE` | Link is inactive and cannot receive payments |
-| `PAID` | Payment has been completed |
-| `EXPIRED` | Link has passed its expiration date |
+| `PAID`     | Payment has been completed                   |
+| `EXPIRED`  | Link has passed its expiration date          |
 
 ## Common Errors
 
-| Error Code | Meaning |
-|------------|---------|
-| `UNPUBLISHED_SITE` | Site must be published before creating payment links |
-| `MISSING_ACCEPT_PAYMENTS` | Site is not set up to accept payments |
-| `FAILED_TO_INSTALL_ECOM` | Required eCommerce capability is missing |
-| `RECIPIENT_NOT_FOUND` | Provided recipient contact does not exist |
-| `ORDER_NOT_FOUND` | Provided order ID does not exist |
-| `INVALID_PAYMENTS_LIMIT_FOR_ECOM_ORDER_PAYMENT_LINK` | `ECOM_ORDER` links require `paymentsLimit: 1` |
+| Error Code                                           | Meaning                                              |
+| ---------------------------------------------------- | ---------------------------------------------------- |
+| `UNPUBLISHED_SITE`                                   | Site must be published before creating payment links |
+| `MISSING_ACCEPT_PAYMENTS`                            | Site is not set up to accept payments                |
+| `FAILED_TO_INSTALL_ECOM`                             | Required eCommerce capability is missing             |
+| `RECIPIENT_NOT_FOUND`                                | Provided recipient contact does not exist            |
+| `ORDER_NOT_FOUND`                                    | Provided order ID does not exist                     |
+| `INVALID_PAYMENTS_LIMIT_FOR_ECOM_ORDER_PAYMENT_LINK` | `ECOM_ORDER` links require `paymentsLimit: 1`        |
 
 ## Best Practices
 

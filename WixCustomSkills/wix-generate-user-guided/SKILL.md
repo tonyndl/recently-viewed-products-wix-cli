@@ -14,7 +14,7 @@ description: Guides the user through Wix CLI generation (wix generate / npm run 
 3. **Explain the purpose** of each choice briefly
 4. **Do NOT** execute generate
 5. **Do NOT** create files that the generator would create (dashboard pages, panels, widgets, extensions, web methods)
-6. **Do** implement logic and UI *inside* the files the user generates, once they exist
+6. **Do** implement logic and UI _inside_ the files the user generates, once they exist
 
 ## Wizard Guidance by Scenario
 
@@ -73,13 +73,13 @@ Once the user has generated the files:
 
 ## Quick Reference
 
-| User wants to add…        | User runs generate, picks… | Agent then…                          |
-|---------------------------|----------------------------|--------------------------------------|
-| Dashboard page            | Dashboard Page             | Implements page content              |
-| Widget settings panel     | Panel                      | Implements panel UI and props        |
-| New site widget           | Custom Element / Site Widget | Implements widget + panel          |
-| Backend API               | Web Method                 | Merges logic into generated file     |
-| Plugin                    | Plugin / Site Plugin       | Implements plugin logic              |
+| User wants to add…    | User runs generate, picks…   | Agent then…                      |
+| --------------------- | ---------------------------- | -------------------------------- |
+| Dashboard page        | Dashboard Page               | Implements page content          |
+| Widget settings panel | Panel                        | Implements panel UI and props    |
+| New site widget       | Custom Element / Site Widget | Implements widget + panel        |
+| Backend API           | Web Method                   | Merges logic into generated file |
+| Plugin                | Plugin / Site Plugin         | Implements plugin logic          |
 
 ## Anti-Patterns
 

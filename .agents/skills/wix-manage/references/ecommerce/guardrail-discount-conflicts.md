@@ -7,9 +7,11 @@ references:
     path: ecommerce/troubleshoot-discount-not-applying.md
     load: false
 ---
+
 # Guardrail: Discount Conflicts
 
 > **Related skills** (read with `ReadFullDocsArticle` if needed):
+>
 > - [Troubleshoot: Discount Not Applying](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/troubleshoot-discount-not-applying)
 
 ## When to use this guardrail
@@ -29,6 +31,7 @@ Run these checks **before** creating or updating any discount — whether automa
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/discount-rules/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -58,6 +61,7 @@ Run these checks **before** creating or updating any discount — whether automa
 **Why:** A discount above 50% is unusual and may indicate a typo (the merchant meant 15% not 50%). A discount of 100% makes the product free.
 
 **Rules:**
+
 - Discount > 50%: Warn — "This discount is {percentage}% off. Are you sure? This means a $100 product would sell for ${100 - percentage}."
 - Discount = 100%: Block unless explicitly confirmed — "This would make the product free. Please confirm this is intentional."
 - Discount > 100%: Block — "A discount cannot exceed 100%."
@@ -96,6 +100,7 @@ Run these checks **before** creating or updating any discount — whether automa
 **Why:** Deep discounts on low-margin products can result in selling at a loss.
 
 **Rules:**
+
 - If the merchant has provided cost/margin information, verify that the discount doesn't reduce the price below cost
 - If no cost information is available, warn for discounts > 40% as a general safety threshold
 
@@ -103,14 +108,14 @@ Run these checks **before** creating or updating any discount — whether automa
 
 ## Summary: Decision matrix
 
-| Scenario | Action |
-|---|---|
-| No conflicts found | Proceed with creating the discount |
-| Scope overlap with existing active automatic discount | Warn merchant, ask to deactivate existing or confirm stacking |
-| Cross-mechanism stacking (automatic + coupon on same scope) | Warn merchant with combined effective discount percentage |
-| Discount > 50% | Warn merchant, ask for confirmation |
-| Discount = 100% | Block unless explicitly confirmed |
-| Time overlap on same scope | Warn about overlap period |
+| Scenario                                                    | Action                                                        |
+| ----------------------------------------------------------- | ------------------------------------------------------------- |
+| No conflicts found                                          | Proceed with creating the discount                            |
+| Scope overlap with existing active automatic discount       | Warn merchant, ask to deactivate existing or confirm stacking |
+| Cross-mechanism stacking (automatic + coupon on same scope) | Warn merchant with combined effective discount percentage     |
+| Discount > 50%                                              | Warn merchant, ask for confirmation                           |
+| Discount = 100%                                             | Block unless explicitly confirmed                             |
+| Time overlap on same scope                                  | Warn about overlap period                                     |
 
 ## References
 

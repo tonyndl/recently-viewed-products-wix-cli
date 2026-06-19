@@ -6,28 +6,28 @@ The Gift Vouchers Provider SPI allows you to integrate external gift card or vou
 
 ## Handlers
 
-| Handler | Description |
-| --- | --- |
-| `redeem` | Process a gift card redemption during checkout |
-| `getBalance` | Check the current balance of a gift card |
-| `_void` | Cancel/void a previous redemption |
+| Handler      | Description                                    |
+| ------------ | ---------------------------------------------- |
+| `redeem`     | Process a gift card redemption during checkout |
+| `getBalance` | Check the current balance of a gift card       |
+| `_void`      | Cancel/void a previous redemption              |
 
 ## Request and Response Schema
 
 Before implementing, call `ReadFullDocsMethodSchema` on each docs URL to get the full request/response types.
 
-| Handler | Docs URL |
-| --- | --- |
-| `redeem` | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/payments/gift-cards/gift-cards-service-plugin/redeem?apiView=SDK |
+| Handler      | Docs URL                                                                                                                                   |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `redeem`     | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/payments/gift-cards/gift-cards-service-plugin/redeem?apiView=SDK      |
 | `getBalance` | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/payments/gift-cards/gift-cards-service-plugin/get-balance?apiView=SDK |
-| `_void` | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/payments/gift-cards/gift-cards-service-plugin/void?apiView=SDK |
+| `_void`      | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/payments/gift-cards/gift-cards-service-plugin/void?apiView=SDK        |
 
 ## Example: Gift Card Provider Implementation
 
 This example shows a basic gift card provider with all three required handlers.
 
 ```typescript
-import { giftVouchersProvider } from '@wix/ecom/service-plugins';
+import { giftVouchersProvider } from "@wix/ecom/service-plugins";
 
 giftVouchersProvider.provideHandlers({
   redeem: async (payload) => {
@@ -37,7 +37,7 @@ giftVouchersProvider.provideHandlers({
     return {
       // Return your response exactly as documented to integrate with Wix.
       // Return value example:
-      remainingBalance: 80.00,
+      remainingBalance: 80.0,
       currencyCode: metadata.currency || "ILS",
       transactionId: "00000000-0000-0000-0000-000000000001",
     };
@@ -49,7 +49,7 @@ giftVouchersProvider.provideHandlers({
     return {
       // Return your response exactly as documented to integrate with Wix.
       // Return value example:
-      remainingBalance: 100.00,
+      remainingBalance: 100.0,
       currencyCode: metadata.currency || "ILS",
     };
   },
@@ -60,7 +60,7 @@ giftVouchersProvider.provideHandlers({
     return {
       // Return your response exactly as documented to integrate with Wix.
       // Return value example:
-      balance: 100.00,
+      balance: 100.0,
       currencyCode: metadata.currency || "ILS",
     };
   },

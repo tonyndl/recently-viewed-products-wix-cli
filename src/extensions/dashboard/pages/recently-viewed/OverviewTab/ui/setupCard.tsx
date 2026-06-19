@@ -1,21 +1,21 @@
-import type { FC } from 'react';
-import { Box, Button, Card, Text } from '@wix/design-system';
-import * as Icons from '@wix/wix-ui-icons-common';
-import { styles } from '../styles/index';
+import type { FC } from "react";
+import { Box, Button, Card, Text } from "@wix/design-system";
+import * as Icons from "@wix/wix-ui-icons-common";
+import { styles } from "../styles/index";
 
 interface SetupCardProps {
   editorUrl: string | null;
 }
 
 const STEPS = [
-  'Open your site in the Wix Editor.',
-  'Click Add Elements → App Widgets → Recently Viewed Products.',
-  'Drag the widget onto any page (your product page works great).',
-  'Publish. The gallery fills in automatically as visitors browse products.',
+  "Open your site in the Wix Editor.",
+  "Click Add Elements → App Widgets → Recently Viewed Products.",
+  "Drag the widget onto any page (your product page works great).",
+  "Publish. The gallery fills in automatically as visitors browse products.",
 ];
 
 export const SetupCard: FC<SetupCardProps> = ({ editorUrl }) => (
-  <Card>
+  <Card stretchVertically>
     <Card.Header title="Add the widget to your site" />
     <Card.Divider />
     <Card.Content>
@@ -31,7 +31,7 @@ export const SetupCard: FC<SetupCardProps> = ({ editorUrl }) => (
             skin="inverted"
             prefixIcon={<Icons.Edit />}
             disabled={!editorUrl}
-            onClick={() => editorUrl && window.open(editorUrl, '_blank')}
+            onClick={() => editorUrl && window.open(editorUrl, "_blank")}
           >
             Open in Editor
           </Button>

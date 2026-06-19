@@ -2,15 +2,15 @@
 
 Every visual decision in a generated site falls into one of three categories. Each has a single owner and a single home. This file is the canonical reference; `DESIGN_SYSTEM.md` (Designer), `scripts/compose.mjs` (Composer — deterministic script, self-documenting), `astro/designer/INSTRUCTIONS.md` (Phase 4 page designers), and `IMPLEMENTER.md` link here.
 
-> **Design-system ownership (the design-vs-application split).** The **Designer** (`DESIGN_SYSTEM.md`) owns the token *values* and their *completeness* — a coherent, complete brand visual authored as a **DESIGN.md** (`data.design`; format spec in `shared/DESIGN_MD.md`). The **Composer** (`scripts/compose.mjs`; self-documenting) owns the *application* — it writes the `@theme` block in `global.css` from those values (mapping each semantic role to a `--var` name) and guarantees the required-token contract below resolves. Component and page authors still compose those tokens as Tailwind utilities at their call sites. So: Designer picks "paper = `#FAF6EF`"; Composer writes `--color-paper: #FAF6EF` into `@theme`; a page writes `class="bg-paper"`.
+> **Design-system ownership (the design-vs-application split).** The **Designer** (`DESIGN_SYSTEM.md`) owns the token _values_ and their _completeness_ — a coherent, complete brand visual authored as a **DESIGN.md** (`data.design`; format spec in `shared/DESIGN_MD.md`). The **Composer** (`scripts/compose.mjs`; self-documenting) owns the _application_ — it writes the `@theme` block in `global.css` from those values (mapping each semantic role to a `--var` name) and guarantees the required-token contract below resolves. Component and page authors still compose those tokens as Tailwind utilities at their call sites. So: Designer picks "paper = `#FAF6EF`"; Composer writes `--color-paper: #FAF6EF` into `@theme`; a page writes `class="bg-paper"`.
 
 ## The three categories
 
-| Category | Lives in | Owned by | Use for |
-|---|---|---|---|
+| Category                           | Lives in                                                                                                                                                                                                                                                          | Owned by                                                       | Use for                                                                                                                                                                              |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Tokens (composed as utilities)** | the canonical `DESIGN.md` + its projections: the `@theme` block in `src/styles/global.css` (written by `scripts/compose.mjs`), plus `.wix/design-tokens.css` and `.wix/site.d.ts` (written by `scripts/emit-design-tokens.mjs`) — all from Designer's `DESIGN.md` | Designer picks values (Phase 2); `compose.mjs` writes `@theme` | All color, spacing, typography scale, radii, aspect ratios, shadows, transitions. Pages compose tokens at call sites as Tailwind utilities — `class="py-4xl bg-sand aspect-[16/5]"`. |
-| **Global semantic classes** | `src/styles/global.css` (outside `@theme`) and `src/styles/components-<pack>.css` | Designer + Phase 3 component agents | Compound multi-element patterns, interactive states (`:hover`, `:focus`, `:disabled`), and JS/React DOM query targets. |
-| **Co-located styles** | `<style>` block at the bottom of the same `.astro` file (or component CSS module for islands) | Page or component author | One-off page decoration: hero stamps, custom dividers, ornamental overlays that won't be reused elsewhere. |
+| **Global semantic classes**        | `src/styles/global.css` (outside `@theme`) and `src/styles/components-<pack>.css`                                                                                                                                                                                 | Designer + Phase 3 component agents                            | Compound multi-element patterns, interactive states (`:hover`, `:focus`, `:disabled`), and JS/React DOM query targets.                                                               |
+| **Co-located styles**              | `<style>` block at the bottom of the same `.astro` file (or component CSS module for islands)                                                                                                                                                                     | Page or component author                                       | One-off page decoration: hero stamps, custom dividers, ornamental overlays that won't be reused elsewhere.                                                                           |
 
 ## Default direction
 
@@ -55,22 +55,22 @@ If a designer's `global.css` contains rules like `.featured-section { padding-bl
 
 The per-pack `components-<pack>.css` templates at `<SKILL_ROOT>/references/astro/templates/<pack>/components-<pack>.css` reference a fixed set of CSS custom properties via `var(--token)` (never `@apply`). Those templates are copied verbatim into the project by the orchestrator at BUILD-astro.md § Step 4.5, so **the Composer's `@theme` block MUST declare every token below** for the build to pass (the Composer maps the Designer's framework-agnostic spec onto these `--var` names, deriving any required role the Designer omitted). If a token is missing, the rule that references it collapses silently and the corresponding component renders unstyled (or worse, half-styled).
 
-| Token | Required? | Fallback in templates | Used by |
-|---|---|---|---|
-| `--color-paper` | **required** | — | every pack — primary background |
-| `--color-paper-warm` | **required** | `var(--color-paper, var(--color-cream))` | stores summary bg, ecom cart-summary bg, gift-cards |
-| `--color-ink` | **required** | — | every pack — primary text + dark fills |
-| `--color-ink-soft` | optional | `var(--color-mute)` | stores option-label, ecom cart-item-option |
-| `--color-mute` | **required** | — | every pack — muted text + remove buttons |
-| `--color-rule` | **required** | — | every pack — borders + dividers |
-| `--color-accent` | **required** | — | every pack — brand emphasis |
-| `--color-cream` | optional | inner fallback in `var(--color-paper-warm, var(--color-paper, var(--color-cream)))` | stores form bg, gift-cards |
-| `--color-error` | optional | `var(--color-accent)` or hardcode | ecom cart-item-unavailable, stores back-in-stock-error |
-| `--font-display` | **required** | — | every pack — headings + labels |
-| `--font-body` | **required** | — | every pack — body text + UI |
-| `--spacing-2xs` … `--spacing-4xl` | **required (full scale)** | — | every template uses `gap: var(--spacing-md)` and similar |
-| `--radius-sm`, `--radius-md` | **required** | — | buttons, inputs, cards |
-| `--radius-lg`, `--radius-xl` | optional | — | stores product-card |
+| Token                             | Required?                 | Fallback in templates                                                               | Used by                                                  |
+| --------------------------------- | ------------------------- | ----------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `--color-paper`                   | **required**              | —                                                                                   | every pack — primary background                          |
+| `--color-paper-warm`              | **required**              | `var(--color-paper, var(--color-cream))`                                            | stores summary bg, ecom cart-summary bg, gift-cards      |
+| `--color-ink`                     | **required**              | —                                                                                   | every pack — primary text + dark fills                   |
+| `--color-ink-soft`                | optional                  | `var(--color-mute)`                                                                 | stores option-label, ecom cart-item-option               |
+| `--color-mute`                    | **required**              | —                                                                                   | every pack — muted text + remove buttons                 |
+| `--color-rule`                    | **required**              | —                                                                                   | every pack — borders + dividers                          |
+| `--color-accent`                  | **required**              | —                                                                                   | every pack — brand emphasis                              |
+| `--color-cream`                   | optional                  | inner fallback in `var(--color-paper-warm, var(--color-paper, var(--color-cream)))` | stores form bg, gift-cards                               |
+| `--color-error`                   | optional                  | `var(--color-accent)` or hardcode                                                   | ecom cart-item-unavailable, stores back-in-stock-error   |
+| `--font-display`                  | **required**              | —                                                                                   | every pack — headings + labels                           |
+| `--font-body`                     | **required**              | —                                                                                   | every pack — body text + UI                              |
+| `--spacing-2xs` … `--spacing-4xl` | **required (full scale)** | —                                                                                   | every template uses `gap: var(--spacing-md)` and similar |
+| `--radius-sm`, `--radius-md`      | **required**              | —                                                                                   | buttons, inputs, cards                                   |
+| `--radius-lg`, `--radius-xl`      | optional                  | —                                                                                   | stores product-card                                      |
 
 The templates do NOT use `@apply` — every rule is `property: var(--token);` directly. This means missing utilities don't fail at build time (the way `@apply gap-sm` would). Missing tokens degrade silently to `var(missing) → unset → initial`. That makes the failure mode "ugly component" not "broken build" — easier to recover from but harder to detect, so verify the full set above is in `@theme` before returning.
 
@@ -95,14 +95,14 @@ The boundary that causes leaks: if the designer publishes partial rules for `.pr
 
 The fix is structural: move component-specific CSS out of `global.css` entirely.
 
-| What | Where it lives | Owner |
-|---|---|---|
-| `.product-card`, `.product-card-media`, `.product-card-ribbon`, `.product-card-index`, `.product-grid` | `src/styles/components-stores.css` | Stores Phase 3 components agent (or scoped `<style>` in the component's `.astro`) |
-| `.offer-callout` family (`-item`, `-badge`, `-name`, `-detail`, `-foot`) | `src/styles/components-stores.css` | Stores Phase 3 components agent |
-| `.cart-summary`, `.cart-total`, `.cart-empty`, `.checkout-btn` | `src/styles/components-ecom.css` | Ecom Phase 3 components agent |
-| Anything used by exactly one component | Co-located `<style>` block in the component's `.astro` or the matching `components-<pack>.css` | The pack that owns the component |
+| What                                                                                                   | Where it lives                                                                                 | Owner                                                                             |
+| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `.product-card`, `.product-card-media`, `.product-card-ribbon`, `.product-card-index`, `.product-grid` | `src/styles/components-stores.css`                                                             | Stores Phase 3 components agent (or scoped `<style>` in the component's `.astro`) |
+| `.offer-callout` family (`-item`, `-badge`, `-name`, `-detail`, `-foot`)                               | `src/styles/components-stores.css`                                                             | Stores Phase 3 components agent                                                   |
+| `.cart-summary`, `.cart-total`, `.cart-empty`, `.checkout-btn`                                         | `src/styles/components-ecom.css`                                                               | Ecom Phase 3 components agent                                                     |
+| Anything used by exactly one component                                                                 | Co-located `<style>` block in the component's `.astro` or the matching `components-<pack>.css` | The pack that owns the component                                                  |
 
-The Phase 3 components agents already write to `components-<pack>.css` (the file is imported by the designer's `Layout.astro` from the start). This change just makes it the *only* place those classes live — no parallel partial rule in `global.css`.
+The Phase 3 components agents already write to `components-<pack>.css` (the file is imported by the designer's `Layout.astro` from the start). This change just makes it the _only_ place those classes live — no parallel partial rule in `global.css`.
 
 ### Pre-return checklist for the Composer
 
@@ -137,7 +137,7 @@ Astro's `<style>` blocks scope automatically to the `.astro` file by default —
 </style>
 ```
 
-No coordination with the designer needed; no entry to forget on the always-required list. If this stamp later becomes a pattern used on three routes, *then* promote it to a global semantic class.
+No coordination with the designer needed; no entry to forget on the always-required list. If this stamp later becomes a pattern used on three routes, _then_ promote it to a global semantic class.
 
 ## Why this protocol
 

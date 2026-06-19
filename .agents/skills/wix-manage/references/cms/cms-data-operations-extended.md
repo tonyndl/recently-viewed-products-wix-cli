@@ -2,6 +2,7 @@
 name: "CMS Data Operations Extended"
 description: Additional CMS data operations including count, upsert (bulk save), and update by filter patterns.
 ---
+
 # CMS Data Operations Extended
 
 This recipe covers additional CMS data operations not included in the basic CRUD recipe.
@@ -23,6 +24,7 @@ Count items in a collection, optionally with filters.
 **Endpoint**: `POST /wix-data/v2/items/count`
 
 **Count All Items**:
+
 ```bash
 curl -X POST \
 'https://www.wixapis.com/wix-data/v2/items/count' \
@@ -34,6 +36,7 @@ curl -X POST \
 ```
 
 **Response**:
+
 ```json
 {
   "totalCount": 42
@@ -41,6 +44,7 @@ curl -X POST \
 ```
 
 **Count with Filter**:
+
 ```bash
 curl -X POST \
 'https://www.wixapis.com/wix-data/v2/items/count' \
@@ -55,14 +59,12 @@ curl -X POST \
 ```
 
 **Count with Complex Filter**:
+
 ```json
 {
   "dataCollectionId": "Products",
   "filter": {
-    "$and": [
-      { "inStock": true },
-      { "price": { "$gte": 50 } }
-    ]
+    "$and": [{ "inStock": true }, { "price": { "$gte": 50 } }]
   }
 }
 ```
@@ -74,6 +76,7 @@ Insert new items or update existing items in a single operation. This is useful 
 **Endpoint**: `POST /wix-data/v2/bulk/items/save`
 
 **Request Body**:
+
 ```json
 {
   "dataCollectionId": "Products",
@@ -100,11 +103,11 @@ Insert new items or update existing items in a single operation. This is useful 
 
 ### Bulk Save Behavior
 
-| Scenario | Action |
-|----------|--------|
-| No `id` provided | INSERT - Creates new item with generated ID |
-| `id` provided, doesn't exist | INSERT - Creates new item with provided ID |
-| `id` provided, exists | UPDATE - Replaces existing item |
+| Scenario                     | Action                                      |
+| ---------------------------- | ------------------------------------------- |
+| No `id` provided             | INSERT - Creates new item with generated ID |
+| `id` provided, doesn't exist | INSERT - Creates new item with provided ID  |
+| `id` provided, exists        | UPDATE - Replaces existing item             |
 
 > **Warning**: When updating, the entire item is replaced. Include all fields you want to keep.
 
@@ -220,6 +223,7 @@ Perform calculations on collection data using a pipeline of sequential stages.
 **Endpoint**: `POST /wix-data/v2/items/aggregate-pipeline`
 
 **Count by Category**:
+
 ```bash
 curl -X POST \
 'https://www.wixapis.com/wix-data/v2/items/aggregate-pipeline' \
@@ -249,12 +253,12 @@ curl -X POST \
 
 ## Operation Comparison
 
-| Operation | Use Case | Behavior |
-|-----------|----------|----------|
-| **Bulk Insert** | Add new items only | Fails if ID exists |
-| **Bulk Update** | Update existing items | Fails if ID doesn't exist, replaces entire item |
-| **Bulk Save** | Upsert (insert or update) | Creates or updates based on ID |
-| **Bulk Patch** | Partial update | Only modifies specified fields |
+| Operation       | Use Case                  | Behavior                                        |
+| --------------- | ------------------------- | ----------------------------------------------- |
+| **Bulk Insert** | Add new items only        | Fails if ID exists                              |
+| **Bulk Update** | Update existing items     | Fails if ID doesn't exist, replaces entire item |
+| **Bulk Save**   | Upsert (insert or update) | Creates or updates based on ID                  |
+| **Bulk Patch**  | Partial update            | Only modifies specified fields                  |
 
 ## Related Documentation
 

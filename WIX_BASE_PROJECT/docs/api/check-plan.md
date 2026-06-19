@@ -28,13 +28,16 @@ A `GET` endpoint that returns the current site's premium status, package name, c
 
 ```ts
 // src/pages/api/check-plan.ts
-import type { APIRoute } from 'astro';
-import { auth } from '@wix/essentials';
-import { appInstances } from '@wix/app-management';
-import { customJson } from '../../utils/customJson';
-import { FREE_CONTACT_LIMIT, PLAN_LIMITS } from '../../backend/_shared/plan-limits';
+import type { APIRoute } from "astro";
+import { auth } from "@wix/essentials";
+import { appInstances } from "@wix/app-management";
+import { customJson } from "../../utils/customJson";
+import {
+  FREE_CONTACT_LIMIT,
+  PLAN_LIMITS,
+} from "../../backend/_shared/plan-limits";
 
-const APP_ID = 'e24ccf8c-8cd5-4e03-b1bc-00a93a4b265d';
+const APP_ID = "e24ccf8c-8cd5-4e03-b1bc-00a93a4b265d";
 const FALLBACK_UPGRADE_URL = `https://www.wix.com/apps/upgrade/${APP_ID}`;
 
 export const GET: APIRoute = () => {
@@ -42,7 +45,7 @@ export const GET: APIRoute = () => {
   return elevatedGetAppInstance()
     .then(({ instance }) => {
       const isPremium = instance ? !instance.isFree : false;
-      const packageName = (instance?.billing?.packageName ?? '').toLowerCase();
+      const packageName = (instance?.billing?.packageName ?? "").toLowerCase();
       const instanceId = instance?.instanceId;
       const rawLimit = isPremium
         ? (PLAN_LIMITS[packageName] ?? FREE_CONTACT_LIMIT)
@@ -56,7 +59,11 @@ export const GET: APIRoute = () => {
       return customJson({ isPremium, packageName, contactLimit, upgradeUrl });
     })
     .catch(() =>
-      customJson({ isPremium: false, packageName: '', upgradeUrl: FALLBACK_UPGRADE_URL }),
+      customJson({
+        isPremium: false,
+        packageName: "",
+        upgradeUrl: FALLBACK_UPGRADE_URL,
+      }),
     );
 };
 ```
@@ -68,30 +75,30 @@ export const GET: APIRoute = () => {
 Wrap the fetch in `useCallback` so it can be shared between the initial load effect and the visibility listener. Call it in both places — once on mount, and again each time the user returns to the tab after completing a payment flow that opened in a new tab.
 
 ```tsx
-import { useCallback, useEffect, useState } from 'react';
-import { httpClient } from '@wix/essentials';
+import { useCallback, useEffect, useState } from "react";
+import { httpClient } from "@wix/essentials";
 
 const [isPremium, setIsPremium] = useState(false);
-const [packageName, setPackageName] = useState('');
+const [packageName, setPackageName] = useState("");
 const [upgradeUrl, setUpgradeUrl] = useState<string | undefined>();
 const [contactLimit, setContactLimit] = useState<number>(100);
 
 const loadPlan = useCallback(async () => {
   try {
-    const data = await httpClient
-      .fetchWithAuth('/api/check-plan')
-      .then((r) => r.json()) as {
-        isPremium: boolean;
-        packageName: string;
-        upgradeUrl?: string;
-        contactLimit?: number;
-      };
+    const data = (await httpClient
+      .fetchWithAuth("/api/check-plan")
+      .then((r) => r.json())) as {
+      isPremium: boolean;
+      packageName: string;
+      upgradeUrl?: string;
+      contactLimit?: number;
+    };
     setIsPremium(data.isPremium);
-    setPackageName(data.packageName ?? '');
+    setPackageName(data.packageName ?? "");
     setUpgradeUrl(data.upgradeUrl);
     if (data.contactLimit != null) setContactLimit(data.contactLimit);
   } catch (err) {
-    console.error('[loadPlan] failed:', err);
+    console.error("[loadPlan] failed:", err);
   }
 }, []);
 
@@ -104,27 +111,30 @@ useEffect(() => {
 // in a new tab — without this the premium state stays stale until reload.
 useEffect(() => {
   const handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible') {
+    if (document.visibilityState === "visible") {
       void loadPlan();
     }
   };
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-  return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  return () =>
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
 }, [loadPlan]);
 ```
 
 Then gate premium features with `isPremium` and pass `upgradeUrl` to any upgrade button:
 
 ```tsx
-{!isPremium && upgradeUrl && (
-  <Button
-    skin="premium"
-    prefixIcon={<Icons.PremiumFilled />}
-    onClick={() => window.open(upgradeUrl, '_blank')}
-  >
-    Upgrade to Premium
-  </Button>
-)}
+{
+  !isPremium && upgradeUrl && (
+    <Button
+      skin="premium"
+      prefixIcon={<Icons.PremiumFilled />}
+      onClick={() => window.open(upgradeUrl, "_blank")}
+    >
+      Upgrade to Premium
+    </Button>
+  );
+}
 ```
 
 When the user completes the upgrade and returns to the dashboard tab, `visibilitychange` fires, `loadPlan` re-runs, and the premium button disappears automatically — no manual reload required.

@@ -77,7 +77,9 @@
   cursor: pointer;
   width: 100%;
   margin-top: var(--spacing-md);
-  transition: background-color 150ms ease, box-shadow 150ms ease;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 .checkout-btn:hover:not(:disabled) {
   background: var(--color-ink-soft, var(--color-ink));
@@ -143,7 +145,9 @@
   text-decoration: none;
   border-bottom: 1px solid var(--color-mute);
   padding-bottom: 1px;
-  transition: color 150ms ease, border-color 150ms ease;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
 }
 .cart-item-name-link:hover,
 .cart-item-name-link:focus-visible {

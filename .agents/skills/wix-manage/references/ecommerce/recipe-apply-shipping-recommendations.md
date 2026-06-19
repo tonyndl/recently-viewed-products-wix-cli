@@ -2,6 +2,7 @@
 name: "Recipe: Apply Shipping Recommendations"
 description: Applies AI-generated shipping recommendations to a Wix e-commerce store. Reads the current delivery profile and shipping options, then creates or updates shipping options based on recommendation data. Supports creating new options with conditional rates, updating existing options, and querying delivery profiles for region/carrier context.
 ---
+
 # Apply Shipping Recommendations
 
 ## Prerequisites
@@ -23,6 +24,7 @@ Call [Query Delivery Profiles](https://dev.wix.com/docs/api-reference/business-s
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/delivery-profiles/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -34,6 +36,7 @@ Call [Query Delivery Profiles](https://dev.wix.com/docs/api-reference/business-s
 ```
 
 **Response**:
+
 ```json
 {
   "deliveryProfiles": [
@@ -82,6 +85,7 @@ Save the profile `id`, `revision`, and each region's `id` and `active` status. I
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/shipping-options/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -93,6 +97,7 @@ Save the profile `id`, `revision`, and each region's `id` and `active` status. I
 ```
 
 **Response**:
+
 ```json
 {
   "shippingOptions": [
@@ -133,6 +138,7 @@ When the recommendation action is `create_shipping_option`, create a new option 
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/shipping-options`
 
 **Request** — flat rate example:
+
 ```json
 {
   "shippingOption": {
@@ -151,6 +157,7 @@ When the recommendation action is `create_shipping_option`, create a new option 
 ```
 
 **Response**:
+
 ```json
 {
   "shippingOption": {
@@ -174,6 +181,7 @@ When the recommendation action is `create_shipping_option`, create a new option 
 ```
 
 **Request** — free shipping with price threshold:
+
 ```json
 {
   "shippingOption": {
@@ -199,23 +207,23 @@ When the recommendation action is `create_shipping_option`, create a new option 
 
 **Key field rules:**
 
-| Field | Required | Notes |
-|---|---|---|
-| `title` | Yes | Display name at checkout |
-| `estimatedDeliveryTime` | Yes | Free text shown to customers |
-| `deliveryRegionId` | Yes | Region UUID from Step 1. Must use **singular** field, not `deliveryRegionIds` |
-| `rates` | Yes | Array of rate objects |
-| `rates[].amount` | Yes | Decimal string (`"5.99"`, `"0"` for free) |
-| `rates[].multiplyByQuantity` | Yes | Almost always `false` |
-| `rates[].conditions` | Yes | Empty array for flat rate; see condition types below |
+| Field                        | Required | Notes                                                                         |
+| ---------------------------- | -------- | ----------------------------------------------------------------------------- |
+| `title`                      | Yes      | Display name at checkout                                                      |
+| `estimatedDeliveryTime`      | Yes      | Free text shown to customers                                                  |
+| `deliveryRegionId`           | Yes      | Region UUID from Step 1. Must use **singular** field, not `deliveryRegionIds` |
+| `rates`                      | Yes      | Array of rate objects                                                         |
+| `rates[].amount`             | Yes      | Decimal string (`"5.99"`, `"0"` for free)                                     |
+| `rates[].multiplyByQuantity` | Yes      | Almost always `false`                                                         |
+| `rates[].conditions`         | Yes      | Empty array for flat rate; see condition types below                          |
 
 **Condition types** (for tiered/conditional rates):
 
-| Type | Description | Example |
-|---|---|---|
-| `BY_TOTAL_PRICE` | Cart total threshold | `"operator": "GTE", "value": "75"` |
-| `BY_TOTAL_WEIGHT` | Weight threshold | `"operator": "LTE", "value": "10"` |
-| `BY_TOTAL_QUANTITY` | Item count threshold | `"operator": "GTE", "value": "3"` |
+| Type                | Description          | Example                            |
+| ------------------- | -------------------- | ---------------------------------- |
+| `BY_TOTAL_PRICE`    | Cart total threshold | `"operator": "GTE", "value": "75"` |
+| `BY_TOTAL_WEIGHT`   | Weight threshold     | `"operator": "LTE", "value": "10"` |
+| `BY_TOTAL_QUANTITY` | Item count threshold | `"operator": "GTE", "value": "3"`  |
 
 Operators: `EQ`, `GT`, `GTE`, `LT`, `LTE`
 
@@ -230,6 +238,7 @@ When the recommendation action is `update_shipping_option`, update an existing o
 Replace `{shippingOptionId}` with the option's `id` from Step 2.
 
 **Request**:
+
 ```json
 {
   "shippingOption": {
@@ -249,6 +258,7 @@ Replace `{shippingOptionId}` with the option's `id` from Step 2.
 ```
 
 **Response**:
+
 ```json
 {
   "shippingOption": {
@@ -287,11 +297,11 @@ After applying recommendations, query shipping options again (Step 2) to confirm
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| `deliveryRegionId is not a valid GUID` | Used `deliveryRegionIds` (plural) instead of `deliveryRegionId` (singular) in create request | Use the singular `deliveryRegionId` field |
-| `SHIPPING_OPTION_NOT_FOUND` | The shipping option ID doesn't exist | Re-query shipping options to get current IDs |
-| `REVISION_MISMATCH` | The `revision` doesn't match the current version | Re-fetch the option to get the latest revision, then retry |
+| Error                                  | Cause                                                                                        | Fix                                                        |
+| -------------------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `deliveryRegionId is not a valid GUID` | Used `deliveryRegionIds` (plural) instead of `deliveryRegionId` (singular) in create request | Use the singular `deliveryRegionId` field                  |
+| `SHIPPING_OPTION_NOT_FOUND`            | The shipping option ID doesn't exist                                                         | Re-query shipping options to get current IDs               |
+| `REVISION_MISMATCH`                    | The `revision` doesn't match the current version                                             | Re-fetch the option to get the latest revision, then retry |
 
 ## References
 

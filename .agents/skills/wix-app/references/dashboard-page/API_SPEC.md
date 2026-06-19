@@ -105,17 +105,17 @@ You will be given an API specification under the "API SPEC" spec. The dashboard 
 ```typescript
 // Reading data - GET request
 async function getTodos(): Promise<Todo[]> {
-  const response = await fetch('/api/todos');
+  const response = await fetch("/api/todos");
   const data = await response.json();
   return data;
 }
 
 // Writing data - POST request with data model entity
-async function createTodo(todo: Omit<Todo, 'id' | 'createdAt'>): Promise<Todo> {
-  const response = await fetch('/api/todos', {
-    method: 'POST',
+async function createTodo(todo: Omit<Todo, "id" | "createdAt">): Promise<Todo> {
+  const response = await fetch("/api/todos", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(todo),
   });
@@ -126,9 +126,9 @@ async function createTodo(todo: Omit<Todo, 'id' | 'createdAt'>): Promise<Todo> {
 // Writing data - PUT request with data model entity
 async function updateTodo(id: string, todo: Partial<Todo>): Promise<Todo> {
   const response = await fetch(`/api/todos/${id}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(todo),
   });

@@ -1,4 +1,3 @@
-
 # Wix Backend API Builder
 
 Creates HTTP endpoints for Wix CLI applications — server-side routes that handle HTTP requests, process data, and return responses. HTTP endpoints are powered by Astro endpoints and are automatically discovered from the file system.
@@ -112,7 +111,7 @@ export const POST: APIRoute = async ({ request }) => {
           status: 400,
           statusText: "Bad Request",
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 

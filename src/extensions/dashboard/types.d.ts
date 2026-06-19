@@ -43,7 +43,7 @@ interface PlanStatus {
 // Global default appearance for the site widget, edited in the dashboard.
 interface WidgetSettingsData {
   _id: string;
-  displayMode: 'gallery' | 'text';
+  displayMode: "gallery" | "text";
   heading: string;
   maxItems: number;
   showPrice: boolean;

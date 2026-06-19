@@ -2,6 +2,7 @@
 name: "List Installed Apps"
 description: Lists all apps installed on a site using Apps Installer API. Useful for verifying app installations before making API calls and diagnosing authorization errors.
 ---
+
 # List Installed Apps on a Site
 
 This recipe guides you through listing all installed apps on a Wix site using the Apps Installer REST API. This is useful for verifying app installations before making API calls that require specific apps.
@@ -23,6 +24,7 @@ Use the Get Installed Apps endpoint to retrieve all apps installed on a site.
 **Endpoint**: `GET https://www.wixapis.com/apps-installer-service/v1/app-instances`
 
 **Request**:
+
 ```bash
 curl -X GET \
   'https://www.wixapis.com/apps-installer-service/v1/app-instances' \
@@ -31,6 +33,7 @@ curl -X GET \
 ```
 
 **Response**:
+
 ```json
 {
   "appInstances": [
@@ -59,14 +62,14 @@ Match the `appDefId` values from the response against known Wix app IDs.
 
 ### Common Wix App Definition IDs
 
-| App | appDefId |
-|-----|----------|
-| Wix Stores | `1380b703-ce81-ff05-f115-39571d94dfcd` |
-| Wix Bookings | `13d21c63-b5ec-5912-8397-c3a5ddb27a97` |
-| Wix Blog | `14bcded7-0066-7c35-14d7-466cb3f09103` |
-| Wix Events | `140603ad-af8d-84a5-2c80-a0f60cb47351` |
+| App               | appDefId                               |
+| ----------------- | -------------------------------------- |
+| Wix Stores        | `1380b703-ce81-ff05-f115-39571d94dfcd` |
+| Wix Bookings      | `13d21c63-b5ec-5912-8397-c3a5ddb27a97` |
+| Wix Blog          | `14bcded7-0066-7c35-14d7-466cb3f09103` |
+| Wix Events        | `140603ad-af8d-84a5-2c80-a0f60cb47351` |
 | Wix Pricing Plans | `1522827f-c56c-a5c9-2ac9-00f9e6ae12d3` |
-| Wix Restaurants | `13e8d036-5516-6f75-e025-2aca3b5d7930` |
+| Wix Restaurants   | `13e8d036-5516-6f75-e025-2aca3b5d7930` |
 
 For a complete list, see [Apps Created by Wix](https://dev.wix.com/docs/api-reference/articles/work-with-wix-apis/platform/about-apps-created-by-wix).
 
@@ -84,7 +87,7 @@ const installedApps = await getInstalledApps(siteId);
 const bookingsAppId = "13d21c63-b5ec-5912-8397-c3a5ddb27a97";
 
 const hasBookings = installedApps.appInstances.some(
-  app => app.appDefId === bookingsAppId
+  (app) => app.appDefId === bookingsAppId,
 );
 
 if (!hasBookings) {
@@ -107,10 +110,12 @@ If you receive `401 Unauthorized` or `403 Forbidden` errors from Wix APIs:
 ## Error Handling
 
 ### 401 Unauthorized
+
 - Verify your authentication token is valid
 - Check that the token has `APP-MARKET.VIEW-INSTALLED-APP` permission
 
 ### Empty Response
+
 - The site may have no additional apps installed beyond core Wix functionality
 - This is normal for new or minimal sites
 
@@ -119,6 +124,7 @@ If you receive `401 Unauthorized` or `403 Forbidden` errors from Wix APIs:
 ## Next Steps
 
 After checking installed apps:
+
 - **If app is missing**: Use the [Install Wix Apps](install-wix-apps.md) recipe to install required apps
 - **If app is installed but API fails**: Check API permissions and authentication
 - **For Bookings APIs**: See [Bookings recipes](../../SKILL.md) for service setup

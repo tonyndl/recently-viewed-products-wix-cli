@@ -8,14 +8,18 @@ export type WixImage = {
 };
 
 export function resolveWixImage(
-  image: string | { id?: string; url?: string } | undefined
+  image: string | { id?: string; url?: string } | undefined,
 ): WixImage | null {
   if (!image) return null;
 
   if (typeof image === "string") {
     if (image.startsWith("wix:image://")) {
       const resolved = media.getImageUrl(image);
-      return { url: resolved.url, width: resolved.width, height: resolved.height };
+      return {
+        url: resolved.url,
+        width: resolved.width,
+        height: resolved.height,
+      };
     }
     return { url: image };
   }
@@ -26,7 +30,11 @@ export function resolveWixImage(
 
   if (image.id) {
     const resolved = media.getImageUrl(image.id);
-    return { url: resolved.url, width: resolved.width, height: resolved.height };
+    return {
+      url: resolved.url,
+      width: resolved.width,
+      height: resolved.height,
+    };
   }
 
   return null;

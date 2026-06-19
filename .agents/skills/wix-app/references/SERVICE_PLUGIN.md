@@ -1,4 +1,3 @@
-
 # Wix Service Plugin (SPI) Builder
 
 Service plugins are a set of APIs defined by Wix that let you inject custom logic into the existing backend flows of Wix business solutions or introduce entirely new flows. When you implement a service plugin, Wix calls your custom functions during specific flows. Common use cases include eCommerce customization (shipping, fees, payment settings, validations) and Bookings customization (staff sorting).
@@ -7,15 +6,15 @@ Service plugins are a set of APIs defined by Wix that let you inject custom logi
 
 Use `wix generate --params` with `extensionType: SERVICE_PLUGIN`. `pluginType` is one of:
 
-| Value | SPI |
-| --- | --- |
-| `ECOM_ADDITIONAL_FEES` | Additional Fees |
-| `ECOM_SHIPPING_RATES` | Shipping Rates |
-| `ECOM_DISCOUNTS_TRIGGER` | Discount Triggers |
-| `ECOM_VALIDATIONS` | Validations |
-| `ECOM_PAYMENT_SETTINGS` | Payment Settings |
-| `GIFT_CARDS_PROVIDER` | Gift Cards Provider |
-| `STAFF_SORTING_PROVIDER` | Bookings Staff Sorting |
+| Value                           | SPI                           |
+| ------------------------------- | ----------------------------- |
+| `ECOM_ADDITIONAL_FEES`          | Additional Fees               |
+| `ECOM_SHIPPING_RATES`           | Shipping Rates                |
+| `ECOM_DISCOUNTS_TRIGGER`        | Discount Triggers             |
+| `ECOM_VALIDATIONS`              | Validations                   |
+| `ECOM_PAYMENT_SETTINGS`         | Payment Settings              |
+| `GIFT_CARDS_PROVIDER`           | Gift Cards Provider           |
+| `STAFF_SORTING_PROVIDER`        | Bookings Staff Sorting        |
 | `REALTIME_PERMISSIONS_PROVIDER` | Realtime Permissions Provider |
 
 `name` must be lowercase alphanumeric + hyphens, max 19 characters. The CLI generates the folder, `plugin.ts`, the builder file, the UUID, and the `src/extensions.ts` registration with the appropriate builder method for the SPI type. Some SPI types (e.g., `ECOM_SHIPPING_RATES`) get a `description` placeholder field in the generated builder — replace it with your real copy.
@@ -24,14 +23,14 @@ Use `wix generate --params` with `extensionType: SERVICE_PLUGIN`. `pluginType` i
 
 **You MUST read the relevant reference document before implementing an SPI**, and **call `ReadFullDocsMethodSchema`** with the docs URL it points at to get the exact request/response types — **do NOT edit code until you have the schema**. If the schema alone isn't enough, follow up with `ReadFullDocsArticle` on the same URL for prose explanations and additional code examples. Each reference also contains the correct imports, handler signatures, response structures, and a worked example.
 
-| SPI Type | Reference |
-| --- | --- |
-| Additional Fees | [ADDITIONAL-FEES.md](service-plugin/ADDITIONAL-FEES.md) |
-| Discount Triggers | [DISCOUNT-TRIGGERS.md](service-plugin/DISCOUNT-TRIGGERS.md) |
-| Gift Cards | [GIFT-CARDS.md](service-plugin/GIFT-CARDS.md) |
-| Payment Settings | [PAYMENT-SETTINGS.md](service-plugin/PAYMENT-SETTINGS.md) |
-| Shipping Rates | [SHIPPING-RATES.md](service-plugin/SHIPPING-RATES.md) |
-| Validations | [VALIDATIONS.md](service-plugin/VALIDATIONS.md) |
+| SPI Type               | Reference                                                             |
+| ---------------------- | --------------------------------------------------------------------- |
+| Additional Fees        | [ADDITIONAL-FEES.md](service-plugin/ADDITIONAL-FEES.md)               |
+| Discount Triggers      | [DISCOUNT-TRIGGERS.md](service-plugin/DISCOUNT-TRIGGERS.md)           |
+| Gift Cards             | [GIFT-CARDS.md](service-plugin/GIFT-CARDS.md)                         |
+| Payment Settings       | [PAYMENT-SETTINGS.md](service-plugin/PAYMENT-SETTINGS.md)             |
+| Shipping Rates         | [SHIPPING-RATES.md](service-plugin/SHIPPING-RATES.md)                 |
+| Validations            | [VALIDATIONS.md](service-plugin/VALIDATIONS.md)                       |
 | Bookings Staff Sorting | [BOOKINGS-STAFF-SORTING.md](service-plugin/BOOKINGS-STAFF-SORTING.md) |
 
 ## Implementation Pattern
@@ -63,12 +62,12 @@ const response = await elevated("myCollection");
 
 The CLI generates a builder with `id`, `name`, and `source`. Some SPI types accept additional optional fields you may want to set in the generated builder file:
 
-| SPI Type | Builder Method | Additional Optional Fields |
-| --- | --- | --- |
-| Shipping Rates | `ecomShippingRates()` | `description`, `learnMoreUrl`, `dashboardUrl`, `fallbackDefinitionMandatory`, `thumbnailUrl` |
-| Validations | `ecomValidations()` | `validateInCart` |
-| Payment Settings | `ecomPaymentSettings()` | `fallbackValueForRequires3dSecure` |
-| Bookings Staff Sorting | `bookingsStaffSortingProvider()` | `methodName` (required), `methodDescription` (required, max 100 chars), `dashboardPluginId` |
+| SPI Type               | Builder Method                   | Additional Optional Fields                                                                   |
+| ---------------------- | -------------------------------- | -------------------------------------------------------------------------------------------- |
+| Shipping Rates         | `ecomShippingRates()`            | `description`, `learnMoreUrl`, `dashboardUrl`, `fallbackDefinitionMandatory`, `thumbnailUrl` |
+| Validations            | `ecomValidations()`              | `validateInCart`                                                                             |
+| Payment Settings       | `ecomPaymentSettings()`          | `fallbackValueForRequires3dSecure`                                                           |
+| Bookings Staff Sorting | `bookingsStaffSortingProvider()` | `methodName` (required), `methodDescription` (required, max 100 chars), `dashboardPluginId`  |
 
 Only `ecomShippingRates()` accepts `description`. Passing unsupported fields to other builders causes TypeScript errors. `bookingsStaffSortingProvider()` requires `methodName` and `methodDescription` fields — set these in the generated builder file after scaffolding.
 

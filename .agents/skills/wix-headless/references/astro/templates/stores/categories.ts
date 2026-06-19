@@ -20,7 +20,11 @@ const ALL_PRODUCTS_HANDLE = "online_stores_all_products";
 // isolates, harmless on cold starts. Categories rarely change; 5 min is fine.
 // Errors are NOT cached so a transient failure doesn't lock out the listing.
 const CATEGORIES_TTL_MS = 5 * 60 * 1000;
-let categoriesCache: { at: number; data: StoreCategory[]; bySlug: Map<string, StoreCategory> } | null = null;
+let categoriesCache: {
+  at: number;
+  data: StoreCategory[];
+  bySlug: Map<string, StoreCategory>;
+} | null = null;
 let inflightCategories: Promise<StoreCategory[]> | null = null;
 
 // Per-category product-ID list — cached under the same TTL so the
@@ -88,20 +92,27 @@ export async function listStoreCategories(): Promise<StoreCategory[]> {
   return inflightCategories;
 }
 
-export async function getCategoryBySlug(slug: string): Promise<StoreCategory | null> {
+export async function getCategoryBySlug(
+  slug: string,
+): Promise<StoreCategory | null> {
   const all = await listStoreCategories();
-  return categoriesCache?.bySlug.get(slug) ?? all.find((c) => c.slug === slug) ?? null;
+  return (
+    categoriesCache?.bySlug.get(slug) ??
+    all.find((c) => c.slug === slug) ??
+    null
+  );
 }
 
 async function fetchCategoryItemIds(categoryId: string): Promise<string[]> {
   try {
-    const res = await categories.listItemsInCategory(
-      categoryId,
-      { appNamespace: STORES_NAMESPACE },
-    );
+    const res = await categories.listItemsInCategory(categoryId, {
+      appNamespace: STORES_NAMESPACE,
+    });
     return (res.items ?? [])
       .map((it: any) => it?.catalogItemId)
-      .filter((id: any): id is string => typeof id === "string" && id.length > 0);
+      .filter(
+        (id: any): id is string => typeof id === "string" && id.length > 0,
+      );
   } catch (err) {
     console.error("[categories] listItemsInCategory failed:", err);
     return [];
@@ -147,7 +158,10 @@ export async function listProductsInCategory(
       prevCursor: result.cursors?.prev ?? null,
     };
   } catch (err) {
-    console.error(`[categories] listProductsInCategory(${categoryId}) failed:`, err);
+    console.error(
+      `[categories] listProductsInCategory(${categoryId}) failed:`,
+      err,
+    );
     return { items: [], nextCursor: null, prevCursor: null };
   }
 }

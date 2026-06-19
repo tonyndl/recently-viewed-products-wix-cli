@@ -16,7 +16,12 @@ The "stop and tell the user" path is a **last-resort fallback** for when the bac
 `wix login` (or `npx @wix/cli@latest login`) emits one JSON event per line on **stdout** and blocks until the human finishes the browser step. The first event you care about is `awaiting_user`:
 
 ```json
-{"event":"awaiting_user","expiresInSeconds":600,"userCode":"TPV5HUG5","verificationUri":"https://users.wix.com/login/device-login?color=developer&studio=true"}
+{
+  "event": "awaiting_user",
+  "expiresInSeconds": 600,
+  "userCode": "TPV5HUG5",
+  "verificationUri": "https://users.wix.com/login/device-login?color=developer&studio=true"
+}
 ```
 
 The events are JSON on stdout. There may be incidental Node warnings interleaved; line-by-line JSON parsing with a `try` around each line handles that cleanly.
@@ -42,7 +47,7 @@ When you see the `awaiting_user` event:
 1. **Surface URL + code to the user in plain prose. Send the message. Do not write more Bash. Do not re-invoke wix-login "to do it properly this time".** Seeing the `awaiting_user` event means the first invocation is working correctly — reading its output is the right next step. Restarting wix-login throws away the live device-login session and the second instance has nothing to wait for (the user never sees the new code because by the time it's emitted, you've already messaged them the first one or are mid-restart). One invocation, one read, one message, one wait.
 2. The message shape:
 
-   > *"You need to authenticate with Wix. Open `<verificationUri>` in your browser and enter the code `<userCode>` — I'll continue once you've completed the login."*
+   > _"You need to authenticate with Wix. Open `<verificationUri>` in your browser and enter the code `<userCode>` — I'll continue once you've completed the login."_
 
 3. **Then wait** for the harness `task-notification` with `<status>completed</status>`. That's the terminal signal that the wix-login process exited (the user finished the browser flow). Do not re-run `whoami` in a sleep loop while waiting; the notification is the only signal you need.
 
@@ -79,13 +84,13 @@ The body is the recipe's documented JSON payload, with `siteId` inlined where th
 
 ## Recovery ladder
 
-**Re-mint is never a recovery step — see Token minting.** Retry the *same* call with the *same* cached token.
+**Re-mint is never a recovery step — see Token minting.** Retry the _same_ call with the _same_ cached token.
 
-| Symptom | First response | If it still fails |
-|---|---|---|
-| `401 Unauthorized` | Retry the same call once with the cached token. | The CLI session expired — run `wix login` per the flow above (that establishes a *new* session, so the token minted afterward genuinely differs). Re-minting without a fresh login returns the same expired-context token and will not help. |
-| `403 Forbidden` | Retry the same call once. | The token shape is fine but the caller lacks the permission. The two real causes: (a) the relevant app is not installed yet (re-check `apps-installer-service` returned 200 for that app in Setup Step 4a), (b) the resource requires a provisioning step the recipe doesn't run. Surface the response body; do not loop on retries. |
-| `404 Not Found` on a documented URL | Re-read the recipe — URL path segments are easy to typo (e.g. `/blog/v3/bulk/draft-posts/create`, **not** `/blog/v3/draft-posts/bulk/create`). | Recipe bug; surface and stop. |
+| Symptom                             | First response                                                                                                                                 | If it still fails                                                                                                                                                                                                                                                                                                                    |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `401 Unauthorized`                  | Retry the same call once with the cached token.                                                                                                | The CLI session expired — run `wix login` per the flow above (that establishes a _new_ session, so the token minted afterward genuinely differs). Re-minting without a fresh login returns the same expired-context token and will not help.                                                                                         |
+| `403 Forbidden`                     | Retry the same call once.                                                                                                                      | The token shape is fine but the caller lacks the permission. The two real causes: (a) the relevant app is not installed yet (re-check `apps-installer-service` returned 200 for that app in Setup Step 4a), (b) the resource requires a provisioning step the recipe doesn't run. Surface the response body; do not loop on retries. |
+| `404 Not Found` on a documented URL | Re-read the recipe — URL path segments are easy to typo (e.g. `/blog/v3/bulk/draft-posts/create`, **not** `/blog/v3/draft-posts/bulk/create`). | Recipe bug; surface and stop.                                                                                                                                                                                                                                                                                                        |
 
 **Do not** spend turns A/B-testing the header shape (Bearer vs no-Bearer, with/without `wix-site-id`) or cycling tokens. The shape above is the contract; if a single retry with the cached token doesn't fix it, the issue is upstream and recipe-level debugging will not recover it.
 

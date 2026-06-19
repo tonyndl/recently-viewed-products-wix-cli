@@ -119,7 +119,7 @@ Array elements MUST be objects with named keys. This enables stable item identit
 
 - Primitives: `Array<string>`, `Array<number>`, `Array<boolean>`
 - Leaf data types from `@wix/editor-react-types`: `Array<Image>`, `Array<Link>`, `Array<Video>`, `Array<Audio>`, `Array<VectorArt>`, `Array<RichText>`. Wrap them in an object instead.
-- Nested arrays:  `Array<Array<{cover: image, caption: string}>>` `Array<{items: Array<image>, caption: string}>`
+- Nested arrays: `Array<Array<{cover: image, caption: string}>>` `Array<{items: Array<image>, caption: string}>`
 
 **❌ Wrong:**
 
@@ -129,7 +129,7 @@ prices: Array<number>;
 flags: Array<boolean>;
 images: Array<Image>;
 links: Array<Link>;
-nestedArrays: Array<Array<any>>
+nestedArrays: Array<Array<any>>;
 ```
 
 **✅ Correct:**
@@ -138,8 +138,8 @@ nestedArrays: Array<Array<any>>
 tags: Array<{ label: string }>;
 prices: Array<{ amount: number }>;
 flags: Array<{ enabled: boolean }>;
-gallery: Array<{ image: Image, caption?: string }>;
-links: Array<{ link: Link, label: string }>;
+gallery: Array<{ image: Image; caption?: string }>;
+links: Array<{ link: Link; label: string }>;
 items: Array<AccordionItem>; // AccordionItem is { name, content }
 ```
 
@@ -208,13 +208,13 @@ canonical fallback URL is fine for unattended scaffolds.
 
 **Default image pool — use a different image for each slot:**
 
-| # | fileName | Description |
-|---|----------|-------------|
-| 1 | `11062b_2f97b87dcea2446fa48e9ad9c5457ae1~mv2.jpg` | Tropical beach aerial |
-| 2 | `11062b_73f31c7e7d3544c69dc8ecd8d34c5717~mv2.jpg` | Dead Sea landscape |
-| 3 | `11062b_3682ebfcb08e4da5b3168b62819a1e68~mv2.jpg` | Palm tree sunset |
-| 4 | `11062b_45e67783d39c4963ab9e4fc418173233~mv2.jpg` | Abstract pink waves |
-| 5 | `11062b_4c11f014b0d04948b2e6f554076bc40a~mv2.jpg` | Coastal village aerial |
+| #   | fileName                                          | Description            |
+| --- | ------------------------------------------------- | ---------------------- |
+| 1   | `11062b_2f97b87dcea2446fa48e9ad9c5457ae1~mv2.jpg` | Tropical beach aerial  |
+| 2   | `11062b_73f31c7e7d3544c69dc8ecd8d34c5717~mv2.jpg` | Dead Sea landscape     |
+| 3   | `11062b_3682ebfcb08e4da5b3168b62819a1e68~mv2.jpg` | Palm tree sunset       |
+| 4   | `11062b_45e67783d39c4963ab9e4fc418173233~mv2.jpg` | Abstract pink waves    |
+| 5   | `11062b_4c11f014b0d04948b2e6f554076bc40a~mv2.jpg` | Coastal village aerial |
 
 When a component needs **more than one** image default, cycle through
 the pool above so every slot gets a visually distinct image. For a

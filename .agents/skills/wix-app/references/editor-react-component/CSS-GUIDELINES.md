@@ -14,10 +14,10 @@ All CSS lives in a single CSS module file imported as `import styles from './[Co
 
 There are two kinds of classes, determined by whether the element is a named part:
 
-| Element type | className | Why |
-|---|---|---|
-| Named part | `classNames('heading', styles.heading)` | Global string → zeroConfig creates an editor element; module class → applies the component's own CSS |
-| Non-part (layout/structural) | `styles.contentWrapper` | Module class only — invisible to zeroConfig, no spurious editor element created |
+| Element type                 | className                               | Why                                                                                                  |
+| ---------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Named part                   | `classNames('heading', styles.heading)` | Global string → zeroConfig creates an editor element; module class → applies the component's own CSS |
+| Non-part (layout/structural) | `styles.contentWrapper`                 | Module class only — invisible to zeroConfig, no spurious editor element created                      |
 
 **Named parts** get both a global plain string and a module class. The global string (`'<component-name>'` for root, `'<part-name>'` for inner parts — kebab-case) is what zeroConfig scans. The module class is what carries the component's structural CSS for that element.
 
@@ -405,17 +405,17 @@ When the user does not specify a visual style, default to a polished,
 modern look. The editor lets the user override every value, so a
 refined default costs nothing.
 
-| Property | Guidance |
-|---|---|
-| `border-radius` | 8–12 px containers, `50%` for controls and interactive groups (buttons, pills, input rows) |
-| `box-shadow` | Prefer soft, diffused shadows over hard borders (e.g. `0 2px 8px rgba(0,0,0,0.06), 0 0 1px rgba(0,0,0,0.08)`) |
-| Spacing | 8–16 px inside controls, 16–32 px for containers. Avoid cramped layouts |
-| Typography | Body ≥ 16 px, labels ≥ 14 px, headings larger. `font-weight: 500`–`600` |
-| Palette | Root background transparent (blends with page). Use subtle fills (`#f1f5f9`/`#e2e8f0`) on *inner controls* only (buttons, input areas, pill containers). Text `#1e293b`/`#334155`, borders `#e2e8f0`. `#475569` for large/secondary text only |
-| Accent | Use a muted accent color (e.g. `#6366f1`, `#7c83db`) sparingly on interactive icons, active indicators, and primary actions — just enough to signal interactivity without dominating |
-| Contrast | WCAG AA minimum: 4.5:1 body text, 3:1 large text / UI controls |
-| Hierarchy | Interactive elements visually distinct from static via weight, fill, or elevation |
-| Touch targets | Interactive elements ≥ 44×44 px |
+| Property        | Guidance                                                                                                                                                                                                                                      |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `border-radius` | 8–12 px containers, `50%` for controls and interactive groups (buttons, pills, input rows)                                                                                                                                                    |
+| `box-shadow`    | Prefer soft, diffused shadows over hard borders (e.g. `0 2px 8px rgba(0,0,0,0.06), 0 0 1px rgba(0,0,0,0.08)`)                                                                                                                                 |
+| Spacing         | 8–16 px inside controls, 16–32 px for containers. Avoid cramped layouts                                                                                                                                                                       |
+| Typography      | Body ≥ 16 px, labels ≥ 14 px, headings larger. `font-weight: 500`–`600`                                                                                                                                                                       |
+| Palette         | Root background transparent (blends with page). Use subtle fills (`#f1f5f9`/`#e2e8f0`) on _inner controls_ only (buttons, input areas, pill containers). Text `#1e293b`/`#334155`, borders `#e2e8f0`. `#475569` for large/secondary text only |
+| Accent          | Use a muted accent color (e.g. `#6366f1`, `#7c83db`) sparingly on interactive icons, active indicators, and primary actions — just enough to signal interactivity without dominating                                                          |
+| Contrast        | WCAG AA minimum: 4.5:1 body text, 3:1 large text / UI controls                                                                                                                                                                                |
+| Hierarchy       | Interactive elements visually distinct from static via weight, fill, or elevation                                                                                                                                                             |
+| Touch targets   | Interactive elements ≥ 44×44 px                                                                                                                                                                                                               |
 
 ### Don't author state styles (`:hover`, `:focus`, `:disabled`, `[data-state]`)
 
@@ -444,7 +444,7 @@ sources of truth for the same state.
 }
 
 /* ❌ Don't: state attribute selectors — same problem */
-.panel[data-state='open'] {
+.panel[data-state="open"] {
   background-color: #fafafa;
 }
 
@@ -498,7 +498,9 @@ modifier is CSS-only, not a part.
   background: #ffffff;
   color: #0f172a;
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.1);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 1px 3px rgba(15, 23, 42, 0.1);
 }
 
 /* ❌ Don't: compound selector — banned by the single-class-selector rule */
@@ -506,7 +508,7 @@ modifier is CSS-only, not a part.
 }
 
 /* ❌ Don't: attribute selector keyed on ARIA — banned by the no-state-CSS rule */
-.toggleSegment[aria-selected='true'] {
+.toggleSegment[aria-selected="true"] {
 }
 
 /* ❌ Don't: pseudo-class — that's an interaction state, platform-owned */

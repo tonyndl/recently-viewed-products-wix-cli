@@ -13,6 +13,7 @@ This article is the **astro entry path** (`frontendBuild === "wix"`): Steps 1–
 Do **not** speculatively `Read ./wix.config.json` before the scaffold completes — it doesn't exist yet on a fast-Q&A run, so the read fails and wastes a round-trip.
 
 Once `scaffold_handle` returns, read `./wix.config.json` and hold in scratch:
+
 - `siteId` — passed as `--site` to `npx @wix/cli@latest token`, embedded in every install body + the `wix-site-id` header on every site-scoped REST call.
 - `appId` — goes into the SDK's `createClient` inputs later.
 
@@ -88,16 +89,16 @@ npm install --no-fund --no-audit --legacy-peer-deps <package-set> \
 
 `<package-set>` from the resolved pack set (loaded + transitive via `requires:`):
 
-| Always | Add when pack is loaded |
-|---|---|
-| `@wix/sdk tailwindcss @tailwindcss/vite` | — |
-| | **stores** → `@wix/stores` |
-| | **ecom** (direct or via stores `requires:`) → `@wix/ecom @wix/redirects` |
-| | **blog** → `@wix/blog @wix/ricos @astrojs/rss @astrojs/sitemap` |
-| | **forms** → `@wix/forms` |
-| | **cms** → `@wix/data @wix/essentials` |
-| | **bookings** → `@wix/bookings @wix/essentials` |
-| | **gift-cards** → (none — disabled-by-default pack ships no Astro-time imports) |
+| Always                                   | Add when pack is loaded                                                        |
+| ---------------------------------------- | ------------------------------------------------------------------------------ |
+| `@wix/sdk tailwindcss @tailwindcss/vite` | —                                                                              |
+|                                          | **stores** → `@wix/stores`                                                     |
+|                                          | **ecom** (direct or via stores `requires:`) → `@wix/ecom @wix/redirects`       |
+|                                          | **blog** → `@wix/blog @wix/ricos @astrojs/rss @astrojs/sitemap`                |
+|                                          | **forms** → `@wix/forms`                                                       |
+|                                          | **cms** → `@wix/data @wix/essentials`                                          |
+|                                          | **bookings** → `@wix/bookings @wix/essentials`                                 |
+|                                          | **gift-cards** → (none — disabled-by-default pack ships no Astro-time imports) |
 
 Example (resolved set = stores + ecom + gift-cards + cms):
 

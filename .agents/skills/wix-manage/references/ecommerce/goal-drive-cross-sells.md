@@ -7,9 +7,11 @@ references:
     path: ecommerce/flow-bundle-and-save.md
     load: true
 ---
+
 # Goal: Drive Cross-Sells and Product Discovery
 
 > **Before executing this skill**, read these referenced skills with `ReadFullDocsArticle`:
+>
 > - [Flow: Bundle and Save](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/flow-bundle-and-save)
 
 Promote product discovery and multi-item purchases by creating bundle-based discounts that reward customers for buying across categories or adding complementary items to their cart.
@@ -26,12 +28,12 @@ The merchant wants customers to explore more of the catalog and purchase multipl
 
 ## KPIs
 
-| KPI | Definition | How to measure |
-|---|---|---|
-| Items per order | Average number of line items per completed order | Order data: total items / total orders |
-| Cross-sell rate | Percentage of orders containing items from 2+ categories | Analyze order composition across categories |
-| Category diversity per order | Number of distinct categories represented per order | Track unique categories per order before and after |
-| Bundle discount redemption | Orders meeting the minItemQuantity condition / total orders | Count qualifying orders vs total |
+| KPI                          | Definition                                                  | How to measure                                     |
+| ---------------------------- | ----------------------------------------------------------- | -------------------------------------------------- |
+| Items per order              | Average number of line items per completed order            | Order data: total items / total orders             |
+| Cross-sell rate              | Percentage of orders containing items from 2+ categories    | Analyze order composition across categories        |
+| Category diversity per order | Number of distinct categories represented per order         | Track unique categories per order before and after |
+| Bundle discount redemption   | Orders meeting the minItemQuantity condition / total orders | Count qualifying orders vs total                   |
 
 ---
 
@@ -61,6 +63,7 @@ The sole action for this goal. Creates a percentage discount with a `minItemQuan
 **When to use:** Whenever the merchant wants to incentivize multi-item purchases, cross-category exploration, or product discovery.
 
 **Key mechanics:**
+
 - minItemQuantity condition (typically 2-3 items based on catalog profile)
 - Scope determines which products count toward the bundle:
   - CATEGORY — items from a specific category (best for focused cross-sell)
@@ -71,13 +74,13 @@ The sole action for this goal. Creates a percentage discount with a `minItemQuan
 
 **Catalog profile matching:**
 
-| Catalog Type | minItemQuantity | Scope | Example |
-|---|---|---|---|
-| Accessories + main products | 2 | CATEGORY (accessories) | "Buy 2+ accessories, save 15%" |
-| Wide catalog, many categories | 3 | SITE | "Buy any 3 items, save 10%" |
-| Curated complementary items | 2 | ITEMS (specific products) | "Buy these together, save 15%" |
-| Low-price items (avg < price_p25) | 3-4 | CATEGORY or SITE | "Buy 4+, save 20%" |
-| High-price items (avg > price_p75) | 2 | CATEGORY | "Buy 2 premium items, save 10%" |
+| Catalog Type                       | minItemQuantity | Scope                     | Example                         |
+| ---------------------------------- | --------------- | ------------------------- | ------------------------------- |
+| Accessories + main products        | 2               | CATEGORY (accessories)    | "Buy 2+ accessories, save 15%"  |
+| Wide catalog, many categories      | 3               | SITE                      | "Buy any 3 items, save 10%"     |
+| Curated complementary items        | 2               | ITEMS (specific products) | "Buy these together, save 15%"  |
+| Low-price items (avg < price_p25)  | 3-4             | CATEGORY or SITE          | "Buy 4+, save 20%"              |
+| High-price items (avg > price_p75) | 2               | CATEGORY                  | "Buy 2 premium items, save 10%" |
 
 ---
 
@@ -112,11 +115,11 @@ The sole action for this goal. Creates a percentage discount with a `minItemQuan
 
 ## Decision Matrix
 
-| Scenario | Approach | Rationale |
-|---|---|---|
-| Store has clear accessory categories | CATEGORY scope on accessories, minItemQuantity: 2 | Natural cross-sell with main products |
-| Broad catalog, no clear bundles | SITE scope, minItemQuantity: 3 | Encourages exploration across the entire catalog |
-| Merchant names specific products | ITEMS scope with those products | Curated bundle matching merchant's intent |
-| Low average price catalog | Higher minItemQuantity (3-4) | Lower price per item makes larger bundles feasible |
-| High average price catalog | Lower minItemQuantity (2) | Customers less likely to buy 3+ expensive items |
-| Merchant specifies quantities or discounts | Honor merchant input | User overrides always take priority |
+| Scenario                                   | Approach                                          | Rationale                                          |
+| ------------------------------------------ | ------------------------------------------------- | -------------------------------------------------- |
+| Store has clear accessory categories       | CATEGORY scope on accessories, minItemQuantity: 2 | Natural cross-sell with main products              |
+| Broad catalog, no clear bundles            | SITE scope, minItemQuantity: 3                    | Encourages exploration across the entire catalog   |
+| Merchant names specific products           | ITEMS scope with those products                   | Curated bundle matching merchant's intent          |
+| Low average price catalog                  | Higher minItemQuantity (3-4)                      | Lower price per item makes larger bundles feasible |
+| High average price catalog                 | Lower minItemQuantity (2)                         | Customers less likely to buy 3+ expensive items    |
+| Merchant specifies quantities or discounts | Honor merchant input                              | User overrides always take priority                |

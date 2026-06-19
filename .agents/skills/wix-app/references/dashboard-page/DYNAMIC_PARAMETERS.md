@@ -17,7 +17,7 @@ This dashboard page manages dynamic parameters for an embedded script. The param
 - Use embeddedScripts.embedScript({ parameters }) to save parameters
 - Example:
   ```typescript
-  import { embeddedScripts } from '@wix/app-management';
+  import { embeddedScripts } from "@wix/app-management";
   ```
 
 ### 2. Type Definition
@@ -29,7 +29,7 @@ This dashboard page manages dynamic parameters for an embedded script. The param
     headline: string;
     text: string;
     imageUrl: string;
-    activationMode: 'active' | 'timed' | 'disabled';
+    activationMode: "active" | "timed" | "disabled";
     startDate?: string;
     endDate?: string;
   };
@@ -42,10 +42,11 @@ This dashboard page manages dynamic parameters for an embedded script. The param
 - Add separate state for isLoading and isSaving
 - Use useEffect to load parameters on mount
 - **IMPORTANT:** Parameters are returned as strings from the API, so you must handle type conversions:
-  * BOOLEAN parameters: Convert from string 'true'/'false' to boolean
-  * NUMBER parameters: Convert from string to number using Number()
-  * Other types: Use as-is
+  - BOOLEAN parameters: Convert from string 'true'/'false' to boolean
+  - NUMBER parameters: Convert from string to number using Number()
+  - Other types: Use as-is
 - Example:
+
   ```typescript
   const [options, setOptions] = useState<MyScriptOptions>(defaultOptions);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,16 +56,24 @@ This dashboard page manages dynamic parameters for an embedded script. The param
     const loadSettings = async () => {
       try {
         const embeddedScript = await embeddedScripts.getEmbeddedScript();
-        const data = embeddedScript.parameters as Partial<Record<keyof MyScriptOptions, string>> || {};
+        const data =
+          (embeddedScript.parameters as Partial<
+            Record<keyof MyScriptOptions, string>
+          >) || {};
 
         setOptions((prev) => ({
           ...prev,
           textField: data?.textField || prev.textField,
-          booleanField: data?.booleanField === 'true' ? true : data?.booleanField === 'false' ? false : prev.booleanField,
+          booleanField:
+            data?.booleanField === "true"
+              ? true
+              : data?.booleanField === "false"
+                ? false
+                : prev.booleanField,
           numberField: Number(data?.numberField) || prev.numberField,
         }));
       } catch (error) {
-        console.error('Failed to load settings:', error);
+        console.error("Failed to load settings:", error);
       } finally {
         setIsLoading(false);
       }
@@ -93,13 +102,13 @@ This dashboard page manages dynamic parameters for an embedded script. The param
 - **IMPORTANT:** Only create form fields for parameters relevant to your use case
 - Skip parameters that don't apply to the functionality being built
 - Create appropriate WDS form fields based on parameter types:
-  * TEXT → Input component with FormField
-  * NUMBER → Input component with type="number"
-  * BOOLEAN → Checkbox or ToggleSwitch
-  * IMAGE → Custom ImagePicker component (see components/image-picker.tsx)
-  * DATE → DatePicker component
-  * SELECT → Dropdown component with options
-  * URL → Input with URL validation
+  - TEXT → Input component with FormField
+  - NUMBER → Input component with type="number"
+  - BOOLEAN → Checkbox or ToggleSwitch
+  - IMAGE → Custom ImagePicker component (see components/image-picker.tsx)
+  - DATE → DatePicker component
+  - SELECT → Dropdown component with options
+  - URL → Input with URL validation
 - Use FormField wrapper for labels and validation messages
 - Set required validation based on parameter.required flag
 - Show validation errors using FormField status and statusMessage props
@@ -110,9 +119,9 @@ This dashboard page manages dynamic parameters for an embedded script. The param
 - Make handleSave an async function
 - **CRITICAL:** All parameters must be passed as STRING values because they are used as template variables in the embedded script
 - Convert all values to strings before saving:
-  * BOOLEAN: Use String(value) or value.toString()
-  * NUMBER: Use String(value) or value.toString()
-  * Other types: Already strings, use as-is
+  - BOOLEAN: Use String(value) or value.toString()
+  - NUMBER: Use String(value) or value.toString()
+  - Other types: Already strings, use as-is
 - Disable the Save button if required fields are missing or while saving
 - Add proper error handling
 
@@ -139,12 +148,14 @@ This dashboard page manages dynamic parameters for an embedded script. The param
 ## Example Implementation
 
 See the generated site-popup example for a complete reference implementation:
+
 - src/extensions/dashboard/withProviders.tsx - Provider wrapper with WDS
 - src/extensions/dashboard/pages/page.tsx - Dashboard page with parameter management (wrapped with withProviders)
 - src/extensions/dashboard/components/site-popup-settings.tsx - Settings form component
 - src/extensions/dashboard/types.ts - Type definitions
 
 Key implementation patterns from the example:
+
 1. withProviders.tsx wraps the component with WixDesignSystemProvider
 2. page.tsx exports the component wrapped: export default withProviders(MyComponent)
 3. Parameters are saved as individual string fields, not as JSON
@@ -154,6 +165,7 @@ Key implementation patterns from the example:
 ## File Generation Requirements
 
 When dynamic parameters are present, you MUST generate these files:
+
 1. src/extensions/dashboard/withProviders.tsx - Provider wrapper (REQUIRED for WDS)
 2. src/extensions/dashboard/pages/page.tsx - The main dashboard page component
 3. src/extensions/dashboard/types.ts - Type definitions for the parameters (if needed)
@@ -192,6 +204,7 @@ This file must be included in your generated files output.
 ## Using Provider Wrapper
 
 In your dashboard page component (page.tsx):
+
 1. Import the withProviders wrapper: `import withProviders from '../../withProviders';`
 2. Import embeddedScripts from '@wix/app-management'
 3. DO NOT wrap your component with WixDesignSystemProvider - the provider wrapper does this
@@ -199,6 +212,7 @@ In your dashboard page component (page.tsx):
 5. Your component should only contain the Page component and its content, not providers
 
 Example structure:
+
 ```typescript
 import { useEffect, useState, type FC } from 'react';
 import { dashboard } from '@wix/dashboard';

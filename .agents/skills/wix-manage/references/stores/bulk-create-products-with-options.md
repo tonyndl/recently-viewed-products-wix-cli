@@ -2,6 +2,7 @@
 name: "Bulk Create Products with Options (Catalog V3)"
 description: Uses bulk products endpoint to create multiple products with inventory in a single request. Handles variant generation from options, media format requirements, and error handling for partial failures.
 ---
+
 # RECIPE: Business Recipe - Bulk Creating Wix Store Products with inventory and options
 
 > **Standard call shape (every curl below).** The `<AUTH>` placeholder is shorthand for `Authorization: Bearer <TOKEN>` only. Body-bearing requests also need `Content-Type: application/json`.
@@ -37,8 +38,8 @@ Learn how to create multiple Wix store products with customizable options like c
 
 **❌ COMMON FAILURES:**
 
-* Missing `itemsInfo` section in media (media won't work)
-* Missing URL parameters `?w=400&h=400&fit=crop&crop=center`
+- Missing `itemsInfo` section in media (media won't work)
+- Missing URL parameters `?w=400&h=400&fit=crop&crop=center`
 
 ## Article: Steps for Bulk Creating Wix Store Products with Options
 
@@ -941,15 +942,15 @@ curl -X POST "https://www.wixapis.com/stores/v3/bulk/products-with-inventory/cre
 
 ### IMPORTANT NOTES:
 
-* When bulk creating products with inventory YOU MUST follow the same format as single product creation but wrap all products in a "products" array. Each product MUST leave the physicalProperties and all other non required fields empty. for example: "physicalProperties": {}. In most cases the products will be physical products, and therefore MUST have the empty physicalProperties object ("physicalProperties": {}) and a corresponding "productType": "PHYSICAL".
-* In case part of the request fails, retry bulk creating the failed products, by copying the exact format from the previous working example.
-* When creating a Color option **YOU MUST** use the `"optionRenderType": "SWATCH_CHOICES"` and the appropriate choice type: `"choiceType": "ONE_COLOR"`, while also providing the relevant `colorCode`. This must be done similar to the example above.
+- When bulk creating products with inventory YOU MUST follow the same format as single product creation but wrap all products in a "products" array. Each product MUST leave the physicalProperties and all other non required fields empty. for example: "physicalProperties": {}. In most cases the products will be physical products, and therefore MUST have the empty physicalProperties object ("physicalProperties": {}) and a corresponding "productType": "PHYSICAL".
+- In case part of the request fails, retry bulk creating the failed products, by copying the exact format from the previous working example.
+- When creating a Color option **YOU MUST** use the `"optionRenderType": "SWATCH_CHOICES"` and the appropriate choice type: `"choiceType": "ONE_COLOR"`, while also providing the relevant `colorCode`. This must be done similar to the example above.
 
 **CRITICAL: Bulk Request Structure**The bulk create API requires a different endpoint and request structure:
 
-* **URL**: `https://www.wixapis.com/stores/v3/bulk/products-with-inventory/create`
-* **Body**: `{"products": [array of product objects]}`
-* Each product in the array follows the exact same format as single product creation
+- **URL**: `https://www.wixapis.com/stores/v3/bulk/products-with-inventory/create`
+- **Body**: `{"products": [array of product objects]}`
+- Each product in the array follows the exact same format as single product creation
 
 **CRITICAL: Description Format**If you include a description, it MUST use Wix's rich text nodes structure, NOT a plain string. Plain strings will cause "Expected an object" API errors.
 
@@ -1004,40 +1005,46 @@ curl -X POST "https://www.wixapis.com/stores/v3/bulk/products-with-inventory/cre
 
 **CRITICAL: Options Structure**Each option MUST include:
 
-* `optionRenderType`: "TEXT_CHOICES" for text-based choices
-* `choicesSettings`: Object containing the choices array
-* `choicesSettings.choices`: Array with at least one choice
-* Each choice MUST have `choiceType`: "CHOICE_TEXT" and `name`
+- `optionRenderType`: "TEXT_CHOICES" for text-based choices
+- `choicesSettings`: Object containing the choices array
+- `choicesSettings.choices`: Array with at least one choice
+- Each choice MUST have `choiceType`: "CHOICE_TEXT" and `name`
 
 **CRITICAL: Variants Structure**
 
-* Create one variant for EVERY combination of option choices (Cartesian product of all options)
-* In these examples: Each product creates ALL possible combinations: Size options x Color options = 6 total variants each
-* Each variant must reference ALL options defined on the product
-* Use `optionChoiceNames` structure with `optionName`, `choiceName`, and `renderType`
-* Price must use `price.actualPrice.amount` with string values
-* Include inventory information with `inventoryItem.quantity`
-* Use `visible: true` for variants you want customers to see, `visible: false` for variants you want to keep hidden but available for future use
-* **Pro Basketball Sneaker**: 6 variants total (3 visible: Size 8+Red, Size 9+Blue, Size 10+Red)
-* **Classic Canvas Shoes**: 6 variants total (3 visible: Size 7+White, Size 8+Navy, Size 9+Navy)
-* **Running Track Shoes**: 6 variants total (3 visible: Size 8+Black, Size 9+Gray, Size 10+Black)
+- Create one variant for EVERY combination of option choices (Cartesian product of all options)
+- In these examples: Each product creates ALL possible combinations: Size options x Color options = 6 total variants each
+- Each variant must reference ALL options defined on the product
+- Use `optionChoiceNames` structure with `optionName`, `choiceName`, and `renderType`
+- Price must use `price.actualPrice.amount` with string values
+- Include inventory information with `inventoryItem.quantity`
+- Use `visible: true` for variants you want customers to see, `visible: false` for variants you want to keep hidden but available for future use
+- **Pro Basketball Sneaker**: 6 variants total (3 visible: Size 8+Red, Size 9+Blue, Size 10+Red)
+- **Classic Canvas Shoes**: 6 variants total (3 visible: Size 7+White, Size 8+Navy, Size 9+Navy)
+- **Running Track Shoes**: 6 variants total (3 visible: Size 8+Black, Size 9+Gray, Size 10+Black)
 
 ## Common Issues and Troubleshooting
 
 ### 1. "Expected an object" Error in Description
+
 This occurs when using a plain string instead of the rich text nodes structure. Always use the nodes format shown above.
 
 ### 2. Media Not Displaying
+
 Ensure both `main` and `itemsInfo` sections are included in the media object, and URLs include the required parameters.
 
 ### 3. Options Not Working
+
 Verify that each option has the correct `optionRenderType` and `choicesSettings` structure.
 
 ### 4. Variants Missing Choices
+
 Each variant must include choices for ALL options defined on the product.
 
 ### 5. Invalid Color Options
+
 Color options must use `optionRenderType: "SWATCH_CHOICES"` and `choiceType: "ONE_COLOR"` with a valid `colorCode`.
 
 ### 6. Bulk Request Failures
+
 If part of the bulk request fails, extract the failed products and retry them separately using the same format.

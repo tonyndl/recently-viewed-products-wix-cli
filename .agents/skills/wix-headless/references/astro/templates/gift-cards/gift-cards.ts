@@ -31,8 +31,18 @@ export interface GiftCardImage {
 
 export interface GiftCardPresetVariant {
   id: string;
-  price: { amount: string; formattedAmount: string; convertedAmount?: string; formattedConvertedAmount?: string };
-  value: { amount: string; formattedAmount: string; convertedAmount?: string; formattedConvertedAmount?: string };
+  price: {
+    amount: string;
+    formattedAmount: string;
+    convertedAmount?: string;
+    formattedConvertedAmount?: string;
+  };
+  value: {
+    amount: string;
+    formattedAmount: string;
+    convertedAmount?: string;
+    formattedConvertedAmount?: string;
+  };
 }
 
 export interface GiftCardProduct {
@@ -45,7 +55,8 @@ export interface GiftCardProduct {
   presetVariants: GiftCardPresetVariant[];
 }
 
-const ENDPOINT = "https://www.wixapis.com/gift-cards/v1/gift-card-products/query";
+const ENDPOINT =
+  "https://www.wixapis.com/gift-cards/v1/gift-card-products/query";
 
 // Module-level memoization. Navigation, the home teaser, and /gift-cards all
 // call getGiftCardProduct() in the same request — coalesce them into one

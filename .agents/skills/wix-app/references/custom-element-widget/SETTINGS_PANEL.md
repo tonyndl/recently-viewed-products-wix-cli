@@ -10,10 +10,10 @@ The scaffolded `<name>.panel.tsx` already wraps everything in `SidePanel > Heade
 
 Use the Wix Editor's native picker dialogs via `inputs.selectColor()` and `inputs.selectFont()` from `@wix/editor`. Both follow the same callback shape: `inputs.selectX(value, { onChange })`. Do NOT use `<input type="color">`, async/await, or a readOnly text Input — those don't integrate with the Editor picker dialogs.
 
-| Picker | API | Preview / trigger | Value type |
-|---|---|---|---|
-| Color | `inputs.selectColor(value, { onChange })` | `FillPreview` (WDS) | `string` (CSS color) |
-| Font | `inputs.selectFont(value, { onChange })` | `Button` (WDS) | `{ font: string; textDecoration: string }` |
+| Picker | API                                       | Preview / trigger   | Value type                                 |
+| ------ | ----------------------------------------- | ------------------- | ------------------------------------------ |
+| Color  | `inputs.selectColor(value, { onChange })` | `FillPreview` (WDS) | `string` (CSS color)                       |
+| Font   | `inputs.selectFont(value, { onChange })`  | `Button` (WDS)      | `{ font: string; textDecoration: string }` |
 
 Wrap each picker in the standard `<SidePanel.Field><FormField label={label}>…</FormField></SidePanel.Field>`. The picker handlers themselves:
 
@@ -31,4 +31,3 @@ Wrap each picker in the standard `<SidePanel.Field><FormField label={label}>…<
   Change Font
 </Button>
 ```
-

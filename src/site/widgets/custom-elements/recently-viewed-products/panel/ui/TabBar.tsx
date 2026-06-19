@@ -1,5 +1,5 @@
-import type { FC, ReactNode } from 'react';
-import { styles } from './styles/TabBar';
+import type { FC, ReactNode } from "react";
+import { styles } from "./styles/TabBar";
 
 export interface TabItem {
   id: string;
@@ -25,12 +25,17 @@ const TabBar: FC<TabBarProps> = ({ tabs, activeTab, onSelect }) => (
             style={{
               ...styles.tab,
               ...(isActive ? styles.tabActive : {}),
-              color: isActive ? '#116DFF' : '#6B7280',
+              color: isActive ? "#116DFF" : "#6B7280",
             }}
             onClick={() => onSelect(id)}
           >
             {icon}
-            <span style={{ ...styles.label, color: isActive ? '#116DFF' : '#6B7280' }}>
+            <span
+              style={{
+                ...styles.label,
+                color: isActive ? "#116DFF" : "#6B7280",
+              }}
+            >
               {label}
             </span>
           </button>

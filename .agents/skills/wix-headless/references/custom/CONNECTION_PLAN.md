@@ -16,7 +16,7 @@ You are a planning subagent for the `wix-headless` skill's **integration mode** 
 
 ## What to read — rendered markup OR un-built source
 
-A brought-in frontend comes in **two shapes**, and you read whichever you're given (this is input-adaptation, *not* a framework branch of the flow — the structures you emit are the same regardless of framework):
+A brought-in frontend comes in **two shapes**, and you read whichever you're given (this is input-adaptation, _not_ a framework branch of the flow — the structures you emit are the same regardless of framework):
 
 1. **Rendered markup (static HTML).** The entry HTML carries real content. Read the entry HTML and any other pages. Extract: `<title>`, headings, body copy, `<form>`s, repeated element structures, and the **CSS custom-property token block** (`:root { --… }` — names + values).
 2. **Un-built SPA source.** The entry HTML is a near-empty shell — `<div id="root"></div>` + `<script type="module" src="/src/main.jsx">` — so it has **no rendered content** to detect regions in. **Read the source instead** (`src/**`: the root component, any data/store modules, `*.css`). Identify how the app **persists state today** — a `localStorage` read/write, an in-memory store, a `fetch` to a stub — and the **in-memory data shape** it keeps. This is the signal for a `persistenceSwap` (structure (c)). Detecting this is what stops an SPA from collapsing to the contact-form floor.
@@ -40,16 +40,17 @@ One entry per region:
 ```jsonc
 {
   "file": "index.html",
-  "anchor": "section.product-grid",     // a stable CSS selector into the existing DOM
-  "entity": "stores.products",          // stores.products | blog.posts | forms.submit | data.items | bookings.services
-  "shape": "list",                       // list | detail | single | submit
-  "template": "article.product-card",   // the repeated child to clone per result (list shapes)
-  "bindings": {                          // DOM node (relative to template) → entity field
+  "anchor": "section.product-grid", // a stable CSS selector into the existing DOM
+  "entity": "stores.products", // stores.products | blog.posts | forms.submit | data.items | bookings.services
+  "shape": "list", // list | detail | single | submit
+  "template": "article.product-card", // the repeated child to clone per result (list shapes)
+  "bindings": {
+    // DOM node (relative to template) → entity field
     "img.thumb@src": "media.mainMedia.image.url",
-    "h3.name":       "name",
-    "span.price":    "priceData.formatted.price"
+    "h3.name": "name",
+    "span.price": "priceData.formatted.price",
   },
-  "sampleCount": 3                        // hard-coded samples to remove after wiring
+  "sampleCount": 3, // hard-coded samples to remove after wiring
 }
 ```
 
@@ -61,17 +62,35 @@ Per the **always-connect** rule (`INSTRUCTIONS.md` § "Always connect"), every r
 
 ```jsonc
 {
-  "capability": "rsvp",                  // rsvp | lead | contact | (or a read capability if augmenting reads)
+  "capability": "rsvp", // rsvp | lead | contact | (or a read capability if augmenting reads)
   "app": "wix-forms",
   "component": "rsvp-form",
-  "injectAt": { "file": "index.html", "anchor": "section.closing", "position": "before" },
-  "fields": [                            // becomes BOTH the Wix Form definition (seed) and the <form>
-    { "name": "fullName", "label": "Your name", "type": "text", "required": true },
-    { "name": "attending", "label": "Will you attend?", "type": "radio", "options": ["Joyfully accepts","Regretfully declines"] },
+  "injectAt": {
+    "file": "index.html",
+    "anchor": "section.closing",
+    "position": "before",
+  },
+  "fields": [
+    // becomes BOTH the Wix Form definition (seed) and the <form>
+    {
+      "name": "fullName",
+      "label": "Your name",
+      "type": "text",
+      "required": true,
+    },
+    {
+      "name": "attending",
+      "label": "Will you attend?",
+      "type": "radio",
+      "options": ["Joyfully accepts", "Regretfully declines"],
+    },
     { "name": "guests", "label": "Number of guests", "type": "number" },
-    { "name": "dietary", "label": "Dietary notes", "type": "textarea" }
+    { "name": "dietary", "label": "Dietary notes", "type": "textarea" },
   ],
-  "styleFrom": { "selector": ":root", "tokens": ["--terracotta","--sage","--display","--body","--label"] }
+  "styleFrom": {
+    "selector": ":root",
+    "tokens": ["--terracotta", "--sage", "--display", "--body", "--label"],
+  },
 }
 ```
 
@@ -81,30 +100,33 @@ Per the **always-connect** rule (`INSTRUCTIONS.md` § "Always connect"), every r
 
 ### (c) Persistence swap — replace a client-state app's data layer with a CMS collection
 
-For an **app with client/local state** (todo, notes, tracker, planner, kanban — `INSTRUCTIONS.md` § "Always connect" client-state row), the connection is neither a binding map (no rendered regions in the un-built shell) nor an augmentation (nothing to *add* — the UI exists). It is a **persistence swap**: the app's existing load/save data layer is replaced with `@wix/data`, and the in-memory shape becomes a CMS collection schema. Emit one entry per persisted entity-shape:
+For an **app with client/local state** (todo, notes, tracker, planner, kanban — `INSTRUCTIONS.md` § "Always connect" client-state row), the connection is neither a binding map (no rendered regions in the un-built shell) nor an augmentation (nothing to _add_ — the UI exists). It is a **persistence swap**: the app's existing load/save data layer is replaced with `@wix/data`, and the in-memory shape becomes a CMS collection schema. Emit one entry per persisted entity-shape:
 
 ```jsonc
 {
-  "sourceFile": "src/App.jsx",            // the file holding the data layer (where the swap is applied)
-  "dataLayer": {                            // the functions/effects to rewrite — NAME them, don't rewrite here
-    "load":  ["load() (reads localStorage 'lists')"],
-    "save":  ["useEffect persisting 'lists'", "useEffect persisting 'activeId'"],
-    "storage": "localStorage"               // localStorage | in-memory | fetch-stub
+  "sourceFile": "src/App.jsx", // the file holding the data layer (where the swap is applied)
+  "dataLayer": {
+    // the functions/effects to rewrite — NAME them, don't rewrite here
+    "load": ["load() (reads localStorage 'lists')"],
+    "save": ["useEffect persisting 'lists'", "useEffect persisting 'activeId'"],
+    "storage": "localStorage", // localStorage | in-memory | fetch-stub
   },
-  "inferredShape": {                        // the in-memory shape → becomes the collection schema (the seeder reads this)
-    "collection": "Todos",                  // PascalCase collection name to seed
-    "fields": [                             // name + Wix Data field type
-      { "name": "text",   "type": "text" },
-      { "name": "done",   "type": "boolean" },
-      { "name": "listId", "type": "text" }
-    ]
+  "inferredShape": {
+    // the in-memory shape → becomes the collection schema (the seeder reads this)
+    "collection": "Todos", // PascalCase collection name to seed
+    "fields": [
+      // name + Wix Data field type
+      { "name": "text", "type": "text" },
+      { "name": "done", "type": "boolean" },
+      { "name": "listId", "type": "text" },
+    ],
   },
-  "shared": true                            // ALWAYS true — visitor token ⇒ one shared/public collection (per-user is deferred)
+  "shared": true, // ALWAYS true — visitor token ⇒ one shared/public collection (per-user is deferred)
 }
 ```
 
 - **One entry per distinct entity-shape.** A todo app with `lists` and `todos` yields **two** persistence-swap entries (a `Lists` collection: `name`; a `Todos` collection: `text`, `done`, `listId`).
-- **`dataLayer`** — *name* the functions/effects the wiring agent will rewrite (with a one-line description of what each does today); do not write replacement code (the wiring agent does that, adapting to the framework idiom).
+- **`dataLayer`** — _name_ the functions/effects the wiring agent will rewrite (with a one-line description of what each does today); do not write replacement code (the wiring agent does that, adapting to the framework idiom).
 - **`inferredShape.fields`** — map each in-memory field to a Wix Data type (`text` | `number` | `boolean` | `datetime` | `url` | `image` | `richText` | `reference`). The **seeder** turns this into a public-read collection; the **cms wiring agent** turns the data layer into `@wix/data` `query/insert/update/remove` calls against it.
 - **`shared`** — always `true`. The visitor token gives no per-user identity, so the collection is shared/public across all visitors. The plan should also surface this in `notes[]` so the orchestrator can caveat it to the user (`INSTRUCTIONS.md` § "Scope — deferred").
 - This is **framework-blind**: a React, Vue, or Svelte SPA all produce the same `persistenceSwap` shape; only the wiring agent's idiom differs.
@@ -114,7 +136,8 @@ For an **app with client/local state** (todo, notes, tracker, planner, kanban �
 Do **not** guess silently and do **not** call `AskUserQuestion`. Wire the regions you're confident about; for anything unclear, omit it from the binding map and note it in `notes[]` so the wiring subagent can leave a visible `<!-- wix: … -->` comment.
 
 **Choose the right output structure before falling through:**
-- **Un-built SPA with a client-state data layer** → emit a **`persistenceSwap`** (structure (c)). **Do NOT fall through to the contact-form floor** — that is the exact nonsense the client-state row was added to fix (a todo app is not a contact form). The persistence swap *is* the connection.
+
+- **Un-built SPA with a client-state data layer** → emit a **`persistenceSwap`** (structure (c)). **Do NOT fall through to the contact-form floor** — that is the exact nonsense the client-state row was added to fix (a todo app is not a contact form). The persistence swap _is_ the connection.
 - **Rendered markup with dynamic regions** → binding map.
 - **Static design with no dynamic region** → augmentation.
 
@@ -128,12 +151,23 @@ Return a single JSON object per `shared/RETURN_CONTRACT.md` conventions:
 {
   "status": "ok",
   "data": {
-    "bindingMap": [ /* (a) entries, possibly empty */ ],
-    "augmentation": [ /* (b) entries — possibly empty when a persistenceSwap carries the connection */ ],
-    "persistenceSwap": [ /* (c) entries — present for client-state SPAs; empty otherwise */ ],
-    "tokens": { "--terracotta": "#B26049", "--display": "\"Cormorant Garamond\", serif" },  // resolved :root/source tokens for styling
-    "notes": [ /* ambiguous regions, omitted-but-noticed structures, the shared-data caveat for any persistenceSwap */ ]
-  }
+    "bindingMap": [
+      /* (a) entries, possibly empty */
+    ],
+    "augmentation": [
+      /* (b) entries — possibly empty when a persistenceSwap carries the connection */
+    ],
+    "persistenceSwap": [
+      /* (c) entries — present for client-state SPAs; empty otherwise */
+    ],
+    "tokens": {
+      "--terracotta": "#B26049",
+      "--display": "\"Cormorant Garamond\", serif",
+    }, // resolved :root/source tokens for styling
+    "notes": [
+      /* ambiguous regions, omitted-but-noticed structures, the shared-data caveat for any persistenceSwap */
+    ],
+  },
 }
 ```
 

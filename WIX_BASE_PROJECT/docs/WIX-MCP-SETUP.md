@@ -54,17 +54,17 @@ Claude will use the `ListWixSites` MCP tool and return your Wix sites.
 
 ## Available Wix MCP Tools
 
-| Tool | Description |
-|------|-------------|
-| `ListWixSites` | List all sites in your Wix account |
-| `CallWixSiteAPI` | Make API calls to a specific Wix site |
-| `ManageWixSite` | Perform site-level actions |
-| `SearchWixSDKDocumentation` | Search Wix SDK docs |
-| `SearchWixRESTDocumentation` | Search Wix REST API docs |
-| `SearchBuildAppsDocumentation` | Search Wix app development docs |
-| `SearchWixHeadlessDocumentation` | Search Wix Headless docs |
-| `WixSiteBuilder` | Create a new Wix site |
-| `ReadFullDocsArticle` | Fetch a full Wix docs article |
+| Tool                             | Description                           |
+| -------------------------------- | ------------------------------------- |
+| `ListWixSites`                   | List all sites in your Wix account    |
+| `CallWixSiteAPI`                 | Make API calls to a specific Wix site |
+| `ManageWixSite`                  | Perform site-level actions            |
+| `SearchWixSDKDocumentation`      | Search Wix SDK docs                   |
+| `SearchWixRESTDocumentation`     | Search Wix REST API docs              |
+| `SearchBuildAppsDocumentation`   | Search Wix app development docs       |
+| `SearchWixHeadlessDocumentation` | Search Wix Headless docs              |
+| `WixSiteBuilder`                 | Create a new Wix site                 |
+| `ReadFullDocsArticle`            | Fetch a full Wix docs article         |
 
 ## Troubleshooting
 

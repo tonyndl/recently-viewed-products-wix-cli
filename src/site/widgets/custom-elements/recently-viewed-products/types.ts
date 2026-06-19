@@ -1,12 +1,11 @@
 import type {
   LayoutKind,
   RatioKind,
-  ImageFit,
   TextPosition,
   HoverEffect,
   EmptyBehavior,
   TextAlign,
-} from './constants';
+} from "./constants";
 
 // A single product rendered in the gallery.
 export interface RecentlyViewedItem {
@@ -30,7 +29,6 @@ export interface WidgetProps {
   columns: number; // 0 = auto
   spacing: number;
   ratio: RatioKind;
-  imageFit: ImageFit;
   showTitle: boolean;
   showPrice: boolean;
   textPosition: TextPosition;
@@ -39,6 +37,7 @@ export interface WidgetProps {
   hoverEffect: HoverEffect;
   bgColor: string;
   behavior: EmptyBehavior;
+  emptyText: string; // message shown when behavior === 'text' and there are no items
   isPremium: boolean;
   // Text settings — heading typography + product name/price typography.
   headingText: string;

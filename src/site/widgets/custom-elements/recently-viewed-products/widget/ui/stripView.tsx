@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useRef, useState, type FC } from 'react';
-import type { RecentlyViewedItem, WidgetProps } from '../../types';
-import { STRIP_ITEM_WIDTH } from '../../constants';
-import { ProductCard } from './productCard';
-import { styles, STRIP_CSS } from './styles/stripView';
+import { useCallback, useEffect, useRef, useState, type FC } from "react";
+import type { RecentlyViewedItem, WidgetProps } from "../../types";
+import { STRIP_ITEM_WIDTH } from "../../constants";
+import { ProductCard } from "./productCard";
+import { styles, STRIP_CSS } from "./styles/stripView";
 
 // Vertical center of the card's image (cards are STRIP_ITEM_WIDTH wide, image on
 // top) so the arrows sit on the image, not on the title/price below it.
-const imageHeight = (ratio: WidgetProps['ratio']): number => {
+const imageHeight = (ratio: WidgetProps["ratio"]): number => {
   switch (ratio) {
-    case 'portrait':
+    case "portrait":
       return Math.round((STRIP_ITEM_WIDTH * 4) / 3);
-    case 'landscape':
+    case "landscape":
       return Math.round((STRIP_ITEM_WIDTH * 3) / 4);
     default:
       return STRIP_ITEM_WIDTH; // square + original fallback
   }
 };
 
-const Chevron: FC<{ dir: 'left' | 'right' }> = ({ dir }) => (
+const Chevron: FC<{ dir: "left" | "right" }> = ({ dir }) => (
   <svg
     width="22"
     height="22"
@@ -29,7 +29,11 @@ const Chevron: FC<{ dir: 'left' | 'right' }> = ({ dir }) => (
     strokeLinejoin="round"
     aria-hidden="true"
   >
-    {dir === 'left' ? <polyline points="15 18 9 12 15 6" /> : <polyline points="9 18 15 12 9 6" />}
+    {dir === "left" ? (
+      <polyline points="15 18 9 12 15 6" />
+    ) : (
+      <polyline points="9 18 15 12 9 6" />
+    )}
   </svg>
 );
 
@@ -68,13 +72,13 @@ export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
   const scrollByPage = (dir: -1 | 1) => {
     const el = ref.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: 'smooth' });
+    el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: "smooth" });
   };
 
   // Center the arrows on the image. When the caption sits above the image
   // ('top'), offset by its approximate height so the arrows stay on the image.
   const captionAbove =
-    props.textPosition === 'top'
+    props.textPosition === "top"
       ? (props.showTitle ? 20 : 0) + (props.showPrice ? 17 : 0) + 8
       : 0;
   const arrowTop = captionAbove + imageHeight(props.ratio) / 2;
@@ -89,11 +93,13 @@ export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
         onScroll={update}
       >
         {items.map((it) => (
-          <div key={it.id || it.slug} style={{ ...styles.cardWrap, width: STRIP_ITEM_WIDTH }}>
+          <div
+            key={it.id || it.slug}
+            style={{ ...styles.cardWrap, width: STRIP_ITEM_WIDTH }}
+          >
             <ProductCard
               item={it}
               ratio={props.ratio}
-              imageFit={props.imageFit}
               showTitle={props.showTitle}
               showPrice={props.showPrice}
               textPosition={props.textPosition}
@@ -114,7 +120,7 @@ export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
           aria-label="Previous"
           className="rv-strip-arrow"
           onClick={() => scrollByPage(-1)}
-          style={{ ...styles.arrow, left: '6px', top: arrowTop }}
+          style={{ ...styles.arrow, left: "6px", top: arrowTop }}
         >
           <Chevron dir="left" />
         </button>
@@ -125,7 +131,7 @@ export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
           aria-label="Next"
           className="rv-strip-arrow"
           onClick={() => scrollByPage(1)}
-          style={{ ...styles.arrow, right: '6px', top: arrowTop }}
+          style={{ ...styles.arrow, right: "6px", top: arrowTop }}
         >
           <Chevron dir="right" />
         </button>

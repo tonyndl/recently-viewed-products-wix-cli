@@ -2,6 +2,7 @@
 name: "Create Site from Template"
 description: Creates new Wix sites from templates using account-level APIs. Covers template search, site creation, headless site setup, OAuth app creation, and publishing.
 ---
+
 # Create Site from Template
 
 This recipe guides you through creating a new Wix site from a template, including template selection and optional publishing.
@@ -30,6 +31,7 @@ Before searching templates, gather information:
 ### Quick Start (Skip Template Search)
 
 If user wants an empty/blank site:
+
 - **Wix Studio blank**: `fe86a14e-ef67-49b4-a409-d086f3abaa1a`
 - **Wix Editor blank**: `b55bdf43-95e0-4cef-b9bb-92dcc7af2742`
 
@@ -51,6 +53,7 @@ Skip to Step 3 with these template IDs.
 | `query` | Search keywords | `yoga+studio`, `ecommerce`, etc. |
 
 **Example Request**:
+
 ```bash
 curl -X GET \
   'https://www.wix.com/_api/template-cms-view-service/view/v2/templates/search?language=en&limit=24&offset=0&bookType=studio&query=yoga+studio' \
@@ -58,6 +61,7 @@ curl -X GET \
 ```
 
 **Response** includes for each template:
+
 - `metaSiteId` - Template ID for creation
 - `templateSlug` - For preview URL
 - Template name and description
@@ -66,6 +70,7 @@ curl -X GET \
 ### Present Templates to User
 
 For each relevant template, show:
+
 - Template name
 - Description (without "Click Edit" text)
 - "Good for" description
@@ -79,6 +84,7 @@ For each relevant template, show:
 **Endpoint**: `POST https://www.wixapis.com/msm/v1/meta-site/create-from-template`
 
 **Request Body**:
+
 ```json
 {
   "originTemplateId": "<TEMPLATE_METASITE_ID>",
@@ -87,6 +93,7 @@ For each relevant template, show:
 ```
 
 **Request**:
+
 ```bash
 curl -X POST \
   'https://www.wixapis.com/msm/v1/meta-site/create-from-template' \
@@ -101,6 +108,7 @@ curl -X POST \
 ### Site Name Requirements
 
 The `siteName` must follow these rules:
+
 - 4-20 characters
 - Only lowercase letters, numbers, hyphens, underscores
 - Pattern: `[a-z0-9_-]{4,20}`
@@ -123,6 +131,7 @@ Add `"namespace": "HEADLESS"` to the request body:
 **Response** includes the new site's `metaSiteId`.
 
 ### IMPORTANT NOTES:
+
 - Only mention headless if user specifically requests it
 - If user doesn't ask for headless, do NOT include the `namespace` field
 
@@ -137,6 +146,7 @@ Add `"namespace": "HEADLESS"` to the request body:
 This is a **site-level API** - use the site ID from the creation response.
 
 **Request**:
+
 ```bash
 curl -X POST \
   'https://www.wixapis.com/site-publisher/v1/site/publish' \
@@ -146,6 +156,7 @@ curl -X POST \
 ```
 
 ### IMPORTANT NOTES:
+
 - NEVER publish without asking the user first
 - This makes the site publicly accessible
 
@@ -165,19 +176,20 @@ This is a site-level call in the context of the newly created site.
 
 For quick access without searching:
 
-| Type | Template ID |
-|------|-------------|
-| Blank (Studio) | `fe86a14e-ef67-49b4-a409-d086f3abaa1a` |
-| Blank (Editor) | `b55bdf43-95e0-4cef-b9bb-92dcc7af2742` |
-| Store | `b783f9f9-4f4d-4139-9659-cc95a51b9ee5` |
+| Type              | Template ID                            |
+| ----------------- | -------------------------------------- |
+| Blank (Studio)    | `fe86a14e-ef67-49b4-a409-d086f3abaa1a` |
+| Blank (Editor)    | `b55bdf43-95e0-4cef-b9bb-92dcc7af2742` |
+| Store             | `b783f9f9-4f4d-4139-9659-cc95a51b9ee5` |
 | Bookings/Services | `17b2bf9e-8661-4c92-973c-67502b415e58` |
-| Beauty | `0281d415-0682-42ac-b35e-49b349f19332` |
+| Beauty            | `0281d415-0682-42ac-b35e-49b349f19332` |
 
 ---
 
 ## Next Steps
 
 After creating the site:
+
 - Install required apps using [Install Wix Apps](../app-installation/install-wix-apps.md)
 - Configure site settings
 - Add content (products, services, blog posts, etc.)

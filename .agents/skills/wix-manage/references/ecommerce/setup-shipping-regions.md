@@ -3,6 +3,7 @@ name: "Setup: Shipping Regions"
 description: Configures delivery profiles and regions — creating profiles, adding regions with destinations, assigning carriers, enabling backup rates, and handling externally managed regions.
 layer: config
 ---
+
 # Shipping Regions
 
 ## Creating Delivery Profiles
@@ -51,6 +52,7 @@ Perishable goods require cold chain logistics that standard international shippi
 ## Identifying International Regions
 
 A region is considered "international" if any of the following are true:
+
 - Region name contains "international" or "internacional" (case-insensitive)
 - `destinations[]` is empty (Rest of World)
 - `destinations` include countries OTHER than the site country

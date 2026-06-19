@@ -34,6 +34,7 @@ const Panel: FC = () => {
 ```
 
 **Rules:**
+
 - Import `@wix/design-system/styles.global.css` only in the root panel file — never in sub-components.
 - Use a `TabBar` to split settings into logical groups (Content, Style, Colors, Button, etc.).
 - Each tab renders its own component. Pass only the props that tab needs.
@@ -47,14 +48,23 @@ Build a custom `TabBar` using plain `<button>` elements — do **not** use the W
 ```tsx
 const TABS = [
   { id: "content", label: "Content", icon: <svg>...</svg> },
-  { id: "style",   label: "Style",   icon: <svg>...</svg> },
+  { id: "style", label: "Style", icon: <svg>...</svg> },
   // ...
 ];
 
 const TabBar: FC<{ activeTab: string; onSelect: (id: string) => void }> = ({
-  activeTab, onSelect,
+  activeTab,
+  onSelect,
 }) => (
-  <div style={{ position: "sticky", top: 0, zIndex: 10, background: "#fff", borderBottom: "1px solid #e8e8e8" }}>
+  <div
+    style={{
+      position: "sticky",
+      top: 0,
+      zIndex: 10,
+      background: "#fff",
+      borderBottom: "1px solid #e8e8e8",
+    }}
+  >
     <div style={{ display: "flex", overflowX: "auto" }}>
       {TABS.map(({ id, label, icon }) => {
         const active = activeTab === id;
@@ -73,7 +83,9 @@ const TabBar: FC<{ activeTab: string; onSelect: (id: string) => void }> = ({
               background: "none",
               cursor: "pointer",
               color: active ? "#116DFF" : "#6B7280",
-              borderBottom: active ? "2px solid #116DFF" : "2px solid transparent",
+              borderBottom: active
+                ? "2px solid #116DFF"
+                : "2px solid transparent",
             }}
           >
             {icon}
@@ -97,9 +109,20 @@ const PanelField: FC<{ children: React.ReactNode; noDivider?: boolean }> = ({
   children,
   noDivider = false,
 }) => (
-  <div style={{ paddingTop: "12px", paddingLeft: "20px", paddingRight: "20px", paddingBottom: noDivider ? "12px" : 0 }}>
+  <div
+    style={{
+      paddingTop: "12px",
+      paddingLeft: "20px",
+      paddingRight: "20px",
+      paddingBottom: noDivider ? "12px" : 0,
+    }}
+  >
     {children}
-    {!noDivider && <div style={{ height: "1px", background: "#e8e8e8", marginTop: "12px" }} />}
+    {!noDivider && (
+      <div
+        style={{ height: "1px", background: "#e8e8e8", marginTop: "12px" }}
+      />
+    )}
   </div>
 );
 ```
@@ -132,11 +155,17 @@ interface ToggleRowProps {
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-  tooltip?: string;   // shown as (i) icon when provided
-  noField?: boolean;  // skip PanelField wrapper (for inline use)
+  tooltip?: string; // shown as (i) icon when provided
+  noField?: boolean; // skip PanelField wrapper (for inline use)
 }
 
-const ToggleRow: FC<ToggleRowProps> = ({ label, checked, onChange, tooltip, noField }) => {
+const ToggleRow: FC<ToggleRowProps> = ({
+  label,
+  checked,
+  onChange,
+  tooltip,
+  noField,
+}) => {
   const [iconHovered, setIconHovered] = useState(false);
 
   const content = (
@@ -146,7 +175,12 @@ const ToggleRow: FC<ToggleRowProps> = ({ label, checked, onChange, tooltip, noFi
         {tooltip && (
           <Tooltip content={tooltip} appendTo="window" maxWidth={220}>
             <span
-              style={{ display: "flex", alignItems: "center", cursor: "default", color: iconHovered ? "#116dff" : "#999" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                cursor: "default",
+                color: iconHovered ? "#116dff" : "#999",
+              }}
               onMouseEnter={() => setIconHovered(true)}
               onMouseLeave={() => setIconHovered(false)}
             >
@@ -158,7 +192,9 @@ const ToggleRow: FC<ToggleRowProps> = ({ label, checked, onChange, tooltip, noFi
       <ToggleSwitch
         size="medium"
         checked={checked}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange(e.target.checked)
+        }
       />
     </Box>
   );
@@ -207,28 +243,39 @@ import PanelField from "./PanelField";
 
 interface ColorPickerFieldProps {
   label: string;
-  value: string;       // hex or rgba string, e.g. "#4f46e5"
+  value: string; // hex or rgba string, e.g. "#4f46e5"
   onChange: (value: string) => void;
 }
 
-const ColorPickerField: FC<ColorPickerFieldProps> = ({ label, value, onChange }) => (
+const ColorPickerField: FC<ColorPickerFieldProps> = ({
+  label,
+  value,
+  onChange,
+}) => (
   <PanelField noDivider>
     <Box align="space-between" verticalAlign="middle">
       <Box direction="vertical" gap="2px">
         <Text size="small">{label}</Text>
-        <Text size="tiny" secondary>{value}</Text>
+        <Text size="tiny" secondary>
+          {value}
+        </Text>
       </Box>
       <div
         style={{
-          width: "38px", height: "38px", borderRadius: "8px",
-          overflow: "hidden", cursor: "pointer",
+          width: "38px",
+          height: "38px",
+          borderRadius: "8px",
+          overflow: "hidden",
+          cursor: "pointer",
           border: "1.5px solid rgba(0,0,0,0.14)",
           boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
           flexShrink: 0,
         }}
         onClick={() =>
           inputs.selectColor(value, {
-            onChange: (val) => { if (val) onChange(val); }
+            onChange: (val) => {
+              if (val) onChange(val);
+            },
           })
         }
       >
@@ -242,16 +289,21 @@ export default ColorPickerField;
 ```
 
 **How it works:**
+
 - `inputs.selectColor(currentValue, { onChange })` opens the editor's built-in color picker.
 - The picker includes the site's theme palette (the colors the site owner defined in their theme), recent colors, and a custom hex/rgba input.
 - `onChange` fires live as the user drags the color wheel — wire it directly to `widget.setProp` for real-time preview.
 
 **Usage:**
+
 ```tsx
 <ColorPickerField
   label="Button background"
   value={buttonBgColor}
-  onChange={(v) => { setButtonBgColor(v); set("button-bg-color", v); }}
+  onChange={(v) => {
+    setButtonBgColor(v);
+    set("button-bg-color", v);
+  }}
 />
 ```
 
@@ -283,7 +335,9 @@ export const GET: APIRoute = () => {
         : undefined;
       return customJson({ isPremium, upgradeUrl });
     })
-    .catch(() => customJson({ isPremium: false, upgradeUrl: FALLBACK_UPGRADE_URL }));
+    .catch(() =>
+      customJson({ isPremium: false, upgradeUrl: FALLBACK_UPGRADE_URL }),
+    );
 };
 ```
 
@@ -299,7 +353,9 @@ const baseApiUrl = new URL(import.meta.url).origin;
 const checkPlan = () =>
   httpClient
     .fetchWithAuth(`${baseApiUrl}/api/check-plan`)
-    .then((r) => r.json() as Promise<{ isPremium: boolean; upgradeUrl?: string }>);
+    .then(
+      (r) => r.json() as Promise<{ isPremium: boolean; upgradeUrl?: string }>,
+    );
 ```
 
 Then call it in the panel's `useEffect` alongside the widget prop fetches:
@@ -358,7 +414,12 @@ interface PremiumToggleRowProps {
 }
 
 const PremiumToggleRow: FC<PremiumToggleRowProps> = ({
-  label, tooltip, checked, onChange, isPremium, upgradeUrl,
+  label,
+  tooltip,
+  checked,
+  onChange,
+  isPremium,
+  upgradeUrl,
 }) => (
   <PanelField noDivider>
     <Box direction="vertical" gap="SP1">
@@ -382,7 +443,9 @@ const PremiumToggleRow: FC<PremiumToggleRowProps> = ({
         size="medium"
         checked={isPremium ? checked : false}
         disabled={!isPremium}
-        onChange={(e) => { if (isPremium) onChange(e.target.checked); }}
+        onChange={(e) => {
+          if (isPremium) onChange(e.target.checked);
+        }}
       />
     </Box>
   </PanelField>
@@ -390,6 +453,7 @@ const PremiumToggleRow: FC<PremiumToggleRowProps> = ({
 ```
 
 **Visual behaviour:**
+
 - Free user: label + purple "Upgrade" button, greyed-out disabled toggle.
 - Premium user: label only, normal active toggle.
 

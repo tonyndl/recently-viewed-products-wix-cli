@@ -1,4 +1,3 @@
-
 # Wix Dashboard Modal
 
 Dashboard modals are popup dialogs triggered from dashboard pages or plugins. They use the Dashboard SDK for lifecycle control via `openModal()` and `closeModal()`.
@@ -11,23 +10,23 @@ Use `wix generate --params` with all required fields:
 wix generate --params '{"extensionType":"DASHBOARD_MODAL","title":"<title>","folder":"<folder>"}'
 ```
 
-| Field | Constraint |
-| --- | --- |
-| `title` | Display name for the modal. |
+| Field    | Constraint                          |
+| -------- | ----------------------------------- |
+| `title`  | Display name for the modal.         |
 | `folder` | Lowercase alphanumeric and hyphens. |
 
 The CLI generates the folder, the modal `.tsx`, the config file, the builder file, the UUID, and the `src/extensions.ts` registration. After scaffolding, implement the modal UI in the generated `.tsx`.
 
 ## Quick Reference
 
-| Task | Method | Example |
-|------|--------|---------|
-| Open modal | `dashboard.openModal()` | `openModal({ modalId: "modal-id" })` |
-| Pass data to modal | `params` in `openModal()` | `params: { userId: "123" }` |
-| Read data in modal | `observeState()` | `dashboard.observeState((state) => { ... })` |
-| Close modal | `dashboard.closeModal()` | `closeModal()` |
-| Return data to parent | Pass data to `closeModal()` | `closeModal({ ... })` |
-| Wait for modal close | `modalClosed` Promise | `const { modalClosed } = openModal(...);` |
+| Task                  | Method                      | Example                                      |
+| --------------------- | --------------------------- | -------------------------------------------- |
+| Open modal            | `dashboard.openModal()`     | `openModal({ modalId: "modal-id" })`         |
+| Pass data to modal    | `params` in `openModal()`   | `params: { userId: "123" }`                  |
+| Read data in modal    | `observeState()`            | `dashboard.observeState((state) => { ... })` |
+| Close modal           | `dashboard.closeModal()`    | `closeModal()`                               |
+| Return data to parent | Pass data to `closeModal()` | `closeModal({ ... })`                        |
+| Wait for modal close  | `modalClosed` Promise       | `const { modalClosed } = openModal(...);`    |
 
 ## Opening a Modal
 
@@ -89,7 +88,7 @@ Edit `<modal>.config.ts` (generated alongside the modal) to change the title and
 ```typescript
 // <modal>.config.ts
 export default {
-  title: 'User Settings',
+  title: "User Settings",
   width: 600,
   height: 500,
 };
@@ -97,12 +96,12 @@ export default {
 
 ## Common Mistakes
 
-| Mistake | Fix |
-|---------|-----|
-| Can't find modal ID | Check the modal's generated builder file (`extensions.ts`) `id` field |
-| Using `extensionId` instead of `modalId` | Use `modalId` in `openModal()` |
-| Can't access params in modal | Use `dashboard.observeState()` to read passed data |
-| Modal won't close | Use `dashboard.closeModal()` from `@wix/dashboard` |
+| Mistake                                  | Fix                                                                   |
+| ---------------------------------------- | --------------------------------------------------------------------- |
+| Can't find modal ID                      | Check the modal's generated builder file (`extensions.ts`) `id` field |
+| Using `extensionId` instead of `modalId` | Use `modalId` in `openModal()`                                        |
+| Can't access params in modal             | Use `dashboard.observeState()` to read passed data                    |
+| Modal won't close                        | Use `dashboard.closeModal()` from `@wix/dashboard`                    |
 
 ## Real-World Example
 

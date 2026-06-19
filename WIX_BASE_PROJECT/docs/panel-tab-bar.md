@@ -35,14 +35,14 @@ export const styles = {
     top: 0,
     zIndex: 10,
     background: "#fff",
-    padding: "10px 12px 8px"
+    padding: "10px 12px 8px",
   } as CSSProperties,
   container: {
     display: "flex",
     background: "#EBEBEC",
     borderRadius: "10px",
     padding: "3px",
-    gap: "2px"
+    gap: "2px",
   } as CSSProperties,
   tab: {
     flex: 1,
@@ -57,23 +57,24 @@ export const styles = {
     background: "transparent",
     cursor: "pointer",
     transition: "all 0.15s ease",
-    outline: "none"
+    outline: "none",
   } as CSSProperties,
   tabActive: {
     background: "#FFFFFF",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.14), 0 1px 2px rgba(0,0,0,0.08)"
+    boxShadow: "0 1px 4px rgba(0,0,0,0.14), 0 1px 2px rgba(0,0,0,0.08)",
   } as CSSProperties,
   label: {
     fontSize: "7px",
     fontWeight: 600,
     letterSpacing: "0.3px",
     textTransform: "uppercase" as const,
-    lineHeight: 1
-  } as CSSProperties
+    lineHeight: 1,
+  } as CSSProperties,
 };
 ```
 
 **Font rules (do not change these):**
+
 - `fontSize: "7px"` — fits under icons without wrapping at any tab count
 - `fontWeight: 600` — semi-bold so labels read at tiny size
 - `letterSpacing: "0.3px"` — breathing room between uppercase letters
@@ -92,9 +93,9 @@ import type { ReactNode } from "react";
 import { styles } from "./styles/TabBar";
 
 export interface TabItem {
-  id: string;       // unique key, used to track which tab is active
-  label: string;    // display text — rendered uppercase by CSS
-  icon: ReactNode;  // 16×16 SVG (use stroke="currentColor" so color is inherited)
+  id: string; // unique key, used to track which tab is active
+  label: string; // display text — rendered uppercase by CSS
+  icon: ReactNode; // 16×16 SVG (use stroke="currentColor" so color is inherited)
 }
 
 interface TabBarProps {
@@ -114,12 +115,17 @@ const TabBar: FC<TabBarProps> = ({ tabs, activeTab, onSelect }) => (
             style={{
               ...styles.tab,
               ...(isActive ? styles.tabActive : {}),
-              color: isActive ? "#116DFF" : "#6B7280"
+              color: isActive ? "#116DFF" : "#6B7280",
             }}
             onClick={() => onSelect(id)}
           >
             {icon}
-            <span style={{ ...styles.label, color: isActive ? "#116DFF" : "#6B7280" }}>
+            <span
+              style={{
+                ...styles.label,
+                color: isActive ? "#116DFF" : "#6B7280",
+              }}
+            >
               {label}
             </span>
           </button>
@@ -145,24 +151,40 @@ import TabBar, { type TabItem } from "./ui/TabBar";
 // Define tabs for THIS app — change ids, labels, and icons freely
 const TABS: TabItem[] = [
   {
-    id: "content",        // <-- your id
-    label: "Content",     // <-- your label (CSS uppercases it automatically)
+    id: "content", // <-- your id
+    label: "Content", // <-- your label (CSS uppercases it automatically)
     icon: (
       <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
         {/* your SVG paths — see icon guidelines below */}
-        <path d="M4 7h12M4 10.5h12M4 14h8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+        <path
+          d="M4 7h12M4 10.5h12M4 14h8"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
       </svg>
-    )
+    ),
   },
   {
     id: "settings",
     label: "Settings",
     icon: (
       <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-        <circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.7" />
-        <path d="M10 3v2M10 15v2M3 10h2M15 10h2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+        <circle
+          cx="10"
+          cy="10"
+          r="2.5"
+          stroke="currentColor"
+          strokeWidth="1.7"
+        />
+        <path
+          d="M10 3v2M10 15v2M3 10h2M15 10h2"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
       </svg>
-    )
+    ),
   },
   // add as many tabs as your app needs
 ];
@@ -175,7 +197,7 @@ export default function Panel() {
       <TabBar tabs={TABS} activeTab={activeTab} onSelect={setActiveTab} />
 
       {/* Render the matching tab content */}
-      {activeTab === "content"  && <ContentTab />}
+      {activeTab === "content" && <ContentTab />}
       {activeTab === "settings" && <SettingsTab />}
     </div>
   );
@@ -186,11 +208,11 @@ export default function Panel() {
 
 ## Tab definition rules
 
-| Field | Type | Rule |
-|-------|------|------|
-| `id` | `string` | Unique, lowercase, no spaces — e.g. `"colors"`, `"button"`, `"layout"` |
-| `label` | `string` | Write in Title Case — CSS transforms it to uppercase automatically |
-| `icon` | `ReactNode` | 16×16 SVG — must use `stroke="currentColor"` so active/inactive color is inherited |
+| Field   | Type        | Rule                                                                               |
+| ------- | ----------- | ---------------------------------------------------------------------------------- |
+| `id`    | `string`    | Unique, lowercase, no spaces — e.g. `"colors"`, `"button"`, `"layout"`             |
+| `label` | `string`    | Write in Title Case — CSS transforms it to uppercase automatically                 |
+| `icon`  | `ReactNode` | 16×16 SVG — must use `stroke="currentColor"` so active/inactive color is inherited |
 
 Any number of tabs works — each button has `flex: 1` so they always fill the pill evenly.
 
@@ -279,10 +301,10 @@ strokeLinejoin="round"   ← add this on paths with sharp corners
 
 ## Color tokens
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| Active | `#116DFF` | Icon + label when selected |
-| Inactive | `#6B7280` | Icon + label when not selected |
-| Pill background | `#EBEBEC` | Container behind all tabs |
-| Active tab bg | `#FFFFFF` | Selected tab background |
-| Active shadow | `0 1px 4px rgba(0,0,0,0.14), 0 1px 2px rgba(0,0,0,0.08)` | Lift effect on selected tab |
+| Token           | Value                                                    | Usage                          |
+| --------------- | -------------------------------------------------------- | ------------------------------ |
+| Active          | `#116DFF`                                                | Icon + label when selected     |
+| Inactive        | `#6B7280`                                                | Icon + label when not selected |
+| Pill background | `#EBEBEC`                                                | Container behind all tabs      |
+| Active tab bg   | `#FFFFFF`                                                | Selected tab background        |
+| Active shadow   | `0 1px 4px rgba(0,0,0,0.14), 0 1px 2px rgba(0,0,0,0.08)` | Lift effect on selected tab    |

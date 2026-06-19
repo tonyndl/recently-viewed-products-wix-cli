@@ -34,11 +34,21 @@ if (!process.stdin.isTTY) {
     try {
       slots = JSON.parse(raw);
     } catch (e) {
-      console.error(JSON.stringify({ status: "error", reason: `stdin is not valid JSON (${e.message})` }));
+      console.error(
+        JSON.stringify({
+          status: "error",
+          reason: `stdin is not valid JSON (${e.message})`,
+        }),
+      );
       process.exit(2);
     }
     if (!slots || typeof slots !== "object" || Array.isArray(slots)) {
-      console.error(JSON.stringify({ status: "error", reason: "expected a JSON object mapping slot keys to URLs" }));
+      console.error(
+        JSON.stringify({
+          status: "error",
+          reason: "expected a JSON object mapping slot keys to URLs",
+        }),
+      );
       process.exit(2);
     }
   }
@@ -55,8 +65,14 @@ mkdirSync(srcDir, { recursive: true });
 const dest = join(srcDir, "decorative-images.json");
 writeFileSync(dest, JSON.stringify(clean, null, 2) + "\n");
 
-console.log(JSON.stringify({
-  status: Object.keys(clean).length ? "ok" : "placeholder",
-  file: dest,
-  slots: Object.keys(clean),
-}, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      status: Object.keys(clean).length ? "ok" : "placeholder",
+      file: dest,
+      slots: Object.keys(clean),
+    },
+    null,
+    2,
+  ),
+);

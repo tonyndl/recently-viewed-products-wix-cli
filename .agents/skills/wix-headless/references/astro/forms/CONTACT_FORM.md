@@ -3,6 +3,7 @@
 Build a complete form feature using `@wix/forms` — server-side schema fetching + client-side submission.
 
 > **Critical Rules — Read Before Starting**
+>
 > 1. **Style migration mandatory** — when replacing `.astro` placeholder with a React island, copy the `<style is:global>` block to the page file or all form styles vanish (invisible inputs on dark sites).
 > 2. **Form creation is TWO steps** — POST to create, then PATCH to add `postSubmissionTriggers`. Skipping the PATCH means submissions are silently lost (no CRM Contact created).
 > 3. **Namespace propagation** — if form creation fails with `UNSUPPORTED_FORM_NAMESPACE`, wait 10s and retry up to 3 times. Do NOT fall back to hardcoded fields — a form without a `formId` cannot submit to Wix.
@@ -23,6 +24,7 @@ Before writing any form code, ensure a contact form exists on the site via the f
 
 1. **List forms** — `REST: GET https://www.wixapis.com/form-schema-service/v4/forms?namespace=wix.form_app.form`
 2. **If the API returns a "missing installed app" error** → install the Wix Forms app:
+
    ```
    REST: POST https://www.wixapis.com/apps-installer-service/v1/app-instance/install
    body: {
@@ -30,9 +32,11 @@ Before writing any form code, ensure a contact form exists on the site via the f
      "appInstance": { "appDefId": "225dd912-7dea-4738-8688-4b8c6955ffc2", "enabled": true }
    }
    ```
+
    > Translate this prose-HTTP form into the full `curl` tool-call shape — pass `body` as JSON in `-d` (NOT a stringified JSON). See `../../shared/AUTHENTICATION.md` for the standard REST headers.
 
    Then retry listing forms.
+
 3. **If forms list is empty** → create a form. This is a two-step atomic operation (POST to create, then PATCH to add `postSubmissionTriggers`) — see step 4 for the full procedure and rationale.
 
    > **Namespace propagation:** If form creation fails with `UNSUPPORTED_FORM_NAMESPACE` immediately after installing the Forms app, the namespace hasn't propagated yet. Wait 10 seconds and retry up to 3 times. Do NOT silently fall back to static field definitions — forms without a `formId` cannot submit to Wix.
@@ -107,15 +111,16 @@ Before writing any form code, ensure a contact form exists on the site via the f
 
    **Assembly by purpose:**
 
-   | Purpose | Fields to include | Layout rows |
-   |---------|------------------|-------------|
-   | Waitlist / newsletter | EMAIL + SUBMIT | email row 0, submit row 1 |
-   | Lead capture | FIRST_NAME + EMAIL + SUBMIT | first_name row 0, email row 1, submit row 2 |
-   | Contact (full) | FIRST_NAME + LAST_NAME + EMAIL + PHONE + MESSAGE + SUBMIT | first+last row 0 (6+6 cols), email row 1, phone row 2, message row 3, submit row 4 |
+   | Purpose               | Fields to include                                         | Layout rows                                                                        |
+   | --------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+   | Waitlist / newsletter | EMAIL + SUBMIT                                            | email row 0, submit row 1                                                          |
+   | Lead capture          | FIRST_NAME + EMAIL + SUBMIT                               | first_name row 0, email row 1, submit row 2                                        |
+   | Contact (full)        | FIRST_NAME + LAST_NAME + EMAIL + PHONE + MESSAGE + SUBMIT | first+last row 0 (6+6 cols), email row 1, phone row 2, message row 3, submit row 4 |
 
    Build the `steps[0].layout.large.items` array to match — each field gets a `{ fieldId, row, column, width: 12, height: 1 }` entry. For side-by-side fields (first + last name), use `width: 6` with `column: 0` and `column: 6`.
 
    The `postSubmissionTriggers.upsertContact.fieldsMapping` must only include mappings for fields that exist on the form. For a waitlist form with email only:
+
    ```json
    "fieldsMapping": {
      "email": { "contactField": "EMAIL", "emailInfo": { "tag": "UNTAGGED" } }
@@ -123,6 +128,7 @@ Before writing any form code, ensure a contact form exists on the site via the f
    ```
 
    Full REST call structure:
+
    ```
    REST: POST https://www.wixapis.com/form-schema-service/v4/forms
    body: {
@@ -151,10 +157,11 @@ Before writing any form code, ensure a contact form exists on the site via the f
      }
    }
    ```
+
 4. **Always PATCH `postSubmissionTriggers` after creation** — The creation API silently drops this field. Treat form creation as a two-step atomic operation:
    - Step A: `POST /forms` to create the form
    - Step B: `PATCH /forms/<formId>` to add `postSubmissionTriggers`
-   Never skip Step B, even if you included triggers in the creation payload. The cost of a redundant PATCH is zero; the cost of missing triggers is silent data loss (submissions recorded but no CRM contact created).
+     Never skip Step B, even if you included triggers in the creation payload. The cost of a redundant PATCH is zero; the cost of missing triggers is silent data loss (submissions recorded but no CRM contact created).
    - GET the form: `GET https://www.wixapis.com/form-schema-service/v4/forms?namespace=wix.form_app.form`
    - PATCH using the procedure in step 5 below
 5. **If forms already exist** → verify the form has `postSubmissionTriggers.upsertContact`. This field is **critical** — without it, submissions are recorded but no Contact is created in the CRM. If missing, patch the form to add it:
@@ -182,10 +189,10 @@ Before writing any form code, ensure a contact form exists on the site via the f
 
 ## Files to Modify / Create
 
-| File | Action |
-|------|--------|
+| File                                                     | Action                                                                               |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | Existing designed page (e.g., `src/pages/contact.astro`) | **Modify in place** — add SDK imports and replace placeholder form with React island |
-| `src/components/ContactForm.tsx` | **Create** — React island for client-side submission |
+| `src/components/ContactForm.tsx`                         | **Create** — React island for client-side submission                                 |
 
 ## Implementation
 
@@ -194,6 +201,7 @@ Before writing any form code, ensure a contact form exists on the site via the f
 **Do NOT create a new page from scratch.** The merged `contact-page` scope writes this page once — branded styling, layout, and `<style>` block alongside the form wiring (per `references/astro/designer/INSTRUCTIONS.md` → `contact-page`). When wiring an existing designed page, modify it in place:
 
 1. **Add SDK imports** to the frontmatter:
+
    ```astro
    import { forms } from "@wix/forms";
    import { auth } from "@wix/essentials";
@@ -201,6 +209,7 @@ Before writing any form code, ensure a contact form exists on the site via the f
    ```
 
 2. **Add the form discovery query** to the frontmatter:
+
    ```astro
    const elevatedListForms = auth.elevate(forms.listForms);
    const listResult = await elevatedListForms("wix.form_app.form");
@@ -232,6 +241,7 @@ Before writing any form code, ensure a contact form exists on the site via the f
    ```
 
 3. **Replace the placeholder form HTML** with the React island:
+
    ```astro
    {formId ? (
      <ContactForm client:load formId={formId} fields={formFields} />
@@ -281,7 +291,9 @@ interface ContactFormProps {
 
 export default function ContactForm({ formId, fields }: ContactFormProps) {
   const [formData, setFormData] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -327,9 +339,7 @@ export default function ContactForm({ formId, fields }: ContactFormProps) {
 
   if (status === "success") {
     return (
-      <div className="form-success">
-        Thank you! We'll be in touch soon.
-      </div>
+      <div className="form-success">Thank you! We'll be in touch soon.</div>
     );
   }
 
@@ -352,13 +362,18 @@ export default function ContactForm({ formId, fields }: ContactFormProps) {
               required={field.required}
               value={formData[field.target] ?? ""}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, [field.target]: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  [field.target]: e.target.value,
+                }))
               }
               className={`form-select${fieldErrors[field.target] ? " form-input-error" : ""}`}
             >
               <option value="">Select an option</option>
               {field.options.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           ) : field.identifier === "TEXT_AREA" || field.target === "message" ? (
@@ -366,7 +381,10 @@ export default function ContactForm({ formId, fields }: ContactFormProps) {
               required={field.required}
               value={formData[field.target] ?? ""}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, [field.target]: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  [field.target]: e.target.value,
+                }))
               }
               rows={4}
               className={`form-textarea${fieldErrors[field.target] ? " form-input-error" : ""}`}
@@ -374,16 +392,24 @@ export default function ContactForm({ formId, fields }: ContactFormProps) {
           ) : (
             <input
               type={
-                field.target === "email" ? "email" :
-                field.componentType === "PHONE_INPUT" ? "tel" : "text"
+                field.target === "email"
+                  ? "email"
+                  : field.componentType === "PHONE_INPUT"
+                    ? "tel"
+                    : "text"
               }
               required={field.required}
               value={formData[field.target] ?? ""}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, [field.target]: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  [field.target]: e.target.value,
+                }))
               }
               className={`form-input${fieldErrors[field.target] ? " form-input-error" : ""}`}
-              {...(field.componentType === "PHONE_INPUT" ? { placeholder: "+1234567890" } : {})}
+              {...(field.componentType === "PHONE_INPUT"
+                ? { placeholder: "+1234567890" }
+                : {})}
             />
           )}
           {fieldErrors[field.target] && (
@@ -431,27 +457,27 @@ If no forms exist, use the REST API Form Setup section above to create one via `
 Each field in `formFields` has this structure when `fieldType === "INPUT"`:
 
 ```typescript
-field.identifier                                             // "CONTACTS_EMAIL", "TEXT_AREA", "SUBMIT_BUTTON", etc.
-field.inputOptions.target                                    // "email", "first_name", "message", custom UUIDs
-field.inputOptions.required                                  // boolean
-field.inputOptions.stringOptions.componentType               // "TEXT_INPUT" | "DROPDOWN" | "PHONE_INPUT"
-field.inputOptions.stringOptions.textInputOptions?.label     // label for text inputs
-field.inputOptions.stringOptions.dropdownOptions?.label      // label for dropdowns
-field.inputOptions.stringOptions.dropdownOptions?.options    // [{value, label}] for dropdowns
-field.inputOptions.stringOptions.phoneInputOptions?.label    // label for phone inputs
+field.identifier; // "CONTACTS_EMAIL", "TEXT_AREA", "SUBMIT_BUTTON", etc.
+field.inputOptions.target; // "email", "first_name", "message", custom UUIDs
+field.inputOptions.required; // boolean
+field.inputOptions.stringOptions.componentType; // "TEXT_INPUT" | "DROPDOWN" | "PHONE_INPUT"
+field.inputOptions.stringOptions.textInputOptions?.label; // label for text inputs
+field.inputOptions.stringOptions.dropdownOptions?.label; // label for dropdowns
+field.inputOptions.stringOptions.dropdownOptions?.options; // [{value, label}] for dropdowns
+field.inputOptions.stringOptions.phoneInputOptions?.label; // label for phone inputs
 ```
 
 > **⚠️ Textarea detection:** The message field's `componentType` is always `"TEXT_INPUT"` (the API rejects `"TEXT_AREA"` as a componentType value). To render a `<textarea>`, check `field.identifier === "TEXT_AREA"` or `field.target === "message"` — NOT `field.componentType`.
 
 ## Built-In Field Targets
 
-| Target | Type | HTML Input |
-|--------|------|-----------|
-| `email` | Email | `type="email"` |
-| `first_name` | Text | `type="text"` |
-| `last_name` | Text | `type="text"` |
-| `phone` | Phone | `type="tel"` |
-| `company` | Text | `type="text"` |
+| Target       | Type  | HTML Input     |
+| ------------ | ----- | -------------- |
+| `email`      | Email | `type="email"` |
+| `first_name` | Text  | `type="text"`  |
+| `last_name`  | Text  | `type="text"`  |
+| `phone`      | Phone | `type="tel"`   |
+| `company`    | Text  | `type="text"`  |
 
 Custom fields use UUID-based targets from the form schema.
 

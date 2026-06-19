@@ -59,9 +59,13 @@ import { randomUUID } from "node:crypto";
 
 const RUNWARE_URL = "https://www.wixapis.com/runwareschemaless/v1/request";
 const MEDIA_IMPORT_URL = "https://www.wixapis.com/site-media/v1/files/import";
-const GEN_TIMEOUT_MS = 120_000;   // google:4@2 is slow; generous per-task cap
+const GEN_TIMEOUT_MS = 120_000; // google:4@2 is slow; generous per-task cap
 const IMPORT_TIMEOUT_MS = 60_000;
-const ALLOWED_DIMS = [[1024, 1024], [1376, 768], [1200, 896]];
+const ALLOWED_DIMS = [
+  [1024, 1024],
+  [1376, 768],
+  [1200, 896],
+];
 
 function fail(reason) {
   console.log(JSON.stringify({ status: "failed", reason }, null, 2));
@@ -85,13 +89,19 @@ if (images.length === 0) fail("no images in input — nothing to generate");
 let token = process.env.WIX_TOKEN || input.token;
 if (!token) {
   try {
-    token = execFileSync("npx", ["@wix/cli@latest", "token", "--site", siteId], {
-      cwd: input.projectDir || process.cwd(),
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
+    token = execFileSync(
+      "npx",
+      ["@wix/cli@latest", "token", "--site", siteId],
+      {
+        cwd: input.projectDir || process.cwd(),
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      },
+    ).trim();
   } catch (e) {
-    fail(`no token: pass WIX_TOKEN env or stdin "token", or run where the CLI can mint (${e.message})`);
+    fail(
+      `no token: pass WIX_TOKEN env or stdin "token", or run where the CLI can mint (${e.message})`,
+    );
   }
 }
 if (!token) fail("token minting returned empty");
@@ -116,7 +126,11 @@ async function call(url, body, timeoutMs) {
     const reqId = res.headers.get("x-wix-request-id") || null;
     const text = await res.text();
     let json = null;
-    try { json = text ? JSON.parse(text) : null; } catch { /* keep raw */ }
+    try {
+      json = text ? JSON.parse(text) : null;
+    } catch {
+      /* keep raw */
+    }
     return { ok: res.ok, status: res.status, reqId, json, raw: text };
   } finally {
     clearTimeout(t);
@@ -135,10 +149,24 @@ async function genAndImport(img) {
   const taskUUID = img.taskUUID || randomUUID();
   const [width, height] = normalizeDims(img.width ?? 1024, img.height ?? 1024);
   const outputFormat = (img.outputFormat || "PNG").toUpperCase();
-  const rec = { key, taskUUID, status: "failed", genReqId: null, importReqId: null };
+  const rec = {
+    key,
+    taskUUID,
+    status: "failed",
+    genReqId: null,
+    importReqId: null,
+  };
 
   if (!img.positivePrompt) {
-    return { ...rec, error: { key, stage: "input", code: "NO_PROMPT", message: "positivePrompt missing" } };
+    return {
+      ...rec,
+      error: {
+        key,
+        stage: "input",
+        code: "NO_PROMPT",
+        message: "positivePrompt missing",
+      },
+    };
   }
 
   // --- generate (retry once on transient 5xx/504/timeout) ---
@@ -159,20 +187,33 @@ async function genAndImport(img) {
     try {
       gen = await call(RUNWARE_URL, [task], GEN_TIMEOUT_MS);
     } catch (e) {
-      gen = { ok: false, status: e.name === "AbortError" ? 504 : 0, reqId: null, json: null, raw: String(e) };
+      gen = {
+        ok: false,
+        status: e.name === "AbortError" ? 504 : 0,
+        reqId: null,
+        json: null,
+        raw: String(e),
+      };
     }
     rec.genReqId = gen.reqId;
     const data = Array.isArray(gen.json?.data) ? gen.json.data : null;
     imageURL = data?.[0]?.imageURL;
     if (gen.ok && imageURL) break;
     // transient → retry once; hard 4xx (except 504-shaped) → give up
-    const transient = gen.status >= 500 || gen.status === 504 || gen.status === 0;
+    const transient =
+      gen.status >= 500 || gen.status === 504 || gen.status === 0;
     if (!transient || attempt === 1) {
       return {
         ...rec,
         error: {
-          key, stage: "generate", code: String(gen.status),
-          message: gen.json?.errors?.[0]?.message || gen.json?.errorMessage || gen.raw?.slice(0, 200) || "no imageURL in response",
+          key,
+          stage: "generate",
+          code: String(gen.status),
+          message:
+            gen.json?.errors?.[0]?.message ||
+            gen.json?.errorMessage ||
+            gen.raw?.slice(0, 200) ||
+            "no imageURL in response",
           reqId: gen.reqId,
         },
       };
@@ -182,11 +223,15 @@ async function genAndImport(img) {
   // --- import to Wix Media ---
   let imp;
   try {
-    imp = await call(MEDIA_IMPORT_URL, {
-      url: imageURL,
-      mimeType: outputFormat === "JPG" ? "image/jpeg" : "image/png",
-      displayName: img.displayName || `${key}.${outputFormat.toLowerCase()}`,
-    }, IMPORT_TIMEOUT_MS);
+    imp = await call(
+      MEDIA_IMPORT_URL,
+      {
+        url: imageURL,
+        mimeType: outputFormat === "JPG" ? "image/jpeg" : "image/png",
+        displayName: img.displayName || `${key}.${outputFormat.toLowerCase()}`,
+      },
+      IMPORT_TIMEOUT_MS,
+    );
   } catch (e) {
     imp = { ok: false, status: 0, reqId: null, json: null, raw: String(e) };
   }
@@ -196,8 +241,13 @@ async function genAndImport(img) {
     return {
       ...rec,
       error: {
-        key, stage: "import", code: String(imp.status),
-        message: imp.json?.message || imp.raw?.slice(0, 200) || "no file.url in import response",
+        key,
+        stage: "import",
+        code: String(imp.status),
+        message:
+          imp.json?.message ||
+          imp.raw?.slice(0, 200) ||
+          "no file.url in import response",
         reqId: imp.reqId,
       },
       // generation succeeded — surface the raw URL so the caller can decide
@@ -211,8 +261,18 @@ async function genAndImport(img) {
 // ---- run all in parallel --------------------------------------------------
 const settled = await Promise.allSettled(images.map(genAndImport));
 const results = settled.map((s, i) =>
-  s.status === "fulfilled" ? s.value
-    : { key: images[i].key, status: "failed", error: { key: images[i].key, stage: "internal", message: String(s.reason) } });
+  s.status === "fulfilled"
+    ? s.value
+    : {
+        key: images[i].key,
+        status: "failed",
+        error: {
+          key: images[i].key,
+          stage: "internal",
+          message: String(s.reason),
+        },
+      },
+);
 
 const map = {};
 const slots = {};
@@ -228,15 +288,26 @@ for (const r of results) {
   }
 }
 
-const status = okCount === images.length ? "complete" : okCount === 0 ? "failed" : "partial";
-console.log(JSON.stringify({
-  status,
-  model,
-  count: { requested: images.length, ok: okCount, failed: images.length - okCount },
-  map,
-  slots,
-  results: results.map(({ url, fileId, genURL, ...keep }) => keep), // keep slim; urls live in map
-  errors,
-}, null, 2));
+const status =
+  okCount === images.length ? "complete" : okCount === 0 ? "failed" : "partial";
+console.log(
+  JSON.stringify(
+    {
+      status,
+      model,
+      count: {
+        requested: images.length,
+        ok: okCount,
+        failed: images.length - okCount,
+      },
+      map,
+      slots,
+      results: results.map(({ url, fileId, genURL, ...keep }) => keep), // keep slim; urls live in map
+      errors,
+    },
+    null,
+    2,
+  ),
+);
 
 process.exit(status === "failed" ? 1 : 0);

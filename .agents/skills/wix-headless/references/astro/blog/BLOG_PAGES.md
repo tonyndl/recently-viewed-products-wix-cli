@@ -4,14 +4,14 @@ Blog listing, post detail, RSS feed, layout, SEO head component, and date format
 
 ## Files to Create
 
-| File | Purpose |
-|------|---------|
-| `src/pages/blog/index.astro` | Blog listing page |
-| `src/pages/blog/[...slug].astro` | Blog post detail page (with RicosViewer) |
-| `src/pages/rss.xml.js` | RSS feed |
-| `src/layouts/BlogPost.astro` | Blog post layout wrapper |
-| `src/components/BaseHead.astro` | SEO head component (OG/Twitter cards) |
-| `src/components/FormattedDate.astro` | Date formatting helper |
+| File                                 | Purpose                                  |
+| ------------------------------------ | ---------------------------------------- |
+| `src/pages/blog/index.astro`         | Blog listing page                        |
+| `src/pages/blog/[...slug].astro`     | Blog post detail page (with RicosViewer) |
+| `src/pages/rss.xml.js`               | RSS feed                                 |
+| `src/layouts/BlogPost.astro`         | Blog post layout wrapper                 |
+| `src/components/BaseHead.astro`      | SEO head component (OG/Twitter cards)    |
+| `src/components/FormattedDate.astro` | Date formatting helper                   |
 
 ---
 
@@ -263,6 +263,7 @@ if (!post) {
 ```
 
 Critical details:
+
 - **`wixMetadata` export is required** — it tells the Wix platform this page is a blog post page. The `appDefId` is the Wix Blog app's ID (constant, do not change). `identifiers.slug` maps the URL param to the blog post slug.
 - **`client:only="react"` is required** — `@wix/ricos` is a React component; `client:only="react"` ensures it renders only on the client, avoiding SSR issues with React-dependent code.
 - **`[...slug]` (rest param)** — uses Astro's rest parameter syntax, not `[slug]`, to match the full slug path.
@@ -277,9 +278,9 @@ Critical details:
 ## 6. RSS Feed (`src/pages/rss.xml.js`)
 
 ```javascript
-import rss from '@astrojs/rss';
-import { queryBlogPosts } from '../lib/blog';
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import rss from "@astrojs/rss";
+import { queryBlogPosts } from "../lib/blog";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 
 export async function GET(context) {
   const posts = await queryBlogPosts();

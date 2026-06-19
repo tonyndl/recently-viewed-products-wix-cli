@@ -1,6 +1,6 @@
-import type { FC } from 'react';
-import { Box, Button, Text } from '@wix/design-system';
-import { styles } from './styles/appCard';
+import type { FC } from "react";
+import { Box, Button, Text } from "@wix/design-system";
+import { styles } from "./styles/appCard";
 
 interface AppCardProps {
   name: string;
@@ -21,7 +21,13 @@ export const AppCard: FC<AppCardProps> = ({ name, description, icon, url }) => (
       </Text>
     </div>
     <Box align="center">
-      <Button size="tiny" priority="secondary" as="a" href={url} target="_blank">
+      <Button
+        size="tiny"
+        priority="secondary"
+        as="a"
+        href={url}
+        target="_blank"
+      >
         Get App
       </Button>
     </Box>

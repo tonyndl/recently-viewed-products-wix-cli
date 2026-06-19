@@ -6,10 +6,10 @@ A custom iframe-based review popup that loads the Wix App Market review page. Sh
 
 ## Files
 
-| File | Role |
-|---|---|
-| `src/extensions/dashboard/_shared/rate-popup.ts` | Web component + `openRatePopup` helper |
-| `src/extensions/dashboard/pages/image-picker/image-picker.tsx` | Triggers the popup on Save |
+| File                                                           | Role                                   |
+| -------------------------------------------------------------- | -------------------------------------- |
+| `src/extensions/dashboard/_shared/rate-popup.ts`               | Web component + `openRatePopup` helper |
+| `src/extensions/dashboard/pages/image-picker/image-picker.tsx` | Triggers the popup on Save             |
 
 ---
 
@@ -32,22 +32,24 @@ https://www.wix.com/app-market/add-review/<APP_ID>
 ### 1. Import the helper
 
 ```ts
-import { openRatePopup } from '../../_shared/rate-popup';
+import { openRatePopup } from "../../_shared/rate-popup";
 ```
 
 ### 2. Define constants
 
 ```ts
-const APP_ID = 'b10a8749-4bac-431f-acbd-e426588176d7';
+const APP_ID = "b10a8749-4bac-431f-acbd-e426588176d7";
 const REVIEW_URL = `https://www.wix.com/app-market/add-review/${APP_ID}`;
-const REVIEW_SHOWN_KEY = 'before_after_slider_review_shown_v1';
+const REVIEW_SHOWN_KEY = "before_after_slider_review_shown_v1";
 ```
 
 ### 3. Track whether the popup has been shown
 
 ```tsx
 const [reviewShown, setReviewShown] = useState(
-  () => typeof window !== 'undefined' && localStorage.getItem(REVIEW_SHOWN_KEY) === '1',
+  () =>
+    typeof window !== "undefined" &&
+    localStorage.getItem(REVIEW_SHOWN_KEY) === "1",
 );
 ```
 
@@ -56,7 +58,7 @@ const [reviewShown, setReviewShown] = useState(
 ```tsx
 const handleSave = useCallback(() => {
   try {
-    localStorage.setItem(REVIEW_SHOWN_KEY, '1');
+    localStorage.setItem(REVIEW_SHOWN_KEY, "1");
     setReviewShown(true);
     setTimeout(() => openRatePopup(REVIEW_URL), 2000);
   } catch {}
@@ -81,9 +83,9 @@ The Save button hides itself after being clicked and stays hidden on subsequent 
 openRatePopup(reviewUrl?: string, options?: { isEditor?: boolean })
 ```
 
-| Parameter | Type | Description |
-|---|---|---|
-| `reviewUrl` | `string` (optional) | Override the review URL. Defaults to the app's market review page. |
+| Parameter          | Type                 | Description                                                                   |
+| ------------------ | -------------------- | ----------------------------------------------------------------------------- |
+| `reviewUrl`        | `string` (optional)  | Override the review URL. Defaults to the app's market review page.            |
 | `options.isEditor` | `boolean` (optional) | Renders a smaller dialog (460×480px) suited for the Wix editor panel context. |
 
 ---
@@ -118,7 +120,7 @@ The `localStorage.clear()` command must be run **inside the dashboard iframe's c
 4. Run:
 
 ```js
-localStorage.removeItem('before_after_slider_review_shown_v1')
+localStorage.removeItem("before_after_slider_review_shown_v1");
 ```
 
 Then reload the dashboard page — the Save button will reappear.
@@ -127,7 +129,7 @@ Then reload the dashboard page — the Save button will reappear.
 
 ## Dialog Sizes
 
-| Context | Width | Height |
-|---|---|---|
-| Dashboard (default) | min(770px, 100vw − 48px) | min(650px, 100vh − 48px) |
+| Context                   | Width                    | Height                   |
+| ------------------------- | ------------------------ | ------------------------ |
+| Dashboard (default)       | min(770px, 100vw − 48px) | min(650px, 100vh − 48px) |
 | Editor (`isEditor: true`) | min(460px, 100vw − 32px) | min(480px, 100vh − 32px) |

@@ -22,28 +22,28 @@ It must be installed before TypeScript compilation will succeed.
 
 ## SDK Methods & Interfaces
 
-| Method Call | Import | TypeScript Signature | Description |
-| --- | --- | --- | --- |
-| `items.get()` | `import { items } from '@wix/data'` | `(collectionId: string, itemId: string, options?: WixDataGetOptions) => Promise<WixDataItem \| null>` | Get a single item by ID |
-| `items.query()` | `import { items } from '@wix/data'` | `(collectionId: string) => WixDataQuery` | Build a chainable query (call `.find()` to execute) |
-| `items.insert()` | `import { items } from '@wix/data'` | `(collectionId: string, item: Partial<WixDataItem>, options?: WixDataInsertOptions) => Promise<WixDataItem>` | Add a new item to a collection |
-| `items.update()` | `import { items } from '@wix/data'` | `(collectionId: string, item: WixDataItem, options?: WixDataUpdateOptions) => Promise<WixDataItem>` | Replace an existing item (item MUST include `_id`) |
-| `items.save()` | `import { items } from '@wix/data'` | `(collectionId: string, item: Partial<WixDataItem>, options?: WixDataSaveOptions) => Promise<WixDataItem>` | Insert or update (upsert) based on `_id` |
-| `items.remove()` | `import { items } from '@wix/data'` | `(collectionId: string, itemId: string, options?: WixDataRemoveOptions) => Promise<WixDataItem \| null>` | Remove an item by ID |
-| `items.bulkInsert()` | `import { items } from '@wix/data'` | `(collectionId: string, items: Partial<WixDataItem>[], options?: WixDataOptions) => Promise<WixDataBulkResult>` | Insert multiple items (max 1000) |
-| `items.bulkUpdate()` | `import { items } from '@wix/data'` | `(collectionId: string, items: WixDataItem[], options?: WixDataBulkUpdateOptions) => Promise<WixDataBulkResult>` | Update multiple items (max 1000) |
-| `items.bulkRemove()` | `import { items } from '@wix/data'` | `(collectionId: string, itemIds: string[], options?: WixDataBulkRemoveOptions) => Promise<WixDataBulkResult>` | Remove multiple items (max 1000) |
-| `items.filter()` | `import { items } from '@wix/data'` | `() => WixDataFilter` | Create a standalone filter (for use with `.or()`, `.and()`, `.not()`) |
+| Method Call          | Import                              | TypeScript Signature                                                                                             | Description                                                           |
+| -------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `items.get()`        | `import { items } from '@wix/data'` | `(collectionId: string, itemId: string, options?: WixDataGetOptions) => Promise<WixDataItem \| null>`            | Get a single item by ID                                               |
+| `items.query()`      | `import { items } from '@wix/data'` | `(collectionId: string) => WixDataQuery`                                                                         | Build a chainable query (call `.find()` to execute)                   |
+| `items.insert()`     | `import { items } from '@wix/data'` | `(collectionId: string, item: Partial<WixDataItem>, options?: WixDataInsertOptions) => Promise<WixDataItem>`     | Add a new item to a collection                                        |
+| `items.update()`     | `import { items } from '@wix/data'` | `(collectionId: string, item: WixDataItem, options?: WixDataUpdateOptions) => Promise<WixDataItem>`              | Replace an existing item (item MUST include `_id`)                    |
+| `items.save()`       | `import { items } from '@wix/data'` | `(collectionId: string, item: Partial<WixDataItem>, options?: WixDataSaveOptions) => Promise<WixDataItem>`       | Insert or update (upsert) based on `_id`                              |
+| `items.remove()`     | `import { items } from '@wix/data'` | `(collectionId: string, itemId: string, options?: WixDataRemoveOptions) => Promise<WixDataItem \| null>`         | Remove an item by ID                                                  |
+| `items.bulkInsert()` | `import { items } from '@wix/data'` | `(collectionId: string, items: Partial<WixDataItem>[], options?: WixDataOptions) => Promise<WixDataBulkResult>`  | Insert multiple items (max 1000)                                      |
+| `items.bulkUpdate()` | `import { items } from '@wix/data'` | `(collectionId: string, items: WixDataItem[], options?: WixDataBulkUpdateOptions) => Promise<WixDataBulkResult>` | Update multiple items (max 1000)                                      |
+| `items.bulkRemove()` | `import { items } from '@wix/data'` | `(collectionId: string, itemIds: string[], options?: WixDataBulkRemoveOptions) => Promise<WixDataBulkResult>`    | Remove multiple items (max 1000)                                      |
+| `items.filter()`     | `import { items } from '@wix/data'` | `() => WixDataFilter`                                                                                            | Create a standalone filter (for use with `.or()`, `.and()`, `.not()`) |
 
 ## ⚠️ Common Wrong Method Names (DO NOT USE)
 
-| ❌ WRONG (does not exist) | ✅ CORRECT |
-| --- | --- |
-| `items.queryDataItems()` | `items.query("Collection").find()` |
-| `items.insertDataItem()` | `items.insert("Collection", data)` |
-| `items.updateDataItem()` | `items.update("Collection", data)` |
-| `items.removeDataItem()` | `items.remove("Collection", id)` |
-| `items.getDataItem()` | `items.get("Collection", itemId)` |
+| ❌ WRONG (does not exist)     | ✅ CORRECT                              |
+| ----------------------------- | --------------------------------------- |
+| `items.queryDataItems()`      | `items.query("Collection").find()`      |
+| `items.insertDataItem()`      | `items.insert("Collection", data)`      |
+| `items.updateDataItem()`      | `items.update("Collection", data)`      |
+| `items.removeDataItem()`      | `items.remove("Collection", id)`        |
+| `items.getDataItem()`         | `items.get("Collection", itemId)`       |
 | `items.bulkInsertDataItems()` | `items.bulkInsert("Collection", items)` |
 
 If you see any method with `DataItem` in the name, it is **wrong**.
@@ -55,10 +55,10 @@ If you see any method with `DataItem` in the name, it is **wrong**.
 ```ts
 interface WixDataItem {
   _id: string;
-  _createdDate?: Date;   // read-only, set by Wix on insert
-  _updatedDate?: Date;   // read-only, set by Wix on insert/update
-  _owner?: string;       // ID of the user who created the item
-  [key: string]: any;    // custom fields from your collection schema
+  _createdDate?: Date; // read-only, set by Wix on insert
+  _updatedDate?: Date; // read-only, set by Wix on insert/update
+  _owner?: string; // ID of the user who created the item
+  [key: string]: any; // custom fields from your collection schema
 }
 ```
 
@@ -67,8 +67,8 @@ interface WixDataItem {
 ```ts
 interface WixDataResult {
   readonly items: WixDataItem[];
-  readonly totalCount: number | undefined;  // only when returnTotalCount: true
-  readonly totalPages: number | undefined;  // only when returnTotalCount: true
+  readonly totalCount: number | undefined; // only when returnTotalCount: true
+  readonly totalPages: number | undefined; // only when returnTotalCount: true
   readonly pageSize: number | undefined;
   readonly currentPage: number | undefined;
   readonly length: number;
@@ -92,7 +92,11 @@ interface WixDataQuery {
   ge(field: string, value: string | number | Date): WixDataQuery;
   lt(field: string, value: string | number | Date): WixDataQuery;
   le(field: string, value: string | number | Date): WixDataQuery;
-  between(field: string, rangeStart: string | number | Date, rangeEnd: string | number | Date): WixDataQuery;
+  between(
+    field: string,
+    rangeStart: string | number | Date,
+    rangeEnd: string | number | Date,
+  ): WixDataQuery;
   contains(field: string, value: string): WixDataQuery;
   startsWith(field: string, value: string): WixDataQuery;
   endsWith(field: string, value: string): WixDataQuery;
@@ -111,7 +115,7 @@ interface WixDataQuery {
   descending(...fields: string[]): WixDataQuery;
 
   // --- Pagination ---
-  limit(limitNumber: number): WixDataQuery;   // default 50, max 1000
+  limit(limitNumber: number): WixDataQuery; // default 50, max 1000
   skip(skipCount: number): WixDataQuery;
 
   // --- Projection ---
@@ -121,7 +125,10 @@ interface WixDataQuery {
   // --- Execute ---
   find(options?: WixDataQueryOptions): Promise<WixDataResult>;
   count(options?: WixDataReadOptions): Promise<number>;
-  distinct(field: string, options?: WixDataQueryOptions): Promise<WixDataResult<any>>;
+  distinct(
+    field: string,
+    options?: WixDataQueryOptions,
+  ): Promise<WixDataResult<any>>;
 }
 ```
 
@@ -129,13 +136,13 @@ interface WixDataQuery {
 
 ```ts
 interface WixDataOptions {
-  suppressHooks?: boolean;  // skip beforeX/afterX hooks
-  showDrafts?: boolean;     // include draft items
+  suppressHooks?: boolean; // skip beforeX/afterX hooks
+  showDrafts?: boolean; // include draft items
   appOptions?: Record<string, any>;
 }
 
 interface WixDataReadOptions extends WixDataOptions {
-  language?: string;        // IETF BCP 47 language tag
+  language?: string; // IETF BCP 47 language tag
   consistentRead?: boolean; // read from primary DB (slower but up-to-date)
 }
 
@@ -144,7 +151,7 @@ interface WixDataQueryOptions extends WixDataReadOptions {
 }
 
 interface WixDataGetOptions extends WixDataReadOptions {
-  fields?: string[];                              // fields to return
+  fields?: string[]; // fields to return
   includeReferences?: { field: string; limit?: number }[];
   includeFieldGroups?: string[];
 }
@@ -187,7 +194,7 @@ interface WixDataBulkResult {
 interface WixDataBulkError extends Error {
   message: string;
   code: string;
-  originalIndex: number;      // index in the request array
+  originalIndex: number; // index in the request array
   item: WixDataItem | string; // the failed item or ID
 }
 ```
@@ -202,7 +209,8 @@ const item = await items.get("MyCollection", "item-id-123");
 // Returns WixDataItem | null
 
 // --- Query with filters ---
-const result = await items.query("MyCollection")
+const result = await items
+  .query("MyCollection")
   .eq("status", "active")
   .gt("price", 10)
   .ascending("name")
@@ -213,10 +221,7 @@ const result = await items.query("MyCollection")
 // --- Compound query with or/and ---
 const filter1 = items.filter().eq("status", "pending");
 const filter2 = items.filter().eq("status", "active");
-const result = await items.query("MyCollection")
-  .or(filter1)
-  .or(filter2)
-  .find();
+const result = await items.query("MyCollection").or(filter1).or(filter2).find();
 
 // --- Insert ---
 const created = await items.insert("MyCollection", {
@@ -256,9 +261,9 @@ const bulkResult = await items.bulkInsert("MyCollection", [
 
 ## Permissions
 
-| Operation | Required Scope |
-| --- | --- |
-| `get`, `query`, `count`, `distinct` | `SCOPE.DC-DATA.READ` |
+| Operation                                                                      | Required Scope        |
+| ------------------------------------------------------------------------------ | --------------------- |
+| `get`, `query`, `count`, `distinct`                                            | `SCOPE.DC-DATA.READ`  |
 | `insert`, `update`, `save`, `remove`, `bulkInsert`, `bulkUpdate`, `bulkRemove` | `SCOPE.DC-DATA.WRITE` |
 
 ## Date/Time Handling

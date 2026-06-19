@@ -2,6 +2,7 @@
 name: "Create Product from Image"
 description: "MANDATORY entry point for creating a product from an image. STEP 1 detects the site's catalog version (V1 / V3) automatically, then runs the appropriate flow inline. V3 supports up to 3 images, info sections, SEO, and options; V1 supports a single image. Use this for any 'create product from image' or 'create product from photo' request."
 ---
+
 # RECIPE: Create Product from Image
 
 > **ALWAYS use this recipe as the entry point** when the user wants to create a product from one or more images. Do NOT skip STEP 1 (version detection) — even if you believe you know the catalog version from dynamic context.
@@ -14,6 +15,7 @@ This recipe creates a Wix Store product from an image. It first detects the site
 - **V1 flow:** 3 sequential steps. Single image, product details inferred from the image, separate media-attach call after create.
 
 **Prerequisites:**
+
 - The user MUST provide at least one product image — uploaded directly to the chat or as a publicly accessible URL.
 - Up to 3 images are supported (V3 only — V1 supports only 1 image).
 
@@ -29,16 +31,16 @@ No request body — this is a GET request.
 
 ```json
 {
-    "catalogVersion": "V3_CATALOG"
+  "catalogVersion": "V3_CATALOG"
 }
 ```
 
 Possible values for `catalogVersion`:
 
-| Value | Action |
-|-------|--------|
-| `V3_CATALOG` | Run the **V3 Flow** below (V3 STEP 2 through V3 STEP 6) |
-| `V1_CATALOG` | Run the **V1 Flow** below (V1 STEP 2 through V1 STEP 4) |
+| Value                  | Action                                                                                                                                                                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `V3_CATALOG`           | Run the **V3 Flow** below (V3 STEP 2 through V3 STEP 6)                                                                                                                                                                                                                                           |
+| `V1_CATALOG`           | Run the **V1 Flow** below (V1 STEP 2 through V1 STEP 4)                                                                                                                                                                                                                                           |
 | `STORES_NOT_INSTALLED` | Stop. Inform the user: "The Wix Stores app is not installed on this site. Please install Wix Stores first before creating products. You can install it using the [Install Wix Apps](https://dev.wix.com/docs/api-reference/business-management/app-installation/skills/install-wix-apps) recipe." |
 
 ---
@@ -60,6 +62,7 @@ Ask the user to provide **1 to 3 images** of their product:
 > You can upload images directly or provide public URLs.
 
 **Rules:**
+
 - Accept uploaded files (any image the user sends in the chat) OR publicly accessible URLs (`https://`).
 - Minimum: 1 image. Maximum: 3 images.
 - Supported formats: JPG, PNG, WEBP.
@@ -76,9 +79,9 @@ Ask the user to provide **1 to 3 images** of their product:
 
 ```json
 {
-    "url": "<image_url>",
-    "mimeType": "image/jpeg",
-    "displayName": "product-image-1.jpg"
+  "url": "<image_url>",
+  "mimeType": "image/jpeg",
+  "displayName": "product-image-1.jpg"
 }
 ```
 
@@ -86,14 +89,14 @@ Ask the user to provide **1 to 3 images** of their product:
 
 ```json
 {
-    "file": {
-        "id": "e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
-        "displayName": "product-image-1.jpg",
-        "url": "https://static.wixstatic.com/media/e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
-        "parentFolderId": "media-root",
-        "mediaType": "IMAGE",
-        "operationStatus": "PENDING"
-    }
+  "file": {
+    "id": "e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
+    "displayName": "product-image-1.jpg",
+    "url": "https://static.wixstatic.com/media/e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
+    "parentFolderId": "media-root",
+    "mediaType": "IMAGE",
+    "operationStatus": "PENDING"
+  }
 }
 ```
 
@@ -102,6 +105,7 @@ Ask the user to provide **1 to 3 images** of their product:
 **Fallback:** If the upload fails (e.g., the source URL is not publicly accessible, or `operationStatus: "FAILED"`), ask the user: "I couldn't upload that image. Could you provide a publicly accessible URL for it (e.g., from Unsplash, Imgur, or any https:// link)?"
 
 **Media assignment:**
+
 - The **first** successfully uploaded image becomes `media.main`.
 - **All** images go into `media.itemsInfo.items[]`.
 
@@ -116,6 +120,7 @@ Ask the user to provide **1 to 3 images** of their product:
 **Generate the following fields based on what you see in the image(s)** (and any free-text note from the user):
 
 ### 4a. Product Name
+
 A concise, appealing product name optimized for e-commerce discoverability. Maximum 80 characters. Follow the naming convention: `[Brand/Style] [Material] [Product Type]`.
 
 Example: `"Artisan Stoneware Ceramic Mug"` — not generic names like `"Mug"` or `"Product"`.
@@ -128,11 +133,11 @@ Before writing the description, check whether the site already has products to m
 
 ```json
 {
-    "query": {
-        "paging": {
-            "limit": 2
-        }
+  "query": {
+    "paging": {
+      "limit": 2
     }
+  }
 }
 ```
 
@@ -141,36 +146,42 @@ Before writing the description, check whether the site already has products to m
 - This query is best-effort — if it fails, proceed with neutral tone. Do NOT block the flow.
 
 ### 4c. Product Description
+
 A marketing description of 2-4 sentences. Highlight key features, materials, and use case. **Match the site tone detected in 4b** — if the existing products use casual language, write casually; if they use formal/luxury language, match that style. If no site tone was detected, adapt tone to the product type (artisanal for handmade, technical for electronics, warm for home goods). This will be formatted as rich text nodes in V3 STEP 7.
 
 ### 4d. Price with Market Range
+
 - Suggest a retail price based on the product type and industry averages.
 - Also determine an approximate **market range** for annotation (e.g., "avg. market: $28-$42"). This range is shown to the user in V3 STEP 5 but is NOT sent to the API.
 
 ### 4e. Info Sections (only if relevant)
+
 Based on the product type and what's visible in the image, generate category-specific info sections. **Only include sections that are relevant — omit entirely if not applicable.**
 
-| Product Category | Possible Info Sections |
-|-----------------|----------------------|
+| Product Category  | Possible Info Sections                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | Clothing/Textiles | "Materials & Composition" (e.g., "100% Organic Cotton"), "Care Instructions" (e.g., "Machine wash cold, tumble dry low") |
-| Candles/Fragrance | "Burn Time & Care" (e.g., "Approx. 45 hours burn time. Trim wick to 1/4 inch before each use.") |
-| Furniture/Home | "Dimensions & Specs" (e.g., "Height: 30cm, Width: 15cm"), "Assembly" if applicable |
-| Electronics | "Technical Specifications", "What's Included" |
-| Food/Beverages | "Ingredients", "Nutritional Info", "Storage Instructions" |
-| Jewelry | "Materials" (e.g., "Sterling Silver 925"), "Sizing Guide" |
-| Skincare/Beauty | "Ingredients", "How to Use" |
+| Candles/Fragrance | "Burn Time & Care" (e.g., "Approx. 45 hours burn time. Trim wick to 1/4 inch before each use.")                          |
+| Furniture/Home    | "Dimensions & Specs" (e.g., "Height: 30cm, Width: 15cm"), "Assembly" if applicable                                       |
+| Electronics       | "Technical Specifications", "What's Included"                                                                            |
+| Food/Beverages    | "Ingredients", "Nutritional Info", "Storage Instructions"                                                                |
+| Jewelry           | "Materials" (e.g., "Sterling Silver 925"), "Sizing Guide"                                                                |
+| Skincare/Beauty   | "Ingredients", "How to Use"                                                                                              |
 
 Each info section needs: a `uniqueName` (lowercase-hyphenated, e.g., `"care-instructions"`), a `title` (display name, e.g., `"Care Instructions"`), and a description (2-3 sentences).
 
 ### 4f. SEO Meta Description
+
 A short meta description (120-160 characters) optimized for search. Include the product type, key materials, and primary use case.
 
 Example: `"Handcrafted stoneware ceramic mug with a matte glaze finish. Perfect for coffee and tea lovers. Microwave and dishwasher safe."`
 
 ### 4g. Suggested Options (from images)
+
 Examine the images for visible product attributes that should become variant options.
 
 **CRITICAL: Do NOT invent or infer attributes.** Only suggest options that meet **one** of these evidence thresholds:
+
 - **Visually confirmed** in the image(s) — you can see distinct values (e.g., two different colors across two images, a size label printed on packaging)
 - **Explicitly stated** by the user in their text note (e.g., "available in blue and green", "comes in S, M, L")
 
@@ -179,6 +190,7 @@ Examine the images for visible product attributes that should become variant opt
 **Negative example:** Image shows a single t-shirt with no size labels visible and the user did not mention sizes → do NOT suggest a Size option. Report: "No variant options detected from the image."
 
 **Multi-image variant detection:**
+
 - If multiple images show the **same product in different colors** (e.g., one red shirt, one blue shirt), suggest a Color option with **only those visible colors** as choices.
 - If multiple images show the **same product from different angles**, treat them as additional product media — NOT as separate variants.
 - If only one image is provided and a distinctive color is visible, suggest that single color as a choice and ask the user if the product comes in other colors.
@@ -240,6 +252,7 @@ If options were detected:
 > - **[Option Name]:** [Choice 1], [Choice 2], ...
 >
 > Would you like to:
+>
 > 1. Use these options as suggested
 > 2. Add more choices (e.g., additional colors or sizes)
 > 3. Add entirely new options
@@ -269,130 +282,130 @@ Use this if the user chose to skip options in V3 STEP 6.
 
 ```json
 {
-    "product": {
-        "name": "Artisan Stoneware Ceramic Mug",
-        "description": {
-            "nodes": [
-                {
-                    "type": "PARAGRAPH",
-                    "id": "desc1",
-                    "nodes": [
-                        {
-                            "type": "TEXT",
-                            "textData": {
-                                "text": "A beautifully handcrafted stoneware mug with a smooth matte glaze. Its generous 12oz capacity and comfortable handle make it perfect for your morning coffee or evening tea. Microwave and dishwasher safe."
-                            }
-                        }
-                    ],
-                    "paragraphData": {
-                        "textStyle": {
-                            "textAlignment": "AUTO"
-                        }
-                    }
-                }
-            ],
-            "metadata": {
-                "version": 1,
-                "id": "product-desc-001"
-            }
-        },
-        "productType": "PHYSICAL",
-        "physicalProperties": {},
-        "media": {
-            "main": {
-                "url": "https://static.wixstatic.com/media/e6a89e_abc123~mv2.jpg",
-                "altText": "Artisan Stoneware Ceramic Mug - Front View"
-            },
-            "itemsInfo": {
-                "items": [
-                    {
-                        "url": "https://static.wixstatic.com/media/e6a89e_abc123~mv2.jpg",
-                        "altText": "Artisan Stoneware Ceramic Mug - Front View"
-                    },
-                    {
-                        "url": "https://static.wixstatic.com/media/e6a89e_def456~mv2.jpg",
-                        "altText": "Artisan Stoneware Ceramic Mug - Side View"
-                    }
-                ]
-            }
-        },
-        "infoSections": [
+  "product": {
+    "name": "Artisan Stoneware Ceramic Mug",
+    "description": {
+      "nodes": [
+        {
+          "type": "PARAGRAPH",
+          "id": "desc1",
+          "nodes": [
             {
-                "uniqueName": "materials-composition",
-                "title": "Materials & Composition",
-                "description": {
-                    "nodes": [
-                        {
-                            "type": "PARAGRAPH",
-                            "id": "info-materials-1",
-                            "nodes": [
-                                {
-                                    "type": "TEXT",
-                                    "textData": {
-                                        "text": "Made from high-fired stoneware clay with a food-safe matte glaze finish. Lead-free and cadmium-free."
-                                    }
-                                }
-                            ],
-                            "paragraphData": {
-                                "textStyle": {
-                                    "textAlignment": "AUTO"
-                                }
-                            }
-                        }
-                    ],
-                    "metadata": {
-                        "version": 1,
-                        "id": "info-materials"
-                    }
-                }
-            },
-            {
-                "uniqueName": "care-instructions",
-                "title": "Care Instructions",
-                "description": {
-                    "nodes": [
-                        {
-                            "type": "PARAGRAPH",
-                            "id": "info-care-1",
-                            "nodes": [
-                                {
-                                    "type": "TEXT",
-                                    "textData": {
-                                        "text": "Microwave and dishwasher safe. Hand washing recommended to preserve the glaze finish. Avoid sudden temperature changes."
-                                    }
-                                }
-                            ],
-                            "paragraphData": {
-                                "textStyle": {
-                                    "textAlignment": "AUTO"
-                                }
-                            }
-                        }
-                    ],
-                    "metadata": {
-                        "version": 1,
-                        "id": "info-care"
-                    }
-                }
+              "type": "TEXT",
+              "textData": {
+                "text": "A beautifully handcrafted stoneware mug with a smooth matte glaze. Its generous 12oz capacity and comfortable handle make it perfect for your morning coffee or evening tea. Microwave and dishwasher safe."
+              }
             }
-        ],
-        "seoData": {
-            "tags": [
-                {
-                    "type": "meta",
-                    "props": {
-                        "name": "description",
-                        "content": "Handcrafted stoneware ceramic mug with matte glaze finish. 12oz capacity, microwave and dishwasher safe. Perfect for coffee and tea lovers."
-                    }
-                }
-            ]
-        },
-        "price": {
-            "actualPrice": {
-                "amount": "34.99"
+          ],
+          "paragraphData": {
+            "textStyle": {
+              "textAlignment": "AUTO"
             }
+          }
         }
+      ],
+      "metadata": {
+        "version": 1,
+        "id": "product-desc-001"
+      }
+    },
+    "productType": "PHYSICAL",
+    "physicalProperties": {},
+    "media": {
+      "main": {
+        "url": "https://static.wixstatic.com/media/e6a89e_abc123~mv2.jpg",
+        "altText": "Artisan Stoneware Ceramic Mug - Front View"
+      },
+      "itemsInfo": {
+        "items": [
+          {
+            "url": "https://static.wixstatic.com/media/e6a89e_abc123~mv2.jpg",
+            "altText": "Artisan Stoneware Ceramic Mug - Front View"
+          },
+          {
+            "url": "https://static.wixstatic.com/media/e6a89e_def456~mv2.jpg",
+            "altText": "Artisan Stoneware Ceramic Mug - Side View"
+          }
+        ]
+      }
+    },
+    "infoSections": [
+      {
+        "uniqueName": "materials-composition",
+        "title": "Materials & Composition",
+        "description": {
+          "nodes": [
+            {
+              "type": "PARAGRAPH",
+              "id": "info-materials-1",
+              "nodes": [
+                {
+                  "type": "TEXT",
+                  "textData": {
+                    "text": "Made from high-fired stoneware clay with a food-safe matte glaze finish. Lead-free and cadmium-free."
+                  }
+                }
+              ],
+              "paragraphData": {
+                "textStyle": {
+                  "textAlignment": "AUTO"
+                }
+              }
+            }
+          ],
+          "metadata": {
+            "version": 1,
+            "id": "info-materials"
+          }
+        }
+      },
+      {
+        "uniqueName": "care-instructions",
+        "title": "Care Instructions",
+        "description": {
+          "nodes": [
+            {
+              "type": "PARAGRAPH",
+              "id": "info-care-1",
+              "nodes": [
+                {
+                  "type": "TEXT",
+                  "textData": {
+                    "text": "Microwave and dishwasher safe. Hand washing recommended to preserve the glaze finish. Avoid sudden temperature changes."
+                  }
+                }
+              ],
+              "paragraphData": {
+                "textStyle": {
+                  "textAlignment": "AUTO"
+                }
+              }
+            }
+          ],
+          "metadata": {
+            "version": 1,
+            "id": "info-care"
+          }
+        }
+      }
+    ],
+    "seoData": {
+      "tags": [
+        {
+          "type": "meta",
+          "props": {
+            "name": "description",
+            "content": "Handcrafted stoneware ceramic mug with matte glaze finish. 12oz capacity, microwave and dishwasher safe. Perfect for coffee and tea lovers."
+          }
+        }
+      ]
+    },
+    "price": {
+      "actualPrice": {
+        "amount": "34.99"
+      }
     }
+  }
 }
 ```
 
@@ -403,6 +416,7 @@ Use this if the user chose to skip options in V3 STEP 6.
 Use this if the user confirmed or provided options in V3 STEP 6. You MUST define both `options` and `variantsInfo.variants`.
 
 **Rules for variants:**
+
 - Generate ALL combinations of option choices as variants.
 - Each variant uses the same price unless the user specified different prices.
 - Set `visible: true` for all variants.
@@ -411,188 +425,188 @@ Use this if the user confirmed or provided options in V3 STEP 6. You MUST define
 
 ```json
 {
-    "product": {
-        "name": "Artisan Stoneware Ceramic Mug",
-        "description": {
-            "nodes": [
-                {
-                    "type": "PARAGRAPH",
-                    "id": "desc1",
-                    "nodes": [
-                        {
-                            "type": "TEXT",
-                            "textData": {
-                                "text": "A beautifully handcrafted stoneware mug with a smooth matte glaze. Its generous 12oz capacity and comfortable handle make it perfect for your morning coffee or evening tea. Microwave and dishwasher safe."
-                            }
-                        }
-                    ],
-                    "paragraphData": {
-                        "textStyle": {
-                            "textAlignment": "AUTO"
-                        }
-                    }
-                }
-            ],
-            "metadata": {
-                "version": 1,
-                "id": "product-desc-001"
-            }
-        },
-        "productType": "PHYSICAL",
-        "physicalProperties": {},
-        "media": {
-            "main": {
-                "url": "https://static.wixstatic.com/media/e6a89e_abc123~mv2.jpg",
-                "altText": "Artisan Stoneware Ceramic Mug - Slate Blue"
-            },
-            "itemsInfo": {
-                "items": [
-                    {
-                        "url": "https://static.wixstatic.com/media/e6a89e_abc123~mv2.jpg",
-                        "altText": "Artisan Stoneware Ceramic Mug - Slate Blue"
-                    },
-                    {
-                        "url": "https://static.wixstatic.com/media/e6a89e_def456~mv2.jpg",
-                        "altText": "Artisan Stoneware Ceramic Mug - Terracotta"
-                    }
-                ]
-            }
-        },
-        "options": [
+  "product": {
+    "name": "Artisan Stoneware Ceramic Mug",
+    "description": {
+      "nodes": [
+        {
+          "type": "PARAGRAPH",
+          "id": "desc1",
+          "nodes": [
             {
-                "name": "Color",
-                "optionRenderType": "TEXT_CHOICES",
-                "choicesSettings": {
-                    "choices": [
-                        {
-                            "choiceType": "CHOICE_TEXT",
-                            "name": "Slate Blue"
-                        },
-                        {
-                            "choiceType": "CHOICE_TEXT",
-                            "name": "Terracotta"
-                        }
-                    ]
-                }
+              "type": "TEXT",
+              "textData": {
+                "text": "A beautifully handcrafted stoneware mug with a smooth matte glaze. Its generous 12oz capacity and comfortable handle make it perfect for your morning coffee or evening tea. Microwave and dishwasher safe."
+              }
             }
-        ],
-        "variantsInfo": {
-            "variants": [
-                {
-                    "choices": [
-                        {
-                            "optionChoiceNames": {
-                                "optionName": "Color",
-                                "choiceName": "Slate Blue",
-                                "renderType": "TEXT_CHOICES"
-                            }
-                        }
-                    ],
-                    "price": {
-                        "actualPrice": {
-                            "amount": "34.99"
-                        }
-                    },
-                    "physicalProperties": {},
-                    "visible": true
-                },
-                {
-                    "choices": [
-                        {
-                            "optionChoiceNames": {
-                                "optionName": "Color",
-                                "choiceName": "Terracotta",
-                                "renderType": "TEXT_CHOICES"
-                            }
-                        }
-                    ],
-                    "price": {
-                        "actualPrice": {
-                            "amount": "34.99"
-                        }
-                    },
-                    "physicalProperties": {},
-                    "visible": true
-                }
-            ]
-        },
-        "infoSections": [
-            {
-                "uniqueName": "materials-composition",
-                "title": "Materials & Composition",
-                "description": {
-                    "nodes": [
-                        {
-                            "type": "PARAGRAPH",
-                            "id": "info-materials-1",
-                            "nodes": [
-                                {
-                                    "type": "TEXT",
-                                    "textData": {
-                                        "text": "Made from high-fired stoneware clay with a food-safe matte glaze finish. Lead-free and cadmium-free."
-                                    }
-                                }
-                            ],
-                            "paragraphData": {
-                                "textStyle": {
-                                    "textAlignment": "AUTO"
-                                }
-                            }
-                        }
-                    ],
-                    "metadata": {
-                        "version": 1,
-                        "id": "info-materials"
-                    }
-                }
-            },
-            {
-                "uniqueName": "care-instructions",
-                "title": "Care Instructions",
-                "description": {
-                    "nodes": [
-                        {
-                            "type": "PARAGRAPH",
-                            "id": "info-care-1",
-                            "nodes": [
-                                {
-                                    "type": "TEXT",
-                                    "textData": {
-                                        "text": "Microwave and dishwasher safe. Hand washing recommended to preserve the glaze finish. Avoid sudden temperature changes."
-                                    }
-                                }
-                            ],
-                            "paragraphData": {
-                                "textStyle": {
-                                    "textAlignment": "AUTO"
-                                }
-                            }
-                        }
-                    ],
-                    "metadata": {
-                        "version": 1,
-                        "id": "info-care"
-                    }
-                }
+          ],
+          "paragraphData": {
+            "textStyle": {
+              "textAlignment": "AUTO"
             }
-        ],
-        "seoData": {
-            "tags": [
-                {
-                    "type": "meta",
-                    "props": {
-                        "name": "description",
-                        "content": "Handcrafted stoneware ceramic mug with matte glaze finish. 12oz capacity, microwave and dishwasher safe. Perfect for coffee and tea lovers."
-                    }
-                }
-            ]
-        },
-        "price": {
-            "actualPrice": {
-                "amount": "34.99"
-            }
+          }
         }
+      ],
+      "metadata": {
+        "version": 1,
+        "id": "product-desc-001"
+      }
+    },
+    "productType": "PHYSICAL",
+    "physicalProperties": {},
+    "media": {
+      "main": {
+        "url": "https://static.wixstatic.com/media/e6a89e_abc123~mv2.jpg",
+        "altText": "Artisan Stoneware Ceramic Mug - Slate Blue"
+      },
+      "itemsInfo": {
+        "items": [
+          {
+            "url": "https://static.wixstatic.com/media/e6a89e_abc123~mv2.jpg",
+            "altText": "Artisan Stoneware Ceramic Mug - Slate Blue"
+          },
+          {
+            "url": "https://static.wixstatic.com/media/e6a89e_def456~mv2.jpg",
+            "altText": "Artisan Stoneware Ceramic Mug - Terracotta"
+          }
+        ]
+      }
+    },
+    "options": [
+      {
+        "name": "Color",
+        "optionRenderType": "TEXT_CHOICES",
+        "choicesSettings": {
+          "choices": [
+            {
+              "choiceType": "CHOICE_TEXT",
+              "name": "Slate Blue"
+            },
+            {
+              "choiceType": "CHOICE_TEXT",
+              "name": "Terracotta"
+            }
+          ]
+        }
+      }
+    ],
+    "variantsInfo": {
+      "variants": [
+        {
+          "choices": [
+            {
+              "optionChoiceNames": {
+                "optionName": "Color",
+                "choiceName": "Slate Blue",
+                "renderType": "TEXT_CHOICES"
+              }
+            }
+          ],
+          "price": {
+            "actualPrice": {
+              "amount": "34.99"
+            }
+          },
+          "physicalProperties": {},
+          "visible": true
+        },
+        {
+          "choices": [
+            {
+              "optionChoiceNames": {
+                "optionName": "Color",
+                "choiceName": "Terracotta",
+                "renderType": "TEXT_CHOICES"
+              }
+            }
+          ],
+          "price": {
+            "actualPrice": {
+              "amount": "34.99"
+            }
+          },
+          "physicalProperties": {},
+          "visible": true
+        }
+      ]
+    },
+    "infoSections": [
+      {
+        "uniqueName": "materials-composition",
+        "title": "Materials & Composition",
+        "description": {
+          "nodes": [
+            {
+              "type": "PARAGRAPH",
+              "id": "info-materials-1",
+              "nodes": [
+                {
+                  "type": "TEXT",
+                  "textData": {
+                    "text": "Made from high-fired stoneware clay with a food-safe matte glaze finish. Lead-free and cadmium-free."
+                  }
+                }
+              ],
+              "paragraphData": {
+                "textStyle": {
+                  "textAlignment": "AUTO"
+                }
+              }
+            }
+          ],
+          "metadata": {
+            "version": 1,
+            "id": "info-materials"
+          }
+        }
+      },
+      {
+        "uniqueName": "care-instructions",
+        "title": "Care Instructions",
+        "description": {
+          "nodes": [
+            {
+              "type": "PARAGRAPH",
+              "id": "info-care-1",
+              "nodes": [
+                {
+                  "type": "TEXT",
+                  "textData": {
+                    "text": "Microwave and dishwasher safe. Hand washing recommended to preserve the glaze finish. Avoid sudden temperature changes."
+                  }
+                }
+              ],
+              "paragraphData": {
+                "textStyle": {
+                  "textAlignment": "AUTO"
+                }
+              }
+            }
+          ],
+          "metadata": {
+            "version": 1,
+            "id": "info-care"
+          }
+        }
+      }
+    ],
+    "seoData": {
+      "tags": [
+        {
+          "type": "meta",
+          "props": {
+            "name": "description",
+            "content": "Handcrafted stoneware ceramic mug with matte glaze finish. 12oz capacity, microwave and dishwasher safe. Perfect for coffee and tea lovers."
+          }
+        }
+      ]
+    },
+    "price": {
+      "actualPrice": {
+        "amount": "34.99"
+      }
     }
+  }
 }
 ```
 
@@ -602,17 +616,17 @@ Use this if the user confirmed or provided options in V3 STEP 6. You MUST define
 
 ```json
 {
-    "product": {
-        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-        "name": "Artisan Stoneware Ceramic Mug",
-        "visible": true,
-        "productType": "PHYSICAL",
-        "price": {
-            "actualPrice": {
-                "amount": "34.99"
-            }
-        }
+  "product": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Artisan Stoneware Ceramic Mug",
+    "visible": true,
+    "productType": "PHYSICAL",
+    "price": {
+      "actualPrice": {
+        "amount": "34.99"
+      }
     }
+  }
 }
 ```
 
@@ -662,6 +676,7 @@ Before reporting success to the user, verify ALL of the following:
 This is a 3-step sequential flow (STEP 2 through STEP 4). ALL steps MUST be completed in order. Do NOT report success until ALL steps have executed successfully.
 
 **V1 prerequisites:**
+
 - The user MUST provide at least one product image — uploaded directly to the chat or as a publicly accessible URL.
 - Both chat uploads and public URLs are accepted. Chat-uploaded images have a wixmp URL that works for Media Manager import.
 
@@ -673,19 +688,19 @@ This is a 3-step sequential flow (STEP 2 through STEP 4). ALL steps MUST be comp
 
 **Request body fields:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `url` | string | Yes | The image URL. Can be a publicly accessible HTTP/HTTPS URL OR a wixmp URL from a chat-uploaded image. Both work with the Media Manager import API. |
-| `mimeType` | string | Recommended | The MIME type of the image. Use `image/jpeg` for .jpg/.jpeg files, `image/png` for .png files, `image/webp` for .webp files. |
-| `displayName` | string | No | A display name for the file in Media Manager. Include the file extension (e.g., `product-image.jpg`). |
+| Field         | Type   | Required    | Description                                                                                                                                        |
+| ------------- | ------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `url`         | string | Yes         | The image URL. Can be a publicly accessible HTTP/HTTPS URL OR a wixmp URL from a chat-uploaded image. Both work with the Media Manager import API. |
+| `mimeType`    | string | Recommended | The MIME type of the image. Use `image/jpeg` for .jpg/.jpeg files, `image/png` for .png files, `image/webp` for .webp files.                       |
+| `displayName` | string | No          | A display name for the file in Media Manager. Include the file extension (e.g., `product-image.jpg`).                                              |
 
 **Exact request example:**
 
 ```json
 {
-    "url": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400",
-    "mimeType": "image/jpeg",
-    "displayName": "product-image.jpg"
+  "url": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400",
+  "mimeType": "image/jpeg",
+  "displayName": "product-image.jpg"
 }
 ```
 
@@ -693,18 +708,19 @@ This is a 3-step sequential flow (STEP 2 through STEP 4). ALL steps MUST be comp
 
 ```json
 {
-    "file": {
-        "id": "e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
-        "displayName": "product-image.jpg",
-        "url": "https://static.wixstatic.com/media/e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
-        "parentFolderId": "media-root",
-        "mediaType": "IMAGE",
-        "operationStatus": "PENDING"
-    }
+  "file": {
+    "id": "e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
+    "displayName": "product-image.jpg",
+    "url": "https://static.wixstatic.com/media/e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
+    "parentFolderId": "media-root",
+    "mediaType": "IMAGE",
+    "operationStatus": "PENDING"
+  }
 }
 ```
 
 **After this step, save these values — you need them later:**
+
 - `file.url` — the wixstatic.com URL (use in V1 STEP 4)
 - `file.id` — the media file ID
 
@@ -722,13 +738,13 @@ This is a 3-step sequential flow (STEP 2 through STEP 4). ALL steps MUST be comp
 
 **Request body fields:**
 
-| Field | Type | Required | Value |
-|-------|------|----------|-------|
-| `product.name` | string | Yes | A concise, appealing name describing the ACTUAL product in the image (max 80 chars). Example: `"Premium Spinning Fishing Reel"` — NOT `"Product from image"`. |
-| `product.description` | string | Yes | A 2-3 sentence marketing description of what you SEE in the image. MUST be wrapped in `<p>` tags. |
-| `product.visible` | boolean | Yes | `true` |
-| `product.productType` | string | Yes | `"physical"` |
-| `product.priceData.price` | number | Yes | A reasonable retail price based on the product type visible in the image |
+| Field                     | Type    | Required | Value                                                                                                                                                         |
+| ------------------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `product.name`            | string  | Yes      | A concise, appealing name describing the ACTUAL product in the image (max 80 chars). Example: `"Premium Spinning Fishing Reel"` — NOT `"Product from image"`. |
+| `product.description`     | string  | Yes      | A 2-3 sentence marketing description of what you SEE in the image. MUST be wrapped in `<p>` tags.                                                             |
+| `product.visible`         | boolean | Yes      | `true`                                                                                                                                                        |
+| `product.productType`     | string  | Yes      | `"physical"`                                                                                                                                                  |
+| `product.priceData.price` | number  | Yes      | A reasonable retail price based on the product type visible in the image                                                                                      |
 
 **Exact request example (using values from V1 STEP 3):**
 
@@ -763,6 +779,7 @@ This is a 3-step sequential flow (STEP 2 through STEP 4). ALL steps MUST be comp
 ```
 
 **After this step, save this value — you need it in V1 STEP 4:**
+
 - `product.id` — the product ID (a UUID string like `"a1b2c3d4-e5f6-7890-abcd-ef1234567890"`)
 
 ---
@@ -775,10 +792,10 @@ Replace `{id}` in the URL with the `product.id` from V1 STEP 4.
 
 **Request body fields:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `media` | array | Yes | Array of media objects to attach |
-| `media[].url` | string | Yes | The `file.url` (wixstatic.com URL) from V1 STEP 2. Do NOT use the original image URL — use the wixstatic.com URL returned by the Media Manager. |
+| Field         | Type   | Required | Description                                                                                                                                     |
+| ------------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `media`       | array  | Yes      | Array of media objects to attach                                                                                                                |
+| `media[].url` | string | Yes      | The `file.url` (wixstatic.com URL) from V1 STEP 2. Do NOT use the original image URL — use the wixstatic.com URL returned by the Media Manager. |
 
 **Exact request example:**
 
@@ -818,10 +835,13 @@ Only after ALL 4 steps succeed (STEP 1 + V1 STEP 2-4), report to the user: the p
 ## Catalog version detection issues
 
 ### Get Catalog Version returns 404 or authorization error
+
 The API key may not have permission to access Stores APIs, or Stores may not be installed. Verify Stores is installed and the auth token has the correct scopes.
 
 ### Unsure which flow to run
+
 The response field is `catalogVersion`. Map it as follows:
+
 - `V3_CATALOG` -> run V3 Flow (V3 STEP 2 onward)
 - `V1_CATALOG` -> run V1 Flow (V1 STEP 2 onward)
 - `STORES_NOT_INSTALLED` -> stop and ask user to install Wix Stores
@@ -829,38 +849,49 @@ The response field is `catalogVersion`. Map it as follows:
 ## V3 issues
 
 ### Image is blurry or unrecognizable
+
 Respond: "I wasn't able to identify a product in this image. Try a clearer photo or add a description."
 
 ### Images show different products
+
 Respond: "It looks like these images show different products. For now, I can create one product at a time. Please upload images of a single product."
 
 ### User text contradicts images
+
 If the user's free-text note conflicts with what's visible (e.g., image shows blue but note says "available in red"), ask the user to clarify before showing the review card.
 
 ### Description format error (V3)
+
 V3 requires rich text nodes, NOT HTML strings. Ensure the description is an object with `nodes` array.
 
 ### Variant count mismatch
+
 You must generate ALL combinations of option choices. For example, 2 colors x 2 sizes = 4 variants.
 
 ### V3 API write fails
+
 Show an error and offer to retry. Do NOT leave a partially created product.
 
 ## V1 issues
 
 ### "The url field must be a publicly accessible URL"
+
 The URL may be a local file path or invalid reference. Both public HTTPS URLs and wixmp URLs from chat uploads work. If the error persists, ask the user for a different image source.
 
 ### Product created but no image visible (V1)
+
 You used the original external URL instead of the wixstatic.com URL in V1 STEP 4. Always use the `file.url` from V1 STEP 2's response.
 
 ## Cross-version errors
 
 ### Image import fails (operationStatus: FAILED)
+
 The source server blocks external requests. Ask the user for a different image URL. Reliable sources: Unsplash (`images.unsplash.com`), Pexels (`images.pexels.com`), Imgur, public S3/GCS buckets.
 
 ### 428 Precondition Required on product creation
+
 You called the wrong endpoint for the site's catalog version. Re-run STEP 1 to detect the version and use the matching flow:
+
 - V3 sites must use `POST /stores/v3/products` (V3 STEP 6)
 - V1 sites must use `POST /stores/v1/products` (V1 STEP 4)
 

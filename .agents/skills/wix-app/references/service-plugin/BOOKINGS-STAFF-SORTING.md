@@ -10,11 +10,12 @@ The Staff Sorting Provider SPI lets you implement custom staff assignment algori
 
 Before implementing, call `ReadFullDocsMethodSchema` on the docs URL to get the full request/response types.
 
-| Handler | Docs URL |
-| --- | --- |
+| Handler            | Docs URL                                                                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sortStaffMembers` | https://dev.wix.com/docs/api-reference/business-solutions/bookings/staff-members/staff-sorting-service-plugin/sort-staff-members?apiView=SDK |
 
 **Important constraints:**
+
 - You must return the **exact same IDs** from `availableResourceIds`, reordered by priority
 - Do not add or remove any IDs
 - If your response is invalid, Wix falls back to random assignment
@@ -42,7 +43,10 @@ staffSorting.provideHandlers({
     const elevatedQuery = auth.elevate(bookings.queryBookings);
     const recentBookings = await elevatedQuery()
       .eq("resource.id", availableResourceIds)
-      .ge("start.timestamp", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .ge(
+        "start.timestamp",
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      )
       .find();
 
     // Count bookings per staff member
@@ -59,7 +63,7 @@ staffSorting.provideHandlers({
 
     // Sort by fewest bookings first (balance workload)
     const sorted = [...availableResourceIds].sort(
-      (a, b) => (bookingCounts.get(a) ?? 0) - (bookingCounts.get(b) ?? 0)
+      (a, b) => (bookingCounts.get(a) ?? 0) - (bookingCounts.get(b) ?? 0),
     );
 
     return {

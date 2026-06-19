@@ -20,7 +20,9 @@ export function trackEvent(
 
   const w = window as unknown as {
     dataLayer?: unknown[];
-    wixAnalytics?: { track(event: { name: string } & Record<string, unknown>): void };
+    wixAnalytics?: {
+      track(event: { name: string } & Record<string, unknown>): void;
+    };
   };
 
   if (w.wixAnalytics?.track) {

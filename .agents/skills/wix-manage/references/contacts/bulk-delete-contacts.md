@@ -2,9 +2,11 @@
 name: "Bulk Delete Contacts"
 description: Deletes multiple contacts using filter-based bulk delete. Covers safe deletion patterns, GDPR compliance, soft delete alternatives, and batch processing strategies.
 ---
+
 # Bulk Delete Contacts
 
 ## Description
+
 Deletes multiple contacts using the Wix Contacts REST API.
 
 All contacts that meet the specified `filter` and `search` criteria are deleted.
@@ -18,6 +20,7 @@ The job's status can be retrieved with [Get Bulk Job](https://dev.wix.com/docs/a
 **IMPORTANT NOTE:** When specific contacts are to be deleted, they should be filtered by id.
 
 ## API Endpoint
+
 `POST https://www.wixapis.com/contacts/v4/bulk/contacts/delete`
 
 ## Request Example
@@ -64,10 +67,12 @@ The following errors might occur during the bulk processing and will appear in t
 - `FAILED_DELETE_CONTACT` - Contact could not be deleted.
 
 ## Permissions Required
+
 - `CONTACTS.MODIFY`
 - `MEMBERS.MEMBER_DELETE` (if deleting members)
 
 ## Related Documentation
+
 - [Bulk Delete Contacts API Reference](https://dev.wix.com/docs/api-reference/crm/members-contacts/contacts/contacts/contact-v4/bulk-delete-contacts)
 - [Query Contacts](https://dev.wix.com/docs/api-reference/crm/members-contacts/contacts/contacts/contact-v4/query-contacts)
 - [Get Bulk Job](https://dev.wix.com/docs/api-reference/crm/members-contacts/contacts/contacts/bulk-job/get-bulk-job)

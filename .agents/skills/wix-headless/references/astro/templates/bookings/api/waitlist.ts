@@ -17,19 +17,37 @@ import { auth, httpClient } from "@wix/essentials";
 // authenticated fetch ITSELF — NOT a closure that calls it (a closure runs
 // un-elevated/visitor and 403s).
 
-const json = (ok: boolean, status: number, extra: Record<string, unknown> = {}) =>
-  new Response(JSON.stringify({ ok, ...extra }), { status, headers: { "Content-Type": "application/json" } });
+const json = (
+  ok: boolean,
+  status: number,
+  extra: Record<string, unknown> = {},
+) =>
+  new Response(JSON.stringify({ ok, ...extra }), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
 
 export const POST: APIRoute = async ({ request }) => {
   let body: any;
-  try { body = await request.json(); } catch { return json(false, 400, { error: "Invalid request body." }); }
+  try {
+    body = await request.json();
+  } catch {
+    return json(false, 400, { error: "Invalid request body." });
+  }
   const { sessionId, totalParticipants = 1, contactDetails } = body ?? {};
   const email: string | undefined = contactDetails?.email;
-  if (!sessionId || !email) return json(false, 400, { error: "Missing sessionId or email." });
+  if (!sessionId || !email)
+    return json(false, 400, { error: "Missing sessionId or email." });
 
-  const ef = auth.elevate(httpClient.fetchWithAuth as typeof fetch) as typeof fetch;
+  const ef = auth.elevate(
+    httpClient.fetchWithAuth as typeof fetch,
+  ) as typeof fetch;
   const api = (url: string, payload: unknown) =>
-    ef(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    ef(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
   try {
     // 1. Resolve a contactId (reuse by email; create if absent).
@@ -41,9 +59,18 @@ export const POST: APIRoute = async ({ request }) => {
     if (!contactId) {
       const c = await api("https://www.wixapis.com/contacts/v4/contacts", {
         info: {
-          name: { first: contactDetails.firstName, last: contactDetails.lastName || undefined },
+          name: {
+            first: contactDetails.firstName,
+            last: contactDetails.lastName || undefined,
+          },
           emails: { items: [{ email, primary: true }] },
-          ...(contactDetails.phone ? { phones: { items: [{ phone: contactDetails.phone, primary: true }] } } : {}),
+          ...(contactDetails.phone
+            ? {
+                phones: {
+                  items: [{ phone: contactDetails.phone, primary: true }],
+                },
+              }
+            : {}),
         },
       });
       contactId = ((await c.json().catch(() => ({}))) as any).contact?.id;
@@ -51,21 +78,29 @@ export const POST: APIRoute = async ({ request }) => {
     if (!contactId) throw new Error("could not resolve contactId");
 
     // 2. Register on the native waitlist.
-    const reg = await api("https://www.wixapis.com/bookings/v1/waitlist/register", {
-      waitingResource: sessionId,
-      formInfo: {
-        paymentSelection: [{ rateLabel: "general", numberOfParticipants: totalParticipants }],
-        contactDetails: {
-          contactId,
-          firstName: contactDetails.firstName,
-          lastName: contactDetails.lastName || undefined,
-          email,
-          phone: contactDetails.phone || undefined,
+    const reg = await api(
+      "https://www.wixapis.com/bookings/v1/waitlist/register",
+      {
+        waitingResource: sessionId,
+        formInfo: {
+          paymentSelection: [
+            { rateLabel: "general", numberOfParticipants: totalParticipants },
+          ],
+          contactDetails: {
+            contactId,
+            firstName: contactDetails.firstName,
+            lastName: contactDetails.lastName || undefined,
+            email,
+            phone: contactDetails.phone || undefined,
+          },
         },
       },
-    });
+    );
     const rj: any = await reg.json().catch(() => ({}));
-    if (!reg.ok || !rj.registrationId) throw new Error(`register ${reg.status}: ${JSON.stringify(rj).slice(0, 200)}`);
+    if (!reg.ok || !rj.registrationId)
+      throw new Error(
+        `register ${reg.status}: ${JSON.stringify(rj).slice(0, 200)}`,
+      );
     return json(true, 200, { registrationId: rj.registrationId });
   } catch (err) {
     console.error("[api/waitlist] failed:", err);

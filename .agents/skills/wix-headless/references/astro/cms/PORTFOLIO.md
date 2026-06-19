@@ -8,30 +8,30 @@ Build a visual portfolio using `@wix/data` — project grid with category filter
 
 The schema the `seed` scope creates via REST (see `../../cms/CMS_FOUNDATIONS.md`) — fields:
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `title` | Text | Project name |
-| `slug` | Text | URL-friendly identifier |
-| `category` | Text | Project category (e.g., "Branding", "Web Design") |
-| `description` | Rich Text | Project writeup (HTML) |
-| `client` | Text | Client or company name |
-| `year` | Text | Year completed |
-| `coverImage` | Image | Main project image (`wix:image://` — resolve with `media.getScaledToFillImageUrl()`) |
-| `galleryImages` | Image Gallery | Additional project images (multi-image array) |
-| `tags` | Text | Comma-separated tags |
-| `featured` | Boolean | Show on home page |
-| `orderIndex` | Number | Manual sort order |
+| Field           | Type          | Purpose                                                                              |
+| --------------- | ------------- | ------------------------------------------------------------------------------------ |
+| `title`         | Text          | Project name                                                                         |
+| `slug`          | Text          | URL-friendly identifier                                                              |
+| `category`      | Text          | Project category (e.g., "Branding", "Web Design")                                    |
+| `description`   | Rich Text     | Project writeup (HTML)                                                               |
+| `client`        | Text          | Client or company name                                                               |
+| `year`          | Text          | Year completed                                                                       |
+| `coverImage`    | Image         | Main project image (`wix:image://` — resolve with `media.getScaledToFillImageUrl()`) |
+| `galleryImages` | Image Gallery | Additional project images (multi-image array)                                        |
+| `tags`          | Text          | Comma-separated tags                                                                 |
+| `featured`      | Boolean       | Show on home page                                                                    |
+| `orderIndex`    | Number        | Manual sort order                                                                    |
 
 ## Files to Create
 
-| File | Purpose |
-|------|---------|
-| `src/lib/portfolio.ts` | Service module — queries, category filtering, featured projects |
-| `src/pages/work/index.astro` | Project grid with category filter tabs |
-| `src/pages/work/[slug].astro` | Project detail with image gallery |
-| `src/components/ProjectCard.astro` | Visual card for grid layout |
-| `src/components/CategoryFilter.astro` | URL-param-based pill buttons |
-| `src/components/ImageGallery.tsx` | React island for lightbox/carousel |
+| File                                  | Purpose                                                         |
+| ------------------------------------- | --------------------------------------------------------------- |
+| `src/lib/portfolio.ts`                | Service module — queries, category filtering, featured projects |
+| `src/pages/work/index.astro`          | Project grid with category filter tabs                          |
+| `src/pages/work/[slug].astro`         | Project detail with image gallery                               |
+| `src/components/ProjectCard.astro`    | Visual card for grid layout                                     |
+| `src/components/CategoryFilter.astro` | URL-param-based pill buttons                                    |
+| `src/components/ImageGallery.tsx`     | React island for lightbox/carousel                              |
 
 ## Implementation
 
@@ -59,14 +59,24 @@ export interface Project {
   orderIndex: number;
 }
 
-function resolveImage(url: string | undefined, width = 800, height = 600): string | undefined {
+function resolveImage(
+  url: string | undefined,
+  width = 800,
+  height = 600,
+): string | undefined {
   if (!url) return undefined;
   return media.getScaledToFillImageUrl(url, width, height, {});
 }
 
-function resolveImages(urls: string[] | undefined, width = 1200, height = 800): string[] {
+function resolveImages(
+  urls: string[] | undefined,
+  width = 1200,
+  height = 800,
+): string[] {
   if (!urls || urls.length === 0) return [];
-  return urls.map((url) => media.getScaledToFillImageUrl(url, width, height, {}));
+  return urls.map((url) =>
+    media.getScaledToFillImageUrl(url, width, height, {}),
+  );
 }
 
 function mapProject(item: Record<string, any>): Project {
@@ -121,6 +131,7 @@ export async function queryFeaturedProjects(limit = 3): Promise<Project[]> {
 ```
 
 Key details:
+
 - `resolveImages()` handles the multi-image gallery field — iterates and resolves each URL
 - `tags` stored as comma-separated text, split into array at query time
 - `queryFeaturedProjects()` is for home page sections — query `featured === true`
@@ -320,19 +331,13 @@ export default function ImageGallery({ images, alt }: Props) {
             onClick={() => setActiveIndex(i)}
             className="gallery-item"
           >
-            <img
-              src={src}
-              alt={`${alt} — image ${i + 1}`}
-            />
+            <img src={src} alt={`${alt} — image ${i + 1}`} />
           </button>
         ))}
       </div>
 
       {activeIndex !== null && (
-        <div
-          className="lightbox-overlay"
-          onClick={() => setActiveIndex(null)}
-        >
+        <div className="lightbox-overlay" onClick={() => setActiveIndex(null)}>
           <button
             className="lightbox-close"
             onClick={() => setActiveIndex(null)}
@@ -346,7 +351,9 @@ export default function ImageGallery({ images, alt }: Props) {
                 className="lightbox-nav prev"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setActiveIndex((activeIndex - 1 + images.length) % images.length);
+                  setActiveIndex(
+                    (activeIndex - 1 + images.length) % images.length,
+                  );
                 }}
               >
                 &#8249;
@@ -379,6 +386,7 @@ export default function ImageGallery({ images, alt }: Props) {
 > **Styling note:** Uses `.gallery-grid`, `.gallery-item`, `.lightbox-overlay`, `.lightbox-image`, `.lightbox-nav`, `.lightbox-close` from the designed component's `<style is:global>` block. See `references/shared/STYLING.md` (Image Gallery / Lightbox).
 
 Key details:
+
 - Renders as a grid; clicking opens a lightbox overlay
 - Previous/next navigation wraps around
 - `client:only="react"` — requires client-side rendering for `useState`

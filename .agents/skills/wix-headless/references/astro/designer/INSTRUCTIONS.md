@@ -5,13 +5,14 @@ description: "The page-design specification for Wix Managed Headless page routes
 
 # Page Designer — Scope-Based Page Design
 
-> **Single-write merged model (BUILD-astro.md § "Step 4.5" — the build wave — is authoritative).** Routes are written **once**, by the per-vertical merged build agents' `pages` scopes (after that agent writes its islands), with both visual design **and** live SDK queries in the same pass — there is no separate "write a design placeholder, then rewrite it with data" dispatch (that double-write was eliminated), and no separate Components→Pages wave (those are merged into one per-vertical agent). This doc is the **visual-design specification** the merged author applies: the layout, typography, color, spacing, contract classes, decorative slots, and component composition each route should have. Where a section below says "placeholder data," read it as *the data shape* the live query maps onto — and the safe fallback to render if a query returns empty. The merged scope binds real SDK data into this structure; it does not ship hardcoded arrays as the final output.
+> **Single-write merged model (BUILD-astro.md § "Step 4.5" — the build wave — is authoritative).** Routes are written **once**, by the per-vertical merged build agents' `pages` scopes (after that agent writes its islands), with both visual design **and** live SDK queries in the same pass — there is no separate "write a design placeholder, then rewrite it with data" dispatch (that double-write was eliminated), and no separate Components→Pages wave (those are merged into one per-vertical agent). This doc is the **visual-design specification** the merged author applies: the layout, typography, color, spacing, contract classes, decorative slots, and component composition each route should have. Where a section below says "placeholder data," read it as _the data shape_ the live query maps onto — and the safe fallback to render if a query returns empty. The merged scope binds real SDK data into this structure; it does not ship hardcoded arrays as the final output.
 
 Your prompt will contain a `Scope:` line naming exactly one of the page scopes below. **Read only the section for your scope. Do not read sections for other scopes — wastes context and blurs ownership.**
 
 You own **page-level visual output**: the layout, typography, color, spacing, and component composition of one route group. The same merged scope also binds the live SDK data into that structure (the per-vertical reference under `references/astro/<vertical>/` supplies the exact queries).
 
 > **The design-system phase is not in this doc.** Tokens (`DESIGN.md` / `data.design`), `global.css`, `astro.config.mjs`, `Layout.astro`, `Navigation.astro`, and `Footer.astro` are produced earlier in the run by a two-role split:
+>
 > - **Designer** (`<SKILL_ROOT>/references/DESIGN_SYSTEM.md`) — authors `DESIGN.md` (the framework-agnostic token spec) and returns the brand-voice strings.
 > - **Composer** (`<SKILL_ROOT>/scripts/compose.mjs`, a deterministic script — self-documenting) — applies `DESIGN.md` to the astro skeletons and writes the 6 design-system files.
 >
@@ -28,14 +29,14 @@ No REST calls required. Page-design scopes are frontend-only — no `curl`, no M
 
 ## Scope Routing
 
-| Scope | Phase | Output (files) |
-|-------|-------|----------------|
-| `home` | build wave | `src/pages/index.astro` (composes pack home-sections + brand hero/CTA into the Composer-written shell) |
-| `static` | build wave | `src/pages/about.astro`, `src/pages/faq.astro` |
-| `store-pages` | build wave | `src/pages/products/index.astro`, `src/pages/products/[slug].astro`, `src/components/ProductCard.astro`, `src/pages/cart.astro`, `src/pages/thank-you.astro` |
-| `services-pages` | build wave | `src/pages/services/index.astro`, `src/pages/services/[slug].astro`, `src/pages/booking-confirmation.astro`, `src/pages/manage-booking.astro` |
-| `blog-pages` | build wave | `src/pages/blog/index.astro`, `src/pages/blog/[slug].astro` |
-| `contact-page` | build wave | `src/pages/contact.astro` |
+| Scope            | Phase      | Output (files)                                                                                                                                               |
+| ---------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `home`           | build wave | `src/pages/index.astro` (composes pack home-sections + brand hero/CTA into the Composer-written shell)                                                       |
+| `static`         | build wave | `src/pages/about.astro`, `src/pages/faq.astro`                                                                                                               |
+| `store-pages`    | build wave | `src/pages/products/index.astro`, `src/pages/products/[slug].astro`, `src/components/ProductCard.astro`, `src/pages/cart.astro`, `src/pages/thank-you.astro` |
+| `services-pages` | build wave | `src/pages/services/index.astro`, `src/pages/services/[slug].astro`, `src/pages/booking-confirmation.astro`, `src/pages/manage-booking.astro`                |
+| `blog-pages`     | build wave | `src/pages/blog/index.astro`, `src/pages/blog/[slug].astro`                                                                                                  |
+| `contact-page`   | build wave | `src/pages/contact.astro`                                                                                                                                    |
 
 If your prompt's `Scope:` line names `design-system`, you have the wrong doc — that work lives in `DESIGN_SYSTEM.md` (Designer) and `scripts/compose.mjs` (Composer). Stop and tell the parent.
 
@@ -75,32 +76,34 @@ All page scopes share common inputs and rules. Scope-specific details follow.
 6. **Scoped page styles allowed.** Pages may add `<style>` blocks for page-specific ornamental styling (section backgrounds, decorative elements, page-specific spacing adjustments). These are local to the page — do not override contract class rules from `global.css`.
 7. **Image placeholders — decorative slot convention.** Every decorative image (hero, about visual, page-header art) MUST be emitted as a `<div>` placeholder carrying a `data-decorative-slot="<key>"` attribute. **Use ONLY canonical slot keys from this fixed vocabulary:**
 
-    | Key | Where it lives | Required when |
-    |---|---|---|
-    | `hero` | Homepage hero image | Always |
-    | `about` | About-page (or home brand-story) editorial visual | Always |
-    | `productsHeader` | `/products` listing header decorative | Stores pack loaded |
-    | `cmsHeader` | `/about` or `/faq` page header decorative | CMS pack loaded (optional) |
+   | Key              | Where it lives                                    | Required when              |
+   | ---------------- | ------------------------------------------------- | -------------------------- |
+   | `hero`           | Homepage hero image                               | Always                     |
+   | `about`          | About-page (or home brand-story) editorial visual | Always                     |
+   | `productsHeader` | `/products` listing header decorative             | Stores pack loaded         |
+   | `cmsHeader`      | `/about` or `/faq` page header decorative         | CMS pack loaded (optional) |
 
-    Do NOT invent keys like `aboutFeature`, `background`, `heroAlt`, etc. The image agent receives this canonical list as its `decorativeSlots` input and generates exactly those keys — invented keys will not have images, and orphan generated images go unused. If a page needs more visual interest, use scoped CSS / SVG / brand-color blocks instead of additional generated images. The orchestrator runs a post-Phase-2 Edit pass that injects the actual `<img>` for each slot once Image Phase 1 finishes; your job is to make the slot visible. Rules:
-    - Use aspect-ratio + background-color on the placeholder so the page looks complete even if Image Phase 1 never completes.
-    - Keep decorative overlays (stamps, rules, frames) as siblings of the slot `<div>` — the orchestrator injects the `<img>` as the FIRST child of the slot, so anything you want to layer over it must stay outside the slot `<div>` (or inside with explicit z-index).
-    - Do NOT conditionally read any image-coordination file — Image Phase 1's slot→URL map flows to the orchestrator via its JSON return, and the orchestrator injects URLs into your slot placeholders. The slot mechanism is the contract; no file lookup is needed or correct.
-    - Do not use external placeholder services (picsum, unsplash, etc.).
+   Do NOT invent keys like `aboutFeature`, `background`, `heroAlt`, etc. The image agent receives this canonical list as its `decorativeSlots` input and generates exactly those keys — invented keys will not have images, and orphan generated images go unused. If a page needs more visual interest, use scoped CSS / SVG / brand-color blocks instead of additional generated images. The orchestrator runs a post-Phase-2 Edit pass that injects the actual `<img>` for each slot once Image Phase 1 finishes; your job is to make the slot visible. Rules:
+   - Use aspect-ratio + background-color on the placeholder so the page looks complete even if Image Phase 1 never completes.
+   - Keep decorative overlays (stamps, rules, frames) as siblings of the slot `<div>` — the orchestrator injects the `<img>` as the FIRST child of the slot, so anything you want to layer over it must stay outside the slot `<div>` (or inside with explicit z-index).
+   - Do NOT conditionally read any image-coordination file — Image Phase 1's slot→URL map flows to the orchestrator via its JSON return, and the orchestrator injects URLs into your slot placeholders. The slot mechanism is the contract; no file lookup is needed or correct.
+   - Do not use external placeholder services (picsum, unsplash, etc.).
 
-    Example:
-    ```astro
-    <section class="hero-section relative">
-      <div
-        class="hero-image"
-        data-decorative-slot="hero"
-        style="aspect-ratio: 4/5; background-color: var(--color-paper-warm);"
-      >
-        <!-- orchestrator injects <img src={decorativeImages.hero} …> here -->
-      </div>
-      <div class="hero-stamp">{/* decorative overlay, stays outside the slot */}</div>
-    </section>
-    ```
+   Example:
+
+   ```astro
+   <section class="hero-section relative">
+     <div
+       class="hero-image"
+       data-decorative-slot="hero"
+       style="aspect-ratio: 4/5; background-color: var(--color-paper-warm);"
+     >
+       <!-- orchestrator injects <img src={decorativeImages.hero} …> here -->
+     </div>
+     <div class="hero-stamp">{/* decorative overlay, stays outside the slot */}</div>
+   </section>
+   ```
+
 8. **Comments in frontmatter.** Use `//` or `/* */` — never HTML `<!-- -->` comments in `.astro` frontmatter (it's TypeScript, not HTML). HTML comments in the template section are fine.
 9. **Responsive.** All pages must work at mobile (320px), tablet (768px), and desktop (1024px+). Use Tailwind responsive prefixes (`md:`, `lg:`) and the spacing scale from `@theme`.
 10. **Use Tailwind utility classes in templates.** For layout, spacing, typography, and responsive design — use utility classes directly in the markup. Contract classes are still required for components referenced by Phase 3/4 agents. Mix both: `<div class="product-grid grid grid-cols-1 md:grid-cols-3 gap-lg">`. Always use brand `@theme` tokens (e.g., `bg-bark`, `text-cream`) — never default Tailwind colors.
@@ -112,9 +115,11 @@ All page scopes share common inputs and rules. Scope-specific details follow.
 Composes the home page from every loaded pack's `homeSection` snippet plus brand-specific hero and CTA sections.
 
 **Inputs (additional):**
+
 - `Pack home-section snippets` — one per loaded pack. Each names a section (e.g., "Featured products", "Brand story", "Latest posts", "Contact CTA") with a description and contract classes.
 
 **Structure:**
+
 1. **Hero section** — full-width, impactful brand moment. Uses `hero-section` contract class. Emit a `data-decorative-slot="hero"` placeholder per Common rule #7 — do not inline an Image Phase 1 URL; the orchestrator injects the `<img>` after Image Phase 1 completes.
 2. **Pack sections** — one section per loaded pack's `homeSection`, in a sensible order (typically: featured content first, then story, then CTA).
 3. **Optional closing CTA** — if no pack contributes a CTA section, add a minimal brand-appropriate closing.
@@ -122,6 +127,7 @@ Composes the home page from every loaded pack's `homeSection` snippet plus brand
 **Files:** `src/pages/index.astro`
 
 **Return:**
+
 ```json
 {
   "status": "complete",
@@ -142,18 +148,21 @@ About and FAQ pages — content pages with similar layout demands.
 **Files:** `src/pages/about.astro`, `src/pages/faq.astro`
 
 **About page:**
+
 - Hero/header section with `about-hero` class
 - Body content with `about-body` class
 - Placeholder brand story text (2-3 paragraphs, brand-contextual)
 - Image placeholder for brand/team visual
 
 **FAQ page:**
+
 - Section wrapper with `faq-section` class
 - Individual Q&A items with `faq-item`, `faq-question`, `faq-answer` classes
 - 4-6 placeholder FAQ items contextual to the business type
 - Accordion or expandable pattern (CSS-only, using `<details>`/`<summary>` or checkbox hack)
 
 **Return:**
+
 ```json
 {
   "status": "complete",
@@ -161,7 +170,14 @@ About and FAQ pages — content pages with similar layout demands.
   "scope": "static",
   "data": {
     "pagesDesigned": ["about", "faq"],
-    "contractClassesHonored": ["about-hero", "about-body", "faq-section", "faq-item", "faq-question", "faq-answer"]
+    "contractClassesHonored": [
+      "about-hero",
+      "about-body",
+      "faq-section",
+      "faq-item",
+      "faq-question",
+      "faq-answer"
+    ]
   },
   "files": ["src/pages/about.astro", "src/pages/faq.astro"]
 }
@@ -174,23 +190,27 @@ All store-facing pages designed together for visual coherence.
 **Files:** `src/pages/products/index.astro`, `src/pages/products/[slug].astro`, `src/components/ProductCard.astro`, `src/pages/cart.astro`, `src/pages/thank-you.astro`
 
 **Products listing (`/products`):**
+
 - Page heading
 - Product grid using `product-grid` class
 - Bind the live `productsV3` query (per `references/astro/stores/PRODUCT_PAGES.md`) into a grid of `ProductCard` components; render a brand-contextual empty state if the query returns nothing
 
 **Product detail (`/products/[slug]`):**
+
 - Product image (large) resolved from the live product record
 - Product info section with `product-detail` class
 - Purchase area with `product-purchase` class — price, variant selector, and Add to Cart button (`add-to-cart-btn` class) bound to the live product/variant data
 - Product description area
 
 **ProductCard component:**
+
 - Accepts a single `product` prop — the full Wix product object from `productsV3`
 - Uses `product-card` class
 - Image, name, price, link to `/products/${product.slug}`
 - Design the prop interface around the full product object: `{ product }` (the canonical `productsV3` shape — see `references/astro/stores/PRODUCT_PAGES.md`)
 
 **Cart (`/cart`):**
+
 - Two-column grid layout: `.cart-grid` — items column left, order summary right. Stacks vertically on mobile
 - Items column with `.cart-items`, `.cart-item`, `.cart-item.unavailable` (reduced opacity), `.cart-item-image`, `.cart-item-info`, `.cart-item-name`, `.cart-item-option`, `.cart-item-modifiers` classes
 - Quantity selector with `.cart-item-qty`, `.qty-btn`, `.qty-value` classes — include `:disabled` states (reduced opacity + `cursor: not-allowed`)
@@ -203,10 +223,12 @@ All store-facing pages designed together for visual coherence.
 - The live `CartView` island renders the items/summary at runtime; design the surrounding structure and an empty-cart fallback
 
 **Thank you (`/thank-you`):**
+
 - Confirmation message with `order-summary` class
 - Order details bound to the live order data (per the ecom cart/checkout reference)
 
 **Return:**
+
 ```json
 {
   "status": "complete",
@@ -233,19 +255,23 @@ All bookings-facing pages designed together for visual coherence. **Canonical te
 **Files:** `src/pages/services/index.astro`, `src/pages/services/[slug].astro`, `src/pages/booking-confirmation.astro`, `src/pages/manage-booking.astro`
 
 **Services listing (`/services`):**
+
 - Page heading + optional brand tagline
 - Service grid using the `service-grid` class, one `ServiceCard` per service (`service-card` class — image/placeholder, name, tagline, duration + price row)
 - Bind the live `services.queryServices` query (per `references/astro/bookings/SERVICES_PAGES.md`); brand-contextual empty state if it returns nothing
 
 **Service detail (`/services/[slug]`):**
+
 - `container-reading` width (never a bare `max-w-<size>`); optional banner image **only when the service has media** (image-less is the common seed case — no fixed-ratio placeholder)
 - Title, tagline, duration + price row, description
 - "Book this service" section mounting the `ServiceBookingFlow` island (`client:only="react"`, threads `serviceType`) — calendar slots use `time-slot` classes (`--available`/`--selected`/`--full`), form uses the `booking-form` family
 
 **Booking confirmation (`/booking-confirmation`):**
+
 - `max-w-prose`, centered; status-aware headline ("Thank you for booking" vs pending-approval) + embedded cancel (`ManageBooking` island, `showSummary={false}`)
 
 **Manage booking (`/manage-booking`):**
+
 - `container-reading`; booking summary + cancel via the `manage-booking` class family
 
 ### Scope: `blog-pages`
@@ -255,17 +281,20 @@ Blog feed listing and post detail designed together.
 **Files:** `src/pages/blog/index.astro`, `src/pages/blog/[slug].astro`
 
 **Blog listing (`/blog`):**
+
 - Page heading
 - Post grid/list using `blog-feed` class
 - 3 placeholder post cards using `blog-post-card` class (title, date, excerpt, cover image placeholder)
 
 **Blog post detail (`/blog/[slug]`):**
+
 - Post header with title, date, author, cover image placeholder
 - Body area with `blog-post` and `blog-post-body` classes
 - Meta section with `blog-post-meta` class (tags, share links)
 - Good reading typography (max-width prose container, comfortable line height)
 
 **Return:**
+
 ```json
 {
   "status": "complete",
@@ -273,7 +302,13 @@ Blog feed listing and post detail designed together.
   "scope": "blog-pages",
   "data": {
     "pagesDesigned": ["blog/index.astro", "blog/[slug].astro"],
-    "contractClassesHonored": ["blog-feed", "blog-post-card", "blog-post", "blog-post-body", "blog-post-meta"]
+    "contractClassesHonored": [
+      "blog-feed",
+      "blog-post-card",
+      "blog-post",
+      "blog-post-body",
+      "blog-post-meta"
+    ]
   },
   "files": ["src/pages/blog/index.astro", "src/pages/blog/[slug].astro"]
 }
@@ -286,12 +321,14 @@ Contact page with form placeholder.
 **Files:** `src/pages/contact.astro`
 
 **Contact page:**
+
 - Page heading and descriptive text
 - Contact CTA section using `contact-cta` class (if on home, this mirrors the home CTA's visual language)
 - Form area — mount the `ContactForm.tsx` island (written by Phase 3 Components) styled to the brand, per `references/astro/forms/CONTACT_FORM.md`. Style a complete form layout (name, email, message fields, submit button) so the page reads as finished even before submissions wire up.
 - Optional: map embed placeholder, business hours, address (if brand context suggests it)
 
 **Return:**
+
 ```json
 {
   "status": "complete",
@@ -315,37 +352,37 @@ The JSON block MUST be the **last** content in your message — the parent parse
 
 ## Anti-Patterns (apply to all page scopes)
 
-| WRONG | CORRECT |
-|-------|---------|
-| Author a `.tsx` React island in a page scope | Phase 3 Components writes the islands; the route only **mounts** them (`client:load`) |
-| Ship hardcoded data arrays as the final page | Query live SDK data in frontmatter (per the vertical reference) and bind it; hardcoded shapes are only a fallback for empty queries |
-| Write `global.css` or `@theme` tokens | The Composer owns `global.css`; you consume the published token contract |
-| Invent global semantic classes for layout/spacing/typography (`.featured-section`, `.page-header`) | Use Tailwind utilities derived from `@theme` tokens at the call site (`<section class="py-4xl">`); see `../../shared/STYLING.md` |
-| Override `global.css` rules from page `<style>` blocks | Pages can add co-located styles for one-off decoration; never override Composer-owned global classes |
-| HTML `<!-- comment -->` in `.astro` frontmatter | Use `//` or `/* */` — frontmatter is TypeScript |
-| Use external placeholder image services (picsum, unsplash) | Use colored `<div>` placeholders with `data-decorative-slot` — the orchestrator injects Image Phase 1 URLs later |
-| Write `components-<pack>.css` | Phase 3 Components creates that file — page scopes must not write it |
-| Leave a section empty when a query returns nothing | Render a brand-contextual fallback / empty state so the page is always reviewable |
-| Use default Tailwind colors (`bg-blue-500`, `text-gray-200`) | Use brand `@theme` tokens (`bg-bark`, `text-cream`) — defaults expose that it's AI-generated |
-| Generic unstyled HTML | Brand-first design — every element reflects the aesthetic direction |
-| Fixed-width layouts | Responsive: mobile-first, breakpoints at 320/768/1024px |
-| `ls src/`, `Glob src/**` to discover files | Your prompt lists every file and class contract. Write directly. |
-| Read a shared file to get brand or verticals | Every field is in your prompt |
-| Hardcode an external `<img src="https://...">` for product/content images | Resolve entity images from the live record (`media.getScaledToFillImageUrl(...)`) in this same scope; **decorative** images use the `data-decorative-slot` mechanism |
-| Omit `data-decorative-slot` on hero/about/background placeholders | Every decorative image placeholder MUST carry a slot attribute — the orchestrator's injection pass depends on it (common rule #7) |
-| Add a hero CTA / footer link to a disabled-pack route | Disabled packs (gift-cards) are dormant — no entry points to their routes |
-| ProductCard with flat props (`name`, `price`, `slug` as separate props) | Single `product` object prop: `{ product }` — Phase 4 passes the full Wix product object |
-| Wrap CartBadge in `<a>` or add cart SVG icons in `nav-actions` | Leave `nav-actions` empty — CartBadge renders its own `<a>` link; nesting `<a>` tags produces duplicate icons |
+| WRONG                                                                                              | CORRECT                                                                                                                                                              |
+| -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Author a `.tsx` React island in a page scope                                                       | Phase 3 Components writes the islands; the route only **mounts** them (`client:load`)                                                                                |
+| Ship hardcoded data arrays as the final page                                                       | Query live SDK data in frontmatter (per the vertical reference) and bind it; hardcoded shapes are only a fallback for empty queries                                  |
+| Write `global.css` or `@theme` tokens                                                              | The Composer owns `global.css`; you consume the published token contract                                                                                             |
+| Invent global semantic classes for layout/spacing/typography (`.featured-section`, `.page-header`) | Use Tailwind utilities derived from `@theme` tokens at the call site (`<section class="py-4xl">`); see `../../shared/STYLING.md`                                     |
+| Override `global.css` rules from page `<style>` blocks                                             | Pages can add co-located styles for one-off decoration; never override Composer-owned global classes                                                                 |
+| HTML `<!-- comment -->` in `.astro` frontmatter                                                    | Use `//` or `/* */` — frontmatter is TypeScript                                                                                                                      |
+| Use external placeholder image services (picsum, unsplash)                                         | Use colored `<div>` placeholders with `data-decorative-slot` — the orchestrator injects Image Phase 1 URLs later                                                     |
+| Write `components-<pack>.css`                                                                      | Phase 3 Components creates that file — page scopes must not write it                                                                                                 |
+| Leave a section empty when a query returns nothing                                                 | Render a brand-contextual fallback / empty state so the page is always reviewable                                                                                    |
+| Use default Tailwind colors (`bg-blue-500`, `text-gray-200`)                                       | Use brand `@theme` tokens (`bg-bark`, `text-cream`) — defaults expose that it's AI-generated                                                                         |
+| Generic unstyled HTML                                                                              | Brand-first design — every element reflects the aesthetic direction                                                                                                  |
+| Fixed-width layouts                                                                                | Responsive: mobile-first, breakpoints at 320/768/1024px                                                                                                              |
+| `ls src/`, `Glob src/**` to discover files                                                         | Your prompt lists every file and class contract. Write directly.                                                                                                     |
+| Read a shared file to get brand or verticals                                                       | Every field is in your prompt                                                                                                                                        |
+| Hardcode an external `<img src="https://...">` for product/content images                          | Resolve entity images from the live record (`media.getScaledToFillImageUrl(...)`) in this same scope; **decorative** images use the `data-decorative-slot` mechanism |
+| Omit `data-decorative-slot` on hero/about/background placeholders                                  | Every decorative image placeholder MUST carry a slot attribute — the orchestrator's injection pass depends on it (common rule #7)                                    |
+| Add a hero CTA / footer link to a disabled-pack route                                              | Disabled packs (gift-cards) are dormant — no entry points to their routes                                                                                            |
+| ProductCard with flat props (`name`, `price`, `slug` as separate props)                            | Single `product` object prop: `{ product }` — Phase 4 passes the full Wix product object                                                                             |
+| Wrap CartBadge in `<a>` or add cart SVG icons in `nav-actions`                                     | Leave `nav-actions` empty — CartBadge renders its own `<a>` link; nesting `<a>` tags produces duplicate icons                                                        |
 
 ## Coordination with other agents
 
-| Agent | Relationship | Rule |
-|-------|-------------|------|
-| Composer (design-system) | Wrote `global.css`, `Layout.astro`, `Navigation.astro`, `Footer.astro`, the `@theme` tokens | You consume the token contract and wrap pages in its `Layout`; you never rewrite those files |
-| Phase 3 Components (stores/bookings/blog/forms) | Writes React islands referencing contract classes + `components-<pack>.css` | They own islands + scoped CSS; the route references contract classes in markup and mounts the islands, no overlap |
-| Per-vertical reference (`references/astro/<vertical>/`) | Supplies the exact SDK queries + wiring the merged route binds | Apply this design spec **and** that vertical's queries together in one write — there is no second pass |
-| Image agent (Image Phase 1) | Returns decorative URLs in `data.slots` | Emit `data-decorative-slot="<key>"` placeholders; the orchestrator injects the `<img>` once Image Phase 1 returns |
-| Image agent (Image Phase 2) | PATCHes entity images onto products/posts via REST | No direct interaction — images flow through product/post records that Phase 4 queries |
+| Agent                                                   | Relationship                                                                                | Rule                                                                                                              |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Composer (design-system)                                | Wrote `global.css`, `Layout.astro`, `Navigation.astro`, `Footer.astro`, the `@theme` tokens | You consume the token contract and wrap pages in its `Layout`; you never rewrite those files                      |
+| Phase 3 Components (stores/bookings/blog/forms)         | Writes React islands referencing contract classes + `components-<pack>.css`                 | They own islands + scoped CSS; the route references contract classes in markup and mounts the islands, no overlap |
+| Per-vertical reference (`references/astro/<vertical>/`) | Supplies the exact SDK queries + wiring the merged route binds                              | Apply this design spec **and** that vertical's queries together in one write — there is no second pass            |
+| Image agent (Image Phase 1)                             | Returns decorative URLs in `data.slots`                                                     | Emit `data-decorative-slot="<key>"` placeholders; the orchestrator injects the `<img>` once Image Phase 1 returns |
+| Image agent (Image Phase 2)                             | PATCHes entity images onto products/posts via REST                                          | No direct interaction — images flow through product/post records that Phase 4 queries                             |
 
 ## File ownership
 

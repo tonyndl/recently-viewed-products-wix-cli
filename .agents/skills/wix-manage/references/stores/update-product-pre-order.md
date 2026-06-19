@@ -2,6 +2,7 @@
 name: "Update Product Pre-Order (Catalog V3)"
 description: Manages pre-order settings for product variants using V3 Inventory API. Covers enabling/disabling pre-orders, setting messages, configuring limits, and handling trackQuantity requirements.
 ---
+
 # Update Product Pre-Order Information (Catalog V3)
 
 This recipe outlines the steps to manage pre-orders for product variants, including enabling/disabling pre-orders, setting messages, and configuring limits.
@@ -54,6 +55,7 @@ Use the `productId` from the search to get variant information:
 ```
 
 The response includes:
+
 - `product.variantName` - identifies each variant
 - `inventoryItemId` - needed for updates
 - `revision` - required for update operations
@@ -61,6 +63,7 @@ The response includes:
 - Current `preorderInfo` settings
 
 ### IMPORTANT NOTES:
+
 - I MUST get user input on which specific variant(s) to update
 - I MUST NEVER update all variants without explicit user selection
 - I MUST ask the user whether to enable or disable pre-orders for each variant
@@ -78,6 +81,7 @@ Use when applying the same pre-order settings to multiple variants:
 **Endpoint**: `POST https://www.wixapis.com/stores/v3/bulk/inventory-items/update`
 
 **Request Body (Enable Pre-Order)**:
+
 ```json
 {
   "inventoryItems": [
@@ -108,6 +112,7 @@ Use when applying the same pre-order settings to multiple variants:
 ```
 
 **Request Body (With Pre-Order Limit)**:
+
 ```json
 {
   "inventoryItems": [
@@ -131,6 +136,7 @@ Use when applying the same pre-order settings to multiple variants:
 ```
 
 ### IMPORTANT NOTES:
+
 - Pre-order limits ONLY work when `trackQuantity: true`
 - If variant wasn't tracking quantity, I MUST ask user for initial quantity
 - The `revision` field is required and must be an integer
@@ -142,6 +148,7 @@ Use when applying the same pre-order settings to multiple variants:
 **Endpoint**: `PATCH https://www.wixapis.com/stores/v3/inventory-items/{inventoryItemId}`
 
 **Request Body (Enable Pre-Order)**:
+
 ```json
 {
   "inventoryItem": {
@@ -157,6 +164,7 @@ Use when applying the same pre-order settings to multiple variants:
 ```
 
 **Request Body (Disable Pre-Order)**:
+
 ```json
 {
   "inventoryItem": {
@@ -176,6 +184,7 @@ Use when applying the same pre-order settings to multiple variants:
 ## Pre-Order Limit Behavior
 
 When you set a `preorderInfo.limit`:
+
 - It specifies how many units can be pre-ordered **after stock reaches zero**
 - Example: 10 in stock + limit of 50 = customers can order up to 60 total (10 regular + 50 pre-order)
 
@@ -186,6 +195,7 @@ If setting a limit on a variant that wasn't tracking quantity:
 1. **Inform the user**: "`trackQuantity` will be enabled for this variant"
 2. **Ask for initial quantity**: "What initial stock quantity should I set?"
 3. **Include both in update**:
+
 ```json
 {
   "inventoryItem": {
@@ -208,6 +218,7 @@ If setting a limit on a variant that wasn't tracking quantity:
 ## Next Steps
 
 After updating pre-order settings:
+
 - Confirm the changes with the user
 - Offer to update other products or variants
 - Consider updating product descriptions to mention pre-order availability

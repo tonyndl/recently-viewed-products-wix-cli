@@ -1,8 +1,8 @@
-import { type FC } from 'react';
-import { Text, Button, Badge } from '@wix/design-system';
-import * as Icons from '@wix/wix-ui-icons-common';
-import { formatPrice, openUpgradeUrl } from '../../upgradeUtils';
-import { getCardStyle, styles } from './styles/pricingTierCard';
+import { type FC } from "react";
+import { Text, Button, Badge } from "@wix/design-system";
+import * as Icons from "@wix/wix-ui-icons-common";
+import { formatPrice, openUpgradeUrl } from "../../upgradeUtils";
+import { getCardStyle, styles } from "./styles/pricingTierCard";
 
 type Props = {
   tier: PricingTier;
@@ -12,15 +12,21 @@ type Props = {
   resolvedUpgradeUrl: string;
 };
 
-const PricingTierCard: FC<Props> = ({ tier, isPremium, isYearly, currency, resolvedUpgradeUrl }) => {
-  const isFree = tier.name.toLowerCase() === 'free';
+const PricingTierCard: FC<Props> = ({
+  tier,
+  isPremium,
+  isYearly,
+  currency,
+  resolvedUpgradeUrl,
+}) => {
+  const isFree = tier.name.toLowerCase() === "free";
   const isCurrentPlan = isFree ? !isPremium : isPremium;
   const price = isYearly ? tier.yearlyPrice : tier.monthlyPrice;
   // Both monthlyPrice and yearlyPrice are already monthly-equivalent amounts from the API.
   const displayPrice = price ? formatPrice(price, currency) : null;
 
   return (
-    <div style={getCardStyle(!isFree)}>
+    <div style={getCardStyle(isCurrentPlan)}>
       <div style={styles.nameRow}>
         <Text weight="bold">{tier.name}</Text>
         {isCurrentPlan && (

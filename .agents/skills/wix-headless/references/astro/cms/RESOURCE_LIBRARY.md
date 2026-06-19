@@ -8,28 +8,28 @@ Build a downloadable resource library using `@wix/data` — file listings with c
 
 The schema the `seed` scope creates via REST (see `../../cms/CMS_FOUNDATIONS.md`) — fields:
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `title` | Text | Resource name |
-| `slug` | Text | URL-friendly identifier |
-| `description` | Rich Text | Resource description (HTML) |
-| `category` | Text | Resource category (e.g., "Guides", "Templates") |
-| `fileType` | Text | File extension — `PDF`, `DOC`, `ZIP`, `XLS`, etc. |
-| `fileUrl` | URL | Download URL (external link or Wix media URL) |
-| `fileSize` | Text | Human-readable file size (e.g., "2.4 MB") |
-| `coverImage` | Image | Thumbnail (`wix:image://` — resolve with `media.getScaledToFillImageUrl()`) |
-| `published` | Boolean | Publish status |
-| `_createdDate` | Date | Auto-populated creation date |
+| Field          | Type      | Purpose                                                                     |
+| -------------- | --------- | --------------------------------------------------------------------------- |
+| `title`        | Text      | Resource name                                                               |
+| `slug`         | Text      | URL-friendly identifier                                                     |
+| `description`  | Rich Text | Resource description (HTML)                                                 |
+| `category`     | Text      | Resource category (e.g., "Guides", "Templates")                             |
+| `fileType`     | Text      | File extension — `PDF`, `DOC`, `ZIP`, `XLS`, etc.                           |
+| `fileUrl`      | URL       | Download URL (external link or Wix media URL)                               |
+| `fileSize`     | Text      | Human-readable file size (e.g., "2.4 MB")                                   |
+| `coverImage`   | Image     | Thumbnail (`wix:image://` — resolve with `media.getScaledToFillImageUrl()`) |
+| `published`    | Boolean   | Publish status                                                              |
+| `_createdDate` | Date      | Auto-populated creation date                                                |
 
 ## Files to Create
 
-| File | Purpose |
-|------|---------|
-| `src/lib/resources.ts` | Service module — queries, category filtering, related resources |
-| `src/pages/resources/index.astro` | Listing with category filter + file type badges |
-| `src/pages/resources/[slug].astro` | Detail page with download button + related resources |
-| `src/components/ResourceCard.astro` | Card with file type icon, title, size |
-| `src/components/FileTypeIcon.astro` | SVG switch for PDF/DOC/ZIP/generic |
+| File                                | Purpose                                                         |
+| ----------------------------------- | --------------------------------------------------------------- |
+| `src/lib/resources.ts`              | Service module — queries, category filtering, related resources |
+| `src/pages/resources/index.astro`   | Listing with category filter + file type badges                 |
+| `src/pages/resources/[slug].astro`  | Detail page with download button + related resources            |
+| `src/components/ResourceCard.astro` | Card with file type icon, title, size                           |
+| `src/components/FileTypeIcon.astro` | SVG switch for PDF/DOC/ZIP/generic                              |
 
 ## Implementation
 
@@ -88,7 +88,9 @@ export async function queryResources(): Promise<Resource[]> {
   return results.map(mapResource);
 }
 
-export async function getResourceBySlug(slug: string): Promise<Resource | null> {
+export async function getResourceBySlug(
+  slug: string,
+): Promise<Resource | null> {
   const elevatedQuery = auth.elevate(items.query);
   const { items: results } = await elevatedQuery(COLLECTION_ID)
     .eq("slug", slug)
@@ -101,7 +103,11 @@ export async function getResourceBySlug(slug: string): Promise<Resource | null> 
   return mapResource(item);
 }
 
-export async function queryRelatedResources(category: string, excludeId: string, limit = 3): Promise<Resource[]> {
+export async function queryRelatedResources(
+  category: string,
+  excludeId: string,
+  limit = 3,
+): Promise<Resource[]> {
   const elevatedQuery = auth.elevate(items.query);
   const { items: results } = await elevatedQuery(COLLECTION_ID)
     .eq("published", true)
@@ -116,6 +122,7 @@ export async function queryRelatedResources(category: string, excludeId: string,
 ```
 
 Key details:
+
 - `queryRelatedResources()` finds same-category items excluding the current one
 - `fileType` normalized to uppercase for consistent badge display
 - Sorted by `_createdDate` descending (newest first)
@@ -146,6 +153,7 @@ const fileType = type.toUpperCase();
 ```
 
 Key details:
+
 - The SVG uses `stroke="currentColor"` — any per-file-type coloring is purely CSS-driven (e.g. a `.file-type-pdf` class on the wrapper), not set here
 - File type label rendered inside the document icon SVG
 
@@ -314,6 +322,7 @@ const date = resource._createdDate
 ```
 
 Key details:
+
 - `<a download>` triggers browser download for the file
 - Related resources query pulls same-category items, excluding the current one
 - File type icon and badge prominently displayed

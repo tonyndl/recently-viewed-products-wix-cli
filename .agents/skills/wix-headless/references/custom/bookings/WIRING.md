@@ -22,7 +22,10 @@ You wire the **bookings capability** (services list + availability + book) into 
   import { createClient, OAuthStrategy } from "https://esm.sh/@wix/sdk@1";
   import { services } from "https://esm.sh/@wix/bookings@1";
 
-  const wix = createClient({ modules: { services }, auth: OAuthStrategy({ clientId: "REPLACE_WITH_APP_ID" }) });
+  const wix = createClient({
+    modules: { services },
+    auth: OAuthStrategy({ clientId: "REPLACE_WITH_APP_ID" }),
+  });
 
   // Query BUILDER + .find() — the { query: {...} } object form returns 0 items silently.
   const { items } = await wix.services.queryServices().limit(100).find();
@@ -37,18 +40,30 @@ You wire the **bookings capability** (services list + availability + book) into 
 ## Availability (per selected service)
 
 ```js
-import { availabilityTimeSlots, eventTimeSlots } from "https://esm.sh/@wix/bookings@1";
+import {
+  availabilityTimeSlots,
+  eventTimeSlots,
+} from "https://esm.sh/@wix/bookings@1";
 // register the module(s) in createClient({ modules: { ... } })
 
 // APPOINTMENT — serviceId is a single GUID STRING (NOT an array):
 const a = await wix.availabilityTimeSlots.listAvailabilityTimeSlots({
-  serviceId, fromLocalDate, toLocalDate, timeZone, bookable: true, cursorPaging: { limit: 50 },
+  serviceId,
+  fromLocalDate,
+  toLocalDate,
+  timeZone,
+  bookable: true,
+  cursorPaging: { limit: 50 },
 });
 // slots: a.timeSlots[] — localStartDate/localEndDate/scheduleId at the TOP level.
 
 // CLASS — different namespace, PLURAL serviceIds; slots carry eventInfo.eventId, no scheduleId:
 const c = await wix.eventTimeSlots.listEventTimeSlots({
-  serviceIds: [serviceId], fromLocalDate, toLocalDate, timeZone, includeNonBookable: false,
+  serviceIds: [serviceId],
+  fromLocalDate,
+  toLocalDate,
+  timeZone,
+  includeNonBookable: false,
 });
 ```
 
@@ -66,7 +81,7 @@ const { redirectSession } = await wix.redirects.createRedirectSession({
     slotAvailability: {
       slot: {
         serviceId: slot.serviceId,
-        scheduleId: slot.scheduleId,        // APPOINTMENT slots
+        scheduleId: slot.scheduleId, // APPOINTMENT slots
         startDate: slot.localStartDate,
         endDate: slot.localEndDate,
         timezone: timeZone,

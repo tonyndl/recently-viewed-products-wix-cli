@@ -1,8 +1,8 @@
-import type { APIRoute } from 'astro';
-import { auth } from '@wix/essentials';
-import { appInstances } from '@wix/app-management';
-import { customJson } from '../../utils/customJson';
-import { APP_ID, FALLBACK_UPGRADE_URL } from '../../constants';
+import type { APIRoute } from "astro";
+import { auth } from "@wix/essentials";
+import { appInstances } from "@wix/app-management";
+import { customJson } from "../../utils/customJson";
+import { APP_ID, FALLBACK_UPGRADE_URL } from "../../constants";
 
 // Returns the site's premium status and an upgrade URL when on the free plan.
 // Premium removes the watermark from the site widget.
@@ -11,7 +11,7 @@ export const GET: APIRoute = () => {
   return elevatedGetAppInstance()
     .then(({ instance }) => {
       const isPremium = instance ? !instance.isFree : false;
-      const packageName = (instance?.billing?.packageName ?? '').toLowerCase();
+      const packageName = (instance?.billing?.packageName ?? "").toLowerCase();
       const instanceId = instance?.instanceId;
       const upgradeUrl = !isPremium
         ? instanceId
@@ -23,7 +23,7 @@ export const GET: APIRoute = () => {
     .catch(() =>
       customJson({
         isPremium: false,
-        packageName: '',
+        packageName: "",
         upgradeUrl: FALLBACK_UPGRADE_URL,
       }),
     );

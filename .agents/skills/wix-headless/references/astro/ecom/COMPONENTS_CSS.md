@@ -99,20 +99,34 @@ Read the design tokens from `.wix/design-tokens.css` (on disk, gate-verified pre
     "scopedCssFile": "src/styles/components-ecom.css",
     "scopedCssRules": 22,
     "scopedContractClassesDefined": [
-      "cart-summary", "cart-total", "cart-empty", "checkout-btn",
-      "cart-item-qty", "qty-btn", "qty-value", "cart-item-unavailable",
-      "cart-item-actions", "cart-item-prices", "cart-item-full-price",
-      "cart-item-unit-price", "cart-item-line-total", "cart-item-remove",
-      "cart-item-image-link", "cart-item-name-link",
-      "cart-item-option", "cart-item-modifiers",
-      "cart-discount", "cart-discount-name", "cart-discount-amount",
-      "cart-applied-discounts", "cart-applied-discounts-name",
-      "cart-badge", "cart-badge-count"
+      "cart-summary",
+      "cart-total",
+      "cart-empty",
+      "checkout-btn",
+      "cart-item-qty",
+      "qty-btn",
+      "qty-value",
+      "cart-item-unavailable",
+      "cart-item-actions",
+      "cart-item-prices",
+      "cart-item-full-price",
+      "cart-item-unit-price",
+      "cart-item-line-total",
+      "cart-item-remove",
+      "cart-item-image-link",
+      "cart-item-name-link",
+      "cart-item-option",
+      "cart-item-modifiers",
+      "cart-discount",
+      "cart-discount-name",
+      "cart-discount-amount",
+      "cart-applied-discounts",
+      "cart-applied-discounts-name",
+      "cart-badge",
+      "cart-badge-count"
     ]
   },
-  "files": [
-    "src/styles/components-ecom.css"
-  ],
+  "files": ["src/styles/components-ecom.css"],
   "errors": []
 }
 ```
@@ -121,12 +135,12 @@ If a leak was found and overridden, include `errors: [{code: "GLOBAL_CSS_LEAK", 
 
 ## Anti-patterns
 
-| WRONG | CORRECT |
-|-------|---------|
-| Read `INSTRUCTIONS.md`, `CART_WIRING.md`, or any `.tsx` template | Not needed — this scope only writes CSS |
-| Edit `src/styles/global.css` to fix a leak | Override in `components-ecom.css`; report the leak in `errors` |
-| Use default Tailwind colors (`bg-green-50`, `text-red-600`) | Brand `@theme` utilities (`bg-bark`, `text-cream`) or `var(--color-...)` |
-| `@apply btn-primary` on `.checkout-btn` | Tailwind v4 only `@apply`s `@utility` declarations, not plain CSS rules — build fails. Either repeat the properties manually or compose via `composes` |
-| Rename a class because the brand is "more elegant" with kebab variants | Class names are contract keys; renaming breaks every TSX import that references them |
-| Skip the leak audit | Skipping ships double-defined rules; the audit is < 5 s and prevents downstream visual regressions |
-| Drop the `@reference` directives | Tailwind v4 needs both — without them, `@apply size-6` and similar fail at build |
+| WRONG                                                                  | CORRECT                                                                                                                                                |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Read `INSTRUCTIONS.md`, `CART_WIRING.md`, or any `.tsx` template       | Not needed — this scope only writes CSS                                                                                                                |
+| Edit `src/styles/global.css` to fix a leak                             | Override in `components-ecom.css`; report the leak in `errors`                                                                                         |
+| Use default Tailwind colors (`bg-green-50`, `text-red-600`)            | Brand `@theme` utilities (`bg-bark`, `text-cream`) or `var(--color-...)`                                                                               |
+| `@apply btn-primary` on `.checkout-btn`                                | Tailwind v4 only `@apply`s `@utility` declarations, not plain CSS rules — build fails. Either repeat the properties manually or compose via `composes` |
+| Rename a class because the brand is "more elegant" with kebab variants | Class names are contract keys; renaming breaks every TSX import that references them                                                                   |
+| Skip the leak audit                                                    | Skipping ships double-defined rules; the audit is < 5 s and prevents downstream visual regressions                                                     |
+| Drop the `@reference` directives                                       | Tailwind v4 needs both — without them, `@apply size-6` and similar fail at build                                                                       |

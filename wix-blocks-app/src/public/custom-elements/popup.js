@@ -1,5 +1,3 @@
-
-
 class RatePopup extends HTMLElement {
   static get observedAttributes() {
     return ["open"];
@@ -162,7 +160,8 @@ class RatePopup extends HTMLElement {
   }
 
   _syncFromSrc() {
-    const src = "https://www.wix.com/app-market/add-review/b2f7d72d-6a8a-4dd2-bade-f237268658bc";
+    const src =
+      "https://www.wix.com/app-market/add-review/b2f7d72d-6a8a-4dd2-bade-f237268658bc";
 
     if (!src) {
       this._close();
@@ -210,7 +209,7 @@ class RatePopup extends HTMLElement {
 
   _getFocusable() {
     const nodes = this.shadowRoot.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
     return Array.from(nodes).filter((el) => !el.hasAttribute("disabled"));
   }

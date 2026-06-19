@@ -32,7 +32,10 @@ type RicosTextDecoration =
   | { type: "BOLD" }
   | { type: "ITALIC" }
   | { type: "UNDERLINE" }
-  | { type: "LINK"; linkData?: { link?: { url?: string; target?: string; rel?: string } } }
+  | {
+      type: "LINK";
+      linkData?: { link?: { url?: string; target?: string; rel?: string } };
+    }
   | { type: string; [key: string]: unknown };
 
 interface RicosTextData {
@@ -142,7 +145,9 @@ function renderInlineNode(node: RicosNode): string {
         const url = decoration.linkData?.link?.url;
         if (url) {
           const target = decoration.linkData?.link?.target;
-          const rel = decoration.linkData?.link?.rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
+          const rel =
+            decoration.linkData?.link?.rel ??
+            (target === "_blank" ? "noopener noreferrer" : undefined);
           linkOpen = `<a href="${escapeAttr(url)}"${target ? ` target="${escapeAttr(target)}"` : ""}${rel ? ` rel="${escapeAttr(rel)}"` : ""}>`;
           linkClose = "</a>";
         }
@@ -165,15 +170,9 @@ function clampHeadingLevel(raw: number | undefined): 1 | 2 | 3 | 4 | 5 | 6 {
 }
 
 function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function escapeAttr(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;");
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }

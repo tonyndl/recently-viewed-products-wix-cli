@@ -13,9 +13,11 @@ references:
     path: ecommerce/setup-discount-rules.md
     load: true
 ---
+
 # Flow: Stock Mover Clearance
 
 > **Before executing this skill**, read these referenced skills with `ReadFullDocsArticle`:
+>
 > - [Guardrail: Discount Conflicts](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/guardrail-discount-conflicts)
 > - [Guardrail: Margin Protection](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/guardrail-margin-protection)
 > - [Setup: Discount Rules](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/setup-discount-rules)
@@ -41,11 +43,13 @@ Creates a discount targeting slow-moving inventory — products with high stock 
 Call `getCatalogAnalytics` and `getProductCatalogData` concurrently to assess stock levels and sales velocity.
 
 **getCatalogAnalytics** call:
+
 ```
 aggregates: sum(quantity), sum(ordersCount), avg(profitMargin)
 ```
 
 **getProductCatalogData** call:
+
 ```
 ordered: quantity DESC, ordersCount ASC
 ```
@@ -53,6 +57,7 @@ ordered: quantity DESC, ordersCount ASC
 This sort order surfaces products with the most stock and the fewest sales first — the primary candidates for clearance.
 
 Save the following values:
+
 - `total_quantity` — total stock across catalog
 - `total_orders` — total sales across catalog
 - `avg_profit_margin` — average profit margin (sets discount ceiling)
@@ -68,12 +73,12 @@ Calculate the velocity ratio for each product to identify overstocked items:
 velocity_ratio = ordersCount / quantity
 ```
 
-| Velocity Ratio | Classification | Action |
-|---|---|---|
-| < 0.1 | **Severely overstocked** — fewer than 1 sale per 10 units in stock | High priority for clearance discount |
-| 0.1 - 0.3 | **Moderately overstocked** — slow but not stagnant | Medium priority |
-| 0.3 - 0.7 | **Balanced** — reasonable sell-through rate | Not a clearance candidate |
-| > 0.7 | **Fast-moving** — selling well relative to stock | Do NOT discount — unnecessary margin erosion |
+| Velocity Ratio | Classification                                                     | Action                                       |
+| -------------- | ------------------------------------------------------------------ | -------------------------------------------- |
+| < 0.1          | **Severely overstocked** — fewer than 1 sale per 10 units in stock | High priority for clearance discount         |
+| 0.1 - 0.3      | **Moderately overstocked** — slow but not stagnant                 | Medium priority                              |
+| 0.3 - 0.7      | **Balanced** — reasonable sell-through rate                        | Not a clearance candidate                    |
+| > 0.7          | **Fast-moving** — selling well relative to stock                   | Do NOT discount — unnecessary margin erosion |
 
 Select products with velocity_ratio < 0.3 as clearance candidates.
 
@@ -85,12 +90,12 @@ If `quantity = 0` for a product, skip it (nothing to clear). If `ordersCount = 0
 
 Scale the discount based on inventory urgency. Deeper discounts for more overstocked items, constrained by margin:
 
-| Velocity Ratio | Recommended Discount | Rationale |
-|---|---|---|
-| 0 (zero sales) | 20-25% | Maximum urgency — product is not moving at all |
-| < 0.1 | 15-20% | Severely slow — needs aggressive pricing |
-| 0.1 - 0.2 | 10-15% | Moderately slow — moderate discount |
-| 0.2 - 0.3 | 5-10% | Slightly slow — gentle nudge |
+| Velocity Ratio | Recommended Discount | Rationale                                      |
+| -------------- | -------------------- | ---------------------------------------------- |
+| 0 (zero sales) | 20-25%               | Maximum urgency — product is not moving at all |
+| < 0.1          | 15-20%               | Severely slow — needs aggressive pricing       |
+| 0.1 - 0.2      | 10-15%               | Moderately slow — moderate discount            |
+| 0.2 - 0.3      | 5-10%                | Slightly slow — gentle nudge                   |
 
 **Margin constraint**: Always verify `discount <= avg_profit_margin - 15%` (minMarginPct). Clearance discounts are more likely to violate margin thresholds because they are deliberately deeper.
 
@@ -131,6 +136,7 @@ If scope is CATEGORY, call `getCategoryIds` to convert category names to GUIDs.
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/discount-rules/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -162,6 +168,7 @@ This check is especially critical for clearance:
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/discount-rules`
 
 **Request** — 20% off specific slow-moving products:
+
 ```json
 {
   "discountRule": {
@@ -204,6 +211,7 @@ This check is especially critical for clearance:
 ```
 
 **Response**:
+
 ```json
 {
   "discountRule": {
@@ -248,6 +256,7 @@ This check is especially critical for clearance:
 ```
 
 **Request** — clearance on an entire category:
+
 ```json
 {
   "discountRule": {
@@ -284,24 +293,24 @@ Save the returned `id` and `revision` for later management.
 
 ## Branching logic
 
-| Merchant intent | Scope | Discount depth | Notes |
-|---|---|---|---|
-| "Clear out old inventory" | ITEMS — top 5 slowest movers | Velocity-based (15-25%) | Target worst performers |
-| "Clearance sale on winter items" | COLLECTION with category GUID | 15-20% | Category-wide clearance |
-| "Get rid of product X" (specific) | SPECIFIC_PRODUCTS with product UUID | 20-25% (user may override) | Single product clearance |
-| "Move stale stock across the store" | ITEMS — 5 worst velocity products | Velocity-based | Avoid SITE scope for clearance |
-| "25% off these 3 items" (explicit) | SPECIFIC_PRODUCTS | 25% (user override) | Honor explicit request |
+| Merchant intent                     | Scope                               | Discount depth             | Notes                          |
+| ----------------------------------- | ----------------------------------- | -------------------------- | ------------------------------ |
+| "Clear out old inventory"           | ITEMS — top 5 slowest movers        | Velocity-based (15-25%)    | Target worst performers        |
+| "Clearance sale on winter items"    | COLLECTION with category GUID       | 15-20%                     | Category-wide clearance        |
+| "Get rid of product X" (specific)   | SPECIFIC_PRODUCTS with product UUID | 20-25% (user may override) | Single product clearance       |
+| "Move stale stock across the store" | ITEMS — 5 worst velocity products   | Velocity-based             | Avoid SITE scope for clearance |
+| "25% off these 3 items" (explicit)  | SPECIFIC_PRODUCTS                   | 25% (user override)        | Honor explicit request         |
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| `DISCOUNT_RULE_NOT_FOUND` | Rule ID doesn't exist | Re-query discount rules for current IDs |
-| `REVISION_MISMATCH` | Revision doesn't match | Re-fetch rule for latest revision, then retry |
-| No slow movers found | All products have healthy velocity ratios (> 0.3) | Inform merchant that inventory is balanced; no clearance needed |
-| Margin violation | Discount would push margin below 15% | Reduce discount percentage or get explicit merchant override |
-| Quantity data missing | Products lack inventory tracking | Cannot identify slow movers; ask merchant to enable inventory tracking or specify products manually |
-| Max items exceeded | More than 5 slow-moving products identified | Select the 5 with worst velocity ratios; consider CATEGORY scope if they share a category |
+| Error                     | Cause                                             | Fix                                                                                                 |
+| ------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `DISCOUNT_RULE_NOT_FOUND` | Rule ID doesn't exist                             | Re-query discount rules for current IDs                                                             |
+| `REVISION_MISMATCH`       | Revision doesn't match                            | Re-fetch rule for latest revision, then retry                                                       |
+| No slow movers found      | All products have healthy velocity ratios (> 0.3) | Inform merchant that inventory is balanced; no clearance needed                                     |
+| Margin violation          | Discount would push margin below 15%              | Reduce discount percentage or get explicit merchant override                                        |
+| Quantity data missing     | Products lack inventory tracking                  | Cannot identify slow movers; ask merchant to enable inventory tracking or specify products manually |
+| Max items exceeded        | More than 5 slow-moving products identified       | Select the 5 with worst velocity ratios; consider CATEGORY scope if they share a category           |
 
 ## References
 

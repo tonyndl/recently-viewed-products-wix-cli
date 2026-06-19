@@ -53,7 +53,14 @@
 //   - Exit 0 on happy path or recoverable misses.
 //   - Exit 1 if any file is unrecoverably missing.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, readdirSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+  copyFileSync,
+  readdirSync,
+} from "node:fs";
 import { join, dirname, basename, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -116,24 +123,37 @@ async function checkIntegration(projectDir, planPath, buildOutputDir) {
   try {
     plan = JSON.parse(readFileSync(planPath, "utf8"));
   } catch (e) {
-    console.error(`check-manifest: could not parse connection plan JSON: ${e.message}`);
+    console.error(
+      `check-manifest: could not parse connection plan JSON: ${e.message}`,
+    );
     process.exit(2);
   }
   const data = plan.data ?? plan;
   const bindingMap = Array.isArray(data.bindingMap) ? data.bindingMap : [];
-  const augmentation = Array.isArray(data.augmentation) ? data.augmentation : [];
-  const persistenceSwap = Array.isArray(data.persistenceSwap) ? data.persistenceSwap : [];
+  const augmentation = Array.isArray(data.augmentation)
+    ? data.augmentation
+    : [];
+  const persistenceSwap = Array.isArray(data.persistenceSwap)
+    ? data.persistenceSwap
+    : [];
 
   // A Wix SDK reference is present if the file imports @wix/sdk / calls createClient / OAuthStrategy.
   // Matches BOTH the CDN form (`from "https://esm.sh/@wix/sdk"`) and the bundled form (`from "@wix/sdk"`).
   const SDK_MARKER = /@wix\/sdk|createClient\s*\(|OAuthStrategy\s*\(/;
   // A @wix/data CRUD call is present (persistence swap wired the data layer to the collection).
-  const DATA_MARKER = /@wix\/data|items\s*\.\s*(query|insert|update|remove)\s*\(|\.items\s*\.\s*(query|insert|update|remove)\s*\(/;
+  const DATA_MARKER =
+    /@wix\/data|items\s*\.\s*(query|insert|update|remove)\s*\(|\.items\s*\.\s*(query|insert|update|remove)\s*\(/;
   const fileHasSdk = (file) => {
     const p = join(projectDir, file);
-    if (!existsSync(p)) return { exists: false, sdk: false, data: false, text: "" };
+    if (!existsSync(p))
+      return { exists: false, sdk: false, data: false, text: "" };
     const text = readFileSync(p, "utf8");
-    return { exists: true, sdk: SDK_MARKER.test(text), data: DATA_MARKER.test(text), text };
+    return {
+      exists: true,
+      sdk: SDK_MARKER.test(text),
+      data: DATA_MARKER.test(text),
+      text,
+    };
   };
 
   const wired = [];
@@ -144,42 +164,118 @@ async function checkIntegration(projectDir, planPath, buildOutputDir) {
   for (const r of bindingMap) {
     if (!r.file) continue;
     const { exists, sdk } = fileHasSdk(r.file);
-    if (exists && sdk) { anySdk = true; wired.push({ kind: "binding", file: r.file, anchor: r.anchor ?? null, entity: r.entity ?? null }); }
-    else missing.push({ kind: "binding", file: r.file, anchor: r.anchor ?? null, code: exists ? "REGION_NOT_WIRED" : "FILE_MISSING",
-      remediation: exists ? `no Wix SDK <script> found in ${r.file} for region ${r.anchor} — the wiring subagent did not connect it.` : `${r.file} not found in project.` });
+    if (exists && sdk) {
+      anySdk = true;
+      wired.push({
+        kind: "binding",
+        file: r.file,
+        anchor: r.anchor ?? null,
+        entity: r.entity ?? null,
+      });
+    } else
+      missing.push({
+        kind: "binding",
+        file: r.file,
+        anchor: r.anchor ?? null,
+        code: exists ? "REGION_NOT_WIRED" : "FILE_MISSING",
+        remediation: exists
+          ? `no Wix SDK <script> found in ${r.file} for region ${r.anchor} — the wiring subagent did not connect it.`
+          : `${r.file} not found in project.`,
+      });
   }
 
   // (b) Each augmentation's inject file must carry the SDK call (and a <form> for form capabilities).
   for (const a of augmentation) {
     const file = a.injectAt?.file;
-    if (!file) { missing.push({ kind: "augmentation", file: null, code: "NO_INJECT_FILE", remediation: `augmentation "${a.capability}" has no injectAt.file.` }); continue; }
+    if (!file) {
+      missing.push({
+        kind: "augmentation",
+        file: null,
+        code: "NO_INJECT_FILE",
+        remediation: `augmentation "${a.capability}" has no injectAt.file.`,
+      });
+      continue;
+    }
     const { exists, sdk, text } = fileHasSdk(file);
-    const isForm = /form/i.test(a.app ?? "") || /rsvp|lead|contact|form/i.test(a.capability ?? "") || (a.component ?? "").includes("form");
-    const formOk = !isForm || (/<form/i.test(text) && /createSubmission\s*\(/.test(text));
-    if (exists && sdk && formOk) { anySdk = true; wired.push({ kind: "augmentation", file, capability: a.capability ?? null, component: a.component ?? null }); }
-    else missing.push({ kind: "augmentation", file, capability: a.capability ?? null,
-      code: !exists ? "FILE_MISSING" : !sdk ? "AUGMENT_NOT_WIRED" : "FORM_NOT_INJECTED",
-      remediation: !exists ? `${file} not found.` : !sdk ? `no Wix SDK <script> in ${file} for the "${a.capability}" augmentation.` : `expected an injected <form> + createSubmission() in ${file} for "${a.capability}".` });
+    const isForm =
+      /form/i.test(a.app ?? "") ||
+      /rsvp|lead|contact|form/i.test(a.capability ?? "") ||
+      (a.component ?? "").includes("form");
+    const formOk =
+      !isForm || (/<form/i.test(text) && /createSubmission\s*\(/.test(text));
+    if (exists && sdk && formOk) {
+      anySdk = true;
+      wired.push({
+        kind: "augmentation",
+        file,
+        capability: a.capability ?? null,
+        component: a.component ?? null,
+      });
+    } else
+      missing.push({
+        kind: "augmentation",
+        file,
+        capability: a.capability ?? null,
+        code: !exists
+          ? "FILE_MISSING"
+          : !sdk
+            ? "AUGMENT_NOT_WIRED"
+            : "FORM_NOT_INJECTED",
+        remediation: !exists
+          ? `${file} not found.`
+          : !sdk
+            ? `no Wix SDK <script> in ${file} for the "${a.capability}" augmentation.`
+            : `expected an injected <form> + createSubmission() in ${file} for "${a.capability}".`,
+      });
   }
 
   // (c) Each persistence swap's source file must carry the bundled SDK import AND a @wix/data CRUD call.
   // (own-build SPAs: the data layer was rewritten in source — not a <script> injection.)
   for (const s of persistenceSwap) {
     const file = s.sourceFile;
-    if (!file) { missing.push({ kind: "persistenceSwap", file: null, code: "NO_SOURCE_FILE", remediation: `persistenceSwap entry has no sourceFile (the data-layer file to rewrite / fresh data module to write).` }); continue; }
+    if (!file) {
+      missing.push({
+        kind: "persistenceSwap",
+        file: null,
+        code: "NO_SOURCE_FILE",
+        remediation: `persistenceSwap entry has no sourceFile (the data-layer file to rewrite / fresh data module to write).`,
+      });
+      continue;
+    }
     const { exists, sdk, data: hasData } = fileHasSdk(file);
-    if (exists && sdk && hasData) { anySdk = true; wired.push({ kind: "persistenceSwap", file, collection: s.inferredShape?.collection ?? null }); }
-    else missing.push({ kind: "persistenceSwap", file,
-      code: !exists ? "FILE_MISSING" : !sdk ? "SDK_NOT_IMPORTED" : "DATA_NOT_WIRED",
-      remediation: !exists ? `${file} not found — the data layer was not rewritten / the fresh data module was not written.`
-        : !sdk ? `no @wix/sdk import in ${file} — the persistence swap must import createClient/OAuthStrategy (bundled, not CDN).`
-        : `no @wix/data CRUD call (items.query/insert/update/remove) in ${file} — the data layer still uses its old storage, not the Wix collection.` });
+    if (exists && sdk && hasData) {
+      anySdk = true;
+      wired.push({
+        kind: "persistenceSwap",
+        file,
+        collection: s.inferredShape?.collection ?? null,
+      });
+    } else
+      missing.push({
+        kind: "persistenceSwap",
+        file,
+        code: !exists
+          ? "FILE_MISSING"
+          : !sdk
+            ? "SDK_NOT_IMPORTED"
+            : "DATA_NOT_WIRED",
+        remediation: !exists
+          ? `${file} not found — the data layer was not rewritten / the fresh data module was not written.`
+          : !sdk
+            ? `no @wix/sdk import in ${file} — the persistence swap must import createClient/OAuthStrategy (bundled, not CDN).`
+            : `no @wix/data CRUD call (items.query/insert/update/remove) in ${file} — the data layer still uses its old storage, not the Wix collection.`,
+      });
   }
 
   // (d) Always-connect invariant: at least one connection of ANY kind must exist.
   const alwaysConnect = anySdk;
   if (!alwaysConnect) {
-    missing.push({ kind: "invariant", code: "NO_CONNECTION", remediation: "ALWAYS-CONNECT VIOLATION: no Wix SDK connection found anywhere in the site. Integration mode must wire, augment, or persistence-swap at least one capability — a hosting-only release is not acceptable." });
+    missing.push({
+      kind: "invariant",
+      code: "NO_CONNECTION",
+      remediation:
+        "ALWAYS-CONNECT VIOLATION: no Wix SDK connection found anywhere in the site. Integration mode must wire, augment, or persistence-swap at least one capability — a hosting-only release is not acceptable.",
+    });
   }
 
   // (e) Build-output assertion (own-build SPAs, post-build): the deployable dir must exist + be non-empty,
@@ -189,13 +285,24 @@ async function checkIntegration(projectDir, planPath, buildOutputDir) {
     const outPath = join(projectDir, buildOutputDir);
     const ok = existsSync(outPath) && readdirSync(outPath).length > 0;
     buildOutput = { dir: buildOutputDir, exists: ok };
-    if (!ok) missing.push({ kind: "buildOutput", file: buildOutputDir, code: "BUILD_OUTPUT_MISSING",
-      remediation: `build output dir "${buildOutputDir}" is missing or empty — run the project's own build (npm run build) before release and point wix.config.json.site.outputDirectory at it. Never publish the un-built source entry.` });
+    if (!ok)
+      missing.push({
+        kind: "buildOutput",
+        file: buildOutputDir,
+        code: "BUILD_OUTPUT_MISSING",
+        remediation: `build output dir "${buildOutputDir}" is missing or empty — run the project's own build (npm run build) before release and point wix.config.json.site.outputDirectory at it. Never publish the un-built source entry.`,
+      });
   }
 
   const summary = {
     phase: "integration",
-    counts: { wired: wired.length, missing: missing.length, bindingRegions: bindingMap.length, augmentations: augmentation.length, persistenceSwaps: persistenceSwap.length },
+    counts: {
+      wired: wired.length,
+      missing: missing.length,
+      bindingRegions: bindingMap.length,
+      augmentations: augmentation.length,
+      persistenceSwaps: persistenceSwap.length,
+    },
     alwaysConnect,
     ...(buildOutput ? { buildOutput } : {}),
     wired,
@@ -212,13 +319,16 @@ let buildOutputDir = null;
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
   if (a === "--build-output") buildOutputDir = argv[++i];
-  else if (a.startsWith("--build-output=")) buildOutputDir = a.slice("--build-output=".length);
+  else if (a.startsWith("--build-output="))
+    buildOutputDir = a.slice("--build-output=".length);
   else positionals.push(a);
 }
 const [projectDir, phase, thirdArg] = positionals;
 
 if (!projectDir || !phase || !thirdArg) {
-  console.error("usage: check-manifest.mjs <project-dir> <phase> <packs-csv | connection-plan.json> [--build-output <dir>]");
+  console.error(
+    "usage: check-manifest.mjs <project-dir> <phase> <packs-csv | connection-plan.json> [--build-output <dir>]",
+  );
   process.exit(2);
 }
 
@@ -229,13 +339,18 @@ if (phase === "integration") {
 }
 
 if (phase !== "components" && phase !== "pages") {
-  console.error(`check-manifest: invalid phase "${phase}" — must be "components", "pages", or "integration"`);
+  console.error(
+    `check-manifest: invalid phase "${phase}" — must be "components", "pages", or "integration"`,
+  );
   process.exit(2);
 }
 
 const packsCsv = thirdArg;
 
-const packs = packsCsv.split(",").map((p) => p.trim()).filter(Boolean);
+const packs = packsCsv
+  .split(",")
+  .map((p) => p.trim())
+  .filter(Boolean);
 
 // Map a `creates:` file path to its template path (relative to skill root).
 // Heuristic: `src/pages/<X>` preserves <X> under references/astro/templates/<pack>/;
@@ -264,7 +379,9 @@ function parseCreates(text) {
         inCreates = false;
         continue;
       }
-      const m = line.match(/^\s*-\s*\{\s*file:\s*([^,]+?),\s*phase:\s*([\w-]+)\s*\}/);
+      const m = line.match(
+        /^\s*-\s*\{\s*file:\s*([^,]+?),\s*phase:\s*([\w-]+)\s*\}/,
+      );
       if (m) entries.push({ file: m[1].trim(), phase: m[2].trim() });
     }
   }

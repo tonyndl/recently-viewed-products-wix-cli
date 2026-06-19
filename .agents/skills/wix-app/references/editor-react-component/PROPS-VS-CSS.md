@@ -128,9 +128,9 @@ Ask these questions in order:
 interface ButtonProps {
   showLabel?: boolean; // ❌ Breakpoint-customizable
   showIcon?: boolean; // ❌ Breakpoint-customizable
-  displayMode?: 'icon-only' | 'label-only' | 'both'; // ❌
-  iconPosition?: 'left' | 'right'; // ❌ Layout
-  orientation?: 'horizontal' | 'vertical'; // ❌ Layout
+  displayMode?: "icon-only" | "label-only" | "both"; // ❌
+  iconPosition?: "left" | "right"; // ❌ Layout
+  orientation?: "horizontal" | "vertical"; // ❌ Layout
 }
 ```
 
@@ -188,7 +188,7 @@ interface AudioPlayerProps {
 ```typescript
 export interface ButtonProps {
   showIcon?: boolean; // ❌ Breakpoint-customizable
-  iconPosition?: 'left' | 'right'; // ❌ Layout
+  iconPosition?: "left" | "right"; // ❌ Layout
 }
 ```
 

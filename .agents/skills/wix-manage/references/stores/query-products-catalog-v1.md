@@ -2,6 +2,7 @@
 name: "Query Products (Catalog V1)"
 description: Query and list products from a Wix Store using the Catalog V1 Query Products endpoint. Use this recipe when the site's catalog version is CATALOG_V1. Covers basic queries, filtering, sorting, and paging.
 ---
+
 # RECIPE: Business Recipe - Query Products (Catalog V1)
 
 ## STEP 1: Query Products
@@ -60,11 +61,11 @@ curl -X POST 'https://www.wixapis.com/stores-reader/v1/products/query' \
 
 ## Key Differences from V3
 
-| Feature | Catalog V1 | Catalog V3 |
-|---|---|---|
-| Query endpoint | `POST /stores-reader/v1/products/query` | `POST /stores/v3/products/query` |
-| Filter/sort | JSON-encoded strings | Plain objects |
-| Additional fields | Not applicable | Enum values like `DESCRIPTION`, `URL` |
+| Feature           | Catalog V1                              | Catalog V3                            |
+| ----------------- | --------------------------------------- | ------------------------------------- |
+| Query endpoint    | `POST /stores-reader/v1/products/query` | `POST /stores/v3/products/query`      |
+| Filter/sort       | JSON-encoded strings                    | Plain objects                         |
+| Additional fields | Not applicable                          | Enum values like `DESCRIPTION`, `URL` |
 
 ---
 

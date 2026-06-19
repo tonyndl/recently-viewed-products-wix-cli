@@ -76,11 +76,13 @@ different — they go through a JS-toggled modifier class; see
   padding-inline: 16px;
 }
 
-.button:hover { /* ❌ Interaction state — platform owns this */
+.button:hover {
+  /* ❌ Interaction state — platform owns this */
   background-color: #f0f0f0;
 }
 
-.button:disabled { /* ❌ Interaction state — platform owns this */
+.button:disabled {
+  /* ❌ Interaction state — platform owns this */
   opacity: 0.5;
 }
 ```

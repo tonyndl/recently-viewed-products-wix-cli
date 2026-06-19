@@ -1,6 +1,6 @@
 # Phase 4 Product Pages — Stores
 
-Scope: `product-pages` (the `pages-products` scope) — written by the stores **merged build agent** (the build wave) *after* its `components` and `pages-categories` scopes. This scope writes the product listing, product detail, and ProductCard component **once** — applying the designer's visual spec (`references/astro/designer/INSTRUCTIONS.md` → `store-pages`) together with live `productsV3` queries in a single pass. Read your seeded slice from `.wix/seeded.json` (`seeded.stores`).
+Scope: `product-pages` (the `pages-products` scope) — written by the stores **merged build agent** (the build wave) _after_ its `components` and `pages-categories` scopes. This scope writes the product listing, product detail, and ProductCard component **once** — applying the designer's visual spec (`references/astro/designer/INSTRUCTIONS.md` → `store-pages`) together with live `productsV3` queries in a single pass. Read your seeded slice from `.wix/seeded.json` (`seeded.stores`).
 
 ## Scope
 
@@ -11,6 +11,7 @@ Files this agent OWNS (each written once, visual structure + live queries togeth
 - `src/components/ProductCard.astro` — reusable card used by listing + home
 
 Files this agent MUST NOT touch:
+
 - `src/components/ProductPurchase.tsx`, `src/components/AddToCartButton.tsx` — owned by `components`
 - `src/pages/cart.astro`, `src/pages/thank-you.astro` — owned by `cart-checkout`
 - `src/pages/index.astro`, `src/components/Navigation.astro` — owned by `pages-home-and-nav`
@@ -45,6 +46,7 @@ Files this agent MUST NOT touch:
 - Resolve deep links from dashboard / email / analytics surfaces back to the right headless URL
 
 > **Two different Stores appDefIds — do not confuse:**
+>
 > - `215238eb-22a5-4c36-9e7b-e7c08025e04e` — for `catalogReference.appId` in cart operations (same value used for app install in Phase 1).
 > - `1380b703-ce81-ff05-f115-39571d94dfcd` — for **`wixMetadata.appDefId`** on Stores sub-pages (product, category).
 >
@@ -70,7 +72,7 @@ Use template `templates/products/index.astro`.
 
 Applies the designer's page structure (class names, layout) and binds a guarded, **cursor-paginated** `productsV3.queryProducts({ fields: ["CURRENCY"] }).limit(24).skipTo(cursor).find()` (cursor read from `?cursor=` on the URL; Prev/Next anchors built from `result.cursors.next` / `.prev`). Mounts the shared `<CategoryRail/>` (written by `pages-categories`) above the grid, passing `activeSlug={null}` and the prev/next hrefs. Emits the `AddProductImpression` analytics event from a client-side script that reads a JSON payload serialized at SSR.
 
-> **Imports you must NOT write.** `<CategoryRail/>` (`../../components/CategoryRail.astro`) is written by the `pages-categories` scope your merged agent runs *before* this one; `listStoreCategories` (`../../utils/categories`) is pre-copied by the orchestrator. Both are on disk by the time you mount them. If either fails to resolve, return `status: "partial"` with `errors: [{ code: "MISSING_PAGES_CATEGORIES_OUTPUT", path: "<missing path>" }]` — that means your agent wrote `pages-products` before `pages-categories`, or the pre-copy was skipped.
+> **Imports you must NOT write.** `<CategoryRail/>` (`../../components/CategoryRail.astro`) is written by the `pages-categories` scope your merged agent runs _before_ this one; `listStoreCategories` (`../../utils/categories`) is pre-copied by the orchestrator. Both are on disk by the time you mount them. If either fails to resolve, return `status: "partial"` with `errors: [{ code: "MISSING_PAGES_CATEGORIES_OUTPUT", path: "<missing path>" }]` — that means your agent wrote `pages-products` before `pages-categories`, or the pre-copy was skipped.
 
 > **Page size 24** — multiple of the 2/3/4-column grid, well under Wix's per-request cap of 100. Do not change without updating `CATEGORY_PAGES.md` to match.
 
@@ -85,6 +87,7 @@ Applies the designer's page structure (class names, layout) and binds a guarded,
 Use template `templates/ProductCard.astro`.
 
 The template:
+
 - Accepts a single `{ product }` prop — the full Wix product object from `productsV3`
 - Resolves product images via `resolveWixImageUrl` (imported from the seeded shared util at `../utils/wix-image`)
 - Applies `product-card` contract class
@@ -97,6 +100,7 @@ Class from contract: `productCard` → `"product-card"`. If the designer already
 Use template `templates/products/[slug].astro`.
 
 The template:
+
 - Exports `wixMetadata` with the Stores sub-page appDefId (`1380b703-…`) and `STORES.PRODUCT.SLUG` token for platform expansion
 - Uses `getProductBySlug()` (NOT `queryProducts()` — it omits variant data)
 - Queries `inventoryItemsV3.queryInventoryItems({ filter: { productId } })` and builds a `variantId → { quantity, trackQuantity, preorderEnabled }` map. This is the AUTHORITATIVE OOS signal; `variantsInfo[].inventoryStatus.inStock` is a stale cached flag.
@@ -159,11 +163,11 @@ When the site has no active rules (first deploys, or the user hasn't created any
 
 ## Analytics fired from this scope
 
-| Event | Fires from | When | Payload |
-|-------|------------|------|---------|
-| `AddProductImpression` | `products/index.astro` | Listing page load | `{ contents: [{id, name, price, currency, position}], origin: "Product Listing" }` |
-| `ClickProduct` | `ProductCard.astro` | Delegated click on any card | `{ id, name, price, currency, origin: "Product Listing" }` |
-| `ViewContent` | `products/[slug].astro` | Detail page load | `{ id, name, price, currency, origin: "Product Page" }` |
+| Event                  | Fires from              | When                        | Payload                                                                            |
+| ---------------------- | ----------------------- | --------------------------- | ---------------------------------------------------------------------------------- |
+| `AddProductImpression` | `products/index.astro`  | Listing page load           | `{ contents: [{id, name, price, currency, position}], origin: "Product Listing" }` |
+| `ClickProduct`         | `ProductCard.astro`     | Delegated click on any card | `{ id, name, price, currency, origin: "Product Listing" }`                         |
+| `ViewContent`          | `products/[slug].astro` | Detail page load            | `{ id, name, price, currency, origin: "Product Page" }`                            |
 
 `AddToCart` fires from `AddToCartButton.tsx` (written by `components`) — not this scope.
 
@@ -195,21 +199,21 @@ If any of `wixMetadataExported`, `seoTagsMounted`, `useGetProductBySlug` ends up
 
 ## Anti-patterns
 
-| WRONG | CORRECT |
-|-------|---------|
-| `import { products }` from `@wix/stores` | `productsV3` |
-| Use `queryProducts()` on detail page | `getProductBySlug()` — `queryProducts` omits variant data |
-| `export const prerender = true` + `getStaticPaths()` on `[slug].astro` | SSR only — productsV3 needs request-context auth; prerender short-circuits it |
-| Pass flat props to `<ProductPurchase>` (`productId`, `options`, `variantsInfo`, …) | Pass the whole product: `<ProductPurchase client:load product={product} inventoryByVariant={inventoryByVariant} />` |
-| Hardcode `<title>` from `product.name` | Pipe `product.seoData.tags` through `SeoTags` slot, fall back to `product.name` only when tags are empty/disabled |
-| Omit `wixMetadata` export | Required — platform indexing breaks silently without it |
-| Add `fields: ["SEO_DATA"]` | `seoData` is returned by default — no such enum value exists |
-| Write `src/utils/wix-image.ts` inline | Import `resolveWixImageUrl` from `../utils/wix-image` — shared util already exposes it |
-| `ls src/` to find designer output | Parent prompt lists every existing `src/` file — read directly |
-| Rename designer class names | Keep them; use contract classes when ADDING new markup |
-| HTML `<!-- comment -->` in `.astro` frontmatter | `//` or `/* */` — frontmatter is TypeScript |
-| Mount React island without `client:load` | Options + cart state needs hydration |
-| Pass `"INVENTORY"` in the `fields` array | No such enum value exists for `productsV3`. Valid values: `URL`, `CURRENCY`, `INFO_SECTION`, `MERCHANT_DATA`, `PLAIN_DESCRIPTION`, `INFO_SECTION_PLAIN_DESCRIPTION`, `SUBSCRIPTION_PRICES_INFO`, `BREADCRUMBS_INFO`, `WEIGHT_MEASUREMENT_UNIT_INFO`, `VARIANT_OPTION_CHOICE_NAMES`, `MEDIA_ITEMS_INFO`, `DESCRIPTION`, `DIRECT_CATEGORIES_INFO`, `ALL_CATEGORIES_INFO`, `INFO_SECTION_DESCRIPTION`, `THUMBNAIL`, `PRODUCT_CHOICES_MEDIA_REFERENCES`. Passing an invalid value makes the query throw. |
-| Trust `variantsInfo[].inventoryStatus.inStock` as the OOS gate | It's a stale cached flag — a variant with real quantity 0 can still report `inStock: true`. Query `inventoryItemsV3.queryInventoryItems({ filter: { productId } })` at SSR and pass a `variantId → { quantity, trackQuantity, preorderEnabled }` map into `ProductPurchase`. The template already does this. |
-| Skip the `backInStockEnabled` prop on `<ProductPurchase>` | Always pass it (template already imports `getBackInStockEnabled`). When the prop is missing, the OOS subscribe form never renders even if the merchant has enabled collecting requests. |
-| Pass the formatted price string (`"$695"`) as `priceAmount` | Pass the numeric `priceAmount` already computed in frontmatter. The Wix back-in-stock service rejects formatted prices with `400 DECIMAL_GTE`. |
+| WRONG                                                                              | CORRECT                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `import { products }` from `@wix/stores`                                           | `productsV3`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Use `queryProducts()` on detail page                                               | `getProductBySlug()` — `queryProducts` omits variant data                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `export const prerender = true` + `getStaticPaths()` on `[slug].astro`             | SSR only — productsV3 needs request-context auth; prerender short-circuits it                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Pass flat props to `<ProductPurchase>` (`productId`, `options`, `variantsInfo`, …) | Pass the whole product: `<ProductPurchase client:load product={product} inventoryByVariant={inventoryByVariant} />`                                                                                                                                                                                                                                                                                                                                                                                  |
+| Hardcode `<title>` from `product.name`                                             | Pipe `product.seoData.tags` through `SeoTags` slot, fall back to `product.name` only when tags are empty/disabled                                                                                                                                                                                                                                                                                                                                                                                    |
+| Omit `wixMetadata` export                                                          | Required — platform indexing breaks silently without it                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Add `fields: ["SEO_DATA"]`                                                         | `seoData` is returned by default — no such enum value exists                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Write `src/utils/wix-image.ts` inline                                              | Import `resolveWixImageUrl` from `../utils/wix-image` — shared util already exposes it                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `ls src/` to find designer output                                                  | Parent prompt lists every existing `src/` file — read directly                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Rename designer class names                                                        | Keep them; use contract classes when ADDING new markup                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| HTML `<!-- comment -->` in `.astro` frontmatter                                    | `//` or `/* */` — frontmatter is TypeScript                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Mount React island without `client:load`                                           | Options + cart state needs hydration                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Pass `"INVENTORY"` in the `fields` array                                           | No such enum value exists for `productsV3`. Valid values: `URL`, `CURRENCY`, `INFO_SECTION`, `MERCHANT_DATA`, `PLAIN_DESCRIPTION`, `INFO_SECTION_PLAIN_DESCRIPTION`, `SUBSCRIPTION_PRICES_INFO`, `BREADCRUMBS_INFO`, `WEIGHT_MEASUREMENT_UNIT_INFO`, `VARIANT_OPTION_CHOICE_NAMES`, `MEDIA_ITEMS_INFO`, `DESCRIPTION`, `DIRECT_CATEGORIES_INFO`, `ALL_CATEGORIES_INFO`, `INFO_SECTION_DESCRIPTION`, `THUMBNAIL`, `PRODUCT_CHOICES_MEDIA_REFERENCES`. Passing an invalid value makes the query throw. |
+| Trust `variantsInfo[].inventoryStatus.inStock` as the OOS gate                     | It's a stale cached flag — a variant with real quantity 0 can still report `inStock: true`. Query `inventoryItemsV3.queryInventoryItems({ filter: { productId } })` at SSR and pass a `variantId → { quantity, trackQuantity, preorderEnabled }` map into `ProductPurchase`. The template already does this.                                                                                                                                                                                         |
+| Skip the `backInStockEnabled` prop on `<ProductPurchase>`                          | Always pass it (template already imports `getBackInStockEnabled`). When the prop is missing, the OOS subscribe form never renders even if the merchant has enabled collecting requests.                                                                                                                                                                                                                                                                                                              |
+| Pass the formatted price string (`"$695"`) as `priceAmount`                        | Pass the numeric `priceAmount` already computed in frontmatter. The Wix back-in-stock service rejects formatted prices with `400 DECIMAL_GTE`.                                                                                                                                                                                                                                                                                                                                                       |

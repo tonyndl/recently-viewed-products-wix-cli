@@ -1,6 +1,6 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
-import wix from '@wix/astro';
+import { defineConfig } from "astro/config";
+import wix from "@wix/astro";
 import react from "@astrojs/react";
 import cloudflare from "@astrojs/cloudflare";
 

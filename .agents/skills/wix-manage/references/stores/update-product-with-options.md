@@ -2,6 +2,7 @@
 name: "Update Product with Options (Catalog V3)"
 description: Modifies existing products and variants using Catalog V3 Products API. Covers adding/removing option choices, variant-specific pricing, and revision-based updates to prevent conflicts.
 ---
+
 **RECIPE**: Business Recipe - Updating a Wix Store Product (Catalog V3)
 
 Use this recipe to update an existing Catalog V3 product: description, media, options, variants, prices, or stock-related inventory records.
@@ -307,12 +308,12 @@ curl -X PATCH "https://www.wixapis.com/stores/v3/products/{productId}" \
 
 ## Error Message Reference
 
-| Error Message | Meaning | Fix |
-|---------------|---------|-----|
-| `revision must not be empty` | Missing optimistic lock | GET product first and include `product.revision` in PATCH |
-| `revision mismatch` | Stale revision | Re-GET product and retry with the new revision |
-| `Expected an object` for `description` | Sent `description` as a string | Use `plainDescription` for HTML strings, or send `description` as Rich Content |
-| `choicesSettings must not be empty` | Missing choices array | Include full `choicesSettings.choices` array |
-| `Missing product option choices` | Variant references non-existent option | Use `optionChoiceNames` with exact option and choice names |
-| `price must not be empty` | A variant was created or replaced without a price | Include `price.actualPrice.amount` on every new variant |
+| Error Message                                         | Meaning                                                              | Fix                                                                                       |
+| ----------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `revision must not be empty`                          | Missing optimistic lock                                              | GET product first and include `product.revision` in PATCH                                 |
+| `revision mismatch`                                   | Stale revision                                                       | Re-GET product and retry with the new revision                                            |
+| `Expected an object` for `description`                | Sent `description` as a string                                       | Use `plainDescription` for HTML strings, or send `description` as Rich Content            |
+| `choicesSettings must not be empty`                   | Missing choices array                                                | Include full `choicesSettings.choices` array                                              |
+| `Missing product option choices`                      | Variant references non-existent option                               | Use `optionChoiceNames` with exact option and choice names                                |
+| `price must not be empty`                             | A variant was created or replaced without a price                    | Include `price.actualPrice.amount` on every new variant                                   |
 | `Missing option choices` or `INVALID_DEFAULT_VARIANT` | Product has options but at least one variant has no matching choices | Rebuild `variantsInfo.variants` so every variant includes choices for all product options |

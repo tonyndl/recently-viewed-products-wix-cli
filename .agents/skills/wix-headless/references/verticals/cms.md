@@ -1,7 +1,7 @@
 ---
 name: cms
 description: "Content pages — Home, About, FAQ managed via Wix CMS. Always loaded."
-triggers: []   # not trigger-based — always loaded (every site needs About/FAQ)
+triggers: [] # not trigger-based — always loaded (every site needs About/FAQ)
 
 features:
   - name: "About (CMS-based)"
@@ -9,7 +9,7 @@ features:
   - name: "FAQ (CMS-based)"
     description: "Common questions and answers about your products. Managed from the dashboard's Content Manager."
 
-apps: []   # CMS is built-in, no app install
+apps: [] # CMS is built-in, no app install
 
 routes:
   - route: "/"

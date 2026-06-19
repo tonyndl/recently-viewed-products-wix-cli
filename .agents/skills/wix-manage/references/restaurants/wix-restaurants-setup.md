@@ -2,6 +2,7 @@
 name: "Wix Restaurants Setup"
 description: Configures restaurant menus, sections, and items using Menus API. Covers menu structure (Menu → Section → Item), modifiers, pricing, availability schedules, and ordering settings.
 ---
+
 # Wix Restaurants Setup API Reference
 
 This recipe covers setting up and configuring Wix Restaurants using the REST API, including menus, items, and ordering configuration.
@@ -22,6 +23,7 @@ This recipe covers setting up and configuring Wix Restaurants using the REST API
 ## Overview
 
 Wix Restaurants uses a hierarchical structure:
+
 - **Menus** (e.g., Breakfast, Lunch, Dinner)
   - **Sections** (e.g., Appetizers, Main Courses, Desserts)
     - **Items** (e.g., Caesar Salad, Grilled Salmon)
@@ -31,6 +33,7 @@ Wix Restaurants uses a hierarchical structure:
 **Endpoint**: `POST https://www.wixapis.com/restaurants/menus-menu/v1/menus`
 
 **Request Body**:
+
 ```json
 {
   "menu": {
@@ -42,6 +45,7 @@ Wix Restaurants uses a hierarchical structure:
 ```
 
 **Response**:
+
 ```json
 {
   "menu": {
@@ -59,6 +63,7 @@ Wix Restaurants uses a hierarchical structure:
 **Endpoint**: `POST https://www.wixapis.com/restaurants/menus-section/v1/sections`
 
 **Request Body**:
+
 ```json
 {
   "section": {
@@ -71,6 +76,7 @@ Wix Restaurants uses a hierarchical structure:
 ```
 
 Create multiple sections:
+
 ```json
 // Section 1: Appetizers
 {
@@ -102,6 +108,7 @@ Create multiple sections:
 **Endpoint**: `POST https://www.wixapis.com/restaurants/menus-item/v1/items`
 
 **Request Body**:
+
 ```json
 {
   "item": {
@@ -179,6 +186,7 @@ Create modifiers for customization (e.g., cooking temperature, add-ons):
 ```
 
 Add-on modifier with pricing:
+
 ```json
 {
   "modifier": {
@@ -270,6 +278,7 @@ Use query APIs for retrieval and UI display flows.
 **Endpoint**: `GET https://www.wixapis.com/restaurants/menus-menu/v1/menus`
 
 **Response**:
+
 ```json
 {
   "menus": [
@@ -302,6 +311,7 @@ For complex restaurant menus, use this order to avoid dependency issues:
 ## Item Labels
 
 Common dietary labels:
+
 - `vegetarian`
 - `vegan`
 - `gluten-free`
@@ -322,11 +332,11 @@ Common dietary labels:
 
 ## Error Handling
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `MENU_NOT_FOUND` | Invalid menu ID | Verify menu exists |
-| `ITEM_NOT_FOUND` | Invalid item ID | Verify item exists |
-| `INVALID_PRICE` | Negative price | Use positive amounts |
+| Error            | Cause           | Solution             |
+| ---------------- | --------------- | -------------------- |
+| `MENU_NOT_FOUND` | Invalid menu ID | Verify menu exists   |
+| `ITEM_NOT_FOUND` | Invalid item ID | Verify item exists   |
+| `INVALID_PRICE`  | Negative price  | Use positive amounts |
 
 ## Related Documentation
 

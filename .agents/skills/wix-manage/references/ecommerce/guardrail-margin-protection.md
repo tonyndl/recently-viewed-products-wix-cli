@@ -3,6 +3,7 @@ name: "Guardrail: Margin Protection"
 description: Safety constraints for discount percentages — global discount cap, minimum margin requirements, user override protocol, and percentage sanity checks.
 layer: guardrail
 ---
+
 # Guardrail: Margin Protection
 
 ## When to apply
@@ -30,6 +31,7 @@ The default minimum margin percentage (`minMarginPct`) is **15%**.
 Never create a discount that would push the effective margin below 15% unless the user explicitly overrides this constraint.
 
 If cost data is available, calculate:
+
 - `effective_margin = (price - cost - discount_amount) / price × 100`
 - If `effective_margin < minMarginPct` → block and explain the margin impact.
 
@@ -37,11 +39,11 @@ If cost data is available, calculate:
 
 ## Constraint 3: Percentage sanity checks
 
-| Discount value | Action |
-|---|---|
-| Discount > 50% | Warn — "This discount is {pct}% off. A $100 product would sell for ${100 - pct}. Are you sure?" |
-| Discount = 100% | Block unless explicitly confirmed — "This makes the product free." |
-| Discount > 100% | Block always — "A discount cannot exceed 100%." |
+| Discount value  | Action                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| Discount > 50%  | Warn — "This discount is {pct}% off. A $100 product would sell for ${100 - pct}. Are you sure?" |
+| Discount = 100% | Block unless explicitly confirmed — "This makes the product free."                              |
+| Discount > 100% | Block always — "A discount cannot exceed 100%."                                                 |
 
 ---
 
@@ -75,14 +77,14 @@ When creating a new discount, also check the cumulative effect with existing act
 
 ## Summary: Decision matrix
 
-| Scenario | Action |
-|---|---|
-| Discount ≤ 25% and margin ≥ 15% | Proceed |
-| Discount > 25% but ≤ 50%, no user override | Warn, ask for confirmation |
-| Discount > 25%, user explicitly requested | Proceed, document override |
-| Discount > 50% | Warn with dollar example, ask for confirmation |
-| Discount = 100% | Block unless explicitly confirmed |
-| Discount > 100% | Block always |
-| Combined stacking exceeds cap | Warn about cumulative effect |
-| Margin drops below 15%, no user override | Block, explain margin impact |
-| Margin drops below 15%, user override | Proceed, document override |
+| Scenario                                   | Action                                         |
+| ------------------------------------------ | ---------------------------------------------- |
+| Discount ≤ 25% and margin ≥ 15%            | Proceed                                        |
+| Discount > 25% but ≤ 50%, no user override | Warn, ask for confirmation                     |
+| Discount > 25%, user explicitly requested  | Proceed, document override                     |
+| Discount > 50%                             | Warn with dollar example, ask for confirmation |
+| Discount = 100%                            | Block unless explicitly confirmed              |
+| Discount > 100%                            | Block always                                   |
+| Combined stacking exceeds cap              | Warn about cumulative effect                   |
+| Margin drops below 15%, no user override   | Block, explain margin impact                   |
+| Margin drops below 15%, user override      | Proceed, document override                     |

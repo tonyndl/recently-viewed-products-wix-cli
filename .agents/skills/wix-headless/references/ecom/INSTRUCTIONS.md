@@ -9,11 +9,11 @@ Extends `references/shared/IMPLEMENTER.md`. Read that file first for phase routi
 
 ## Scope routing
 
-| Scope | Phase | Reference |
-|-------|-------|-----------|
-| `components` | Components (CartView, CartBadge — TSX only, **no CSS**) — `src/utils/discounts.ts` is pre-copied by the orchestrator | `../astro/ecom/CART_WIRING.md` |
-| ~~`components-css`~~ | **Do not dispatch.** `src/styles/components-ecom.css` is copied from `<SKILL_ROOT>/references/astro/templates/ecom/components-ecom.css` by the orchestrator's pre-Step-4.5 batch (see BUILD-astro.md § Step 4.5). The template uses direct `var(--token)` CSS, so it works against any designer-published vocabulary without per-run rewrites. `COMPONENTS_CSS.md` documents that CSS for reference — there is no `components-css` subagent to dispatch. | — |
-| `pages` | Pages (cart.astro, thank-you.astro, Navigation CartBadge mount) | `../astro/ecom/CART_PAGES.md` |
+| Scope                | Phase                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Reference                      |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `components`         | Components (CartView, CartBadge — TSX only, **no CSS**) — `src/utils/discounts.ts` is pre-copied by the orchestrator                                                                                                                                                                                                                                                                                                                                     | `../astro/ecom/CART_WIRING.md` |
+| ~~`components-css`~~ | **Do not dispatch.** `src/styles/components-ecom.css` is copied from `<SKILL_ROOT>/references/astro/templates/ecom/components-ecom.css` by the orchestrator's pre-Step-4.5 batch (see BUILD-astro.md § Step 4.5). The template uses direct `var(--token)` CSS, so it works against any designer-published vocabulary without per-run rewrites. `COMPONENTS_CSS.md` documents that CSS for reference — there is no `components-css` subagent to dispatch. | —                              |
+| `pages`              | Pages (cart.astro, thank-you.astro, Navigation CartBadge mount)                                                                                                                                                                                                                                                                                                                                                                                          | `../astro/ecom/CART_PAGES.md`  |
 
 > **Why `components` is TSX-only.** The scoped CSS (`src/styles/components-ecom.css`) has no runtime coupling to the TSX components — it's referenced only by class name at build time — so it ships pre-copied from the template by the orchestrator (see the `components-css` scope-routing row above) rather than being written by an agent. Mirrors the stores split. See `../astro/ecom/COMPONENTS_CSS.md` § "What this scope owns".
 
@@ -26,10 +26,12 @@ See `<SKILL_ROOT>/references/verticals/ecom.md` frontmatter.
 ## Templates
 
 Components (`components` scope — TSX only):
+
 - `<SKILL_ROOT>/references/astro/templates/ecom/CartView.tsx`
 - `<SKILL_ROOT>/references/astro/templates/ecom/CartBadge.tsx`
 
 Components CSS (pre-copied by the orchestrator — no agent writes it):
+
 - `<SKILL_ROOT>/references/astro/templates/ecom/components-ecom.css`
 
 ### Pre-copied by the orchestrator (do NOT write this yourself)
@@ -55,5 +57,6 @@ See `references/shared/STYLING.md` § "Component-specific CSS is owned by the co
 ## Cross-vertical event contract
 
 `cart-updated` CustomEvent on `window`:
+
 - **Dispatchers:** `AddToCartButton` (stores), `CartView` (ecom)
 - **Listener:** `CartBadge` (ecom)

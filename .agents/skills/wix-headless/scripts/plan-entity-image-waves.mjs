@@ -49,13 +49,17 @@ let input;
 try {
   input = JSON.parse(readFileSync(0, "utf8"));
 } catch (e) {
-  console.error(`plan-entity-image-waves: stdin is not valid JSON (${e.message})`);
+  console.error(
+    `plan-entity-image-waves: stdin is not valid JSON (${e.message})`,
+  );
   process.exit(2);
 }
 
 const prompts = Array.isArray(input.prompts) ? input.prompts : [];
 if (prompts.length === 0) {
-  console.error("plan-entity-image-waves: no prompts in input — nothing to plan");
+  console.error(
+    "plan-entity-image-waves: no prompts in input — nothing to plan",
+  );
   process.exit(2);
 }
 
@@ -68,25 +72,30 @@ const model = input.model ?? RUNWARE_DEFAULTS.model;
 const waves = [];
 for (let i = 0; i < prompts.length; i += waveSize) {
   const slice = prompts.slice(i, i + waveSize);
-  waves.push(slice.map((p) => ({
-    taskUUID: p.taskUUID,
-    body: [{
-      ...RUNWARE_DEFAULTS,
-      model,
+  waves.push(
+    slice.map((p) => ({
       taskUUID: p.taskUUID,
-      positivePrompt: p.positivePrompt,
-      width: p.width ?? 1024,
-      height: p.height ?? 1024,
-      outputFormat: p.outputFormat ?? RUNWARE_DEFAULTS.outputFormat,
-    }],
-  })));
+      body: [
+        {
+          ...RUNWARE_DEFAULTS,
+          model,
+          taskUUID: p.taskUUID,
+          positivePrompt: p.positivePrompt,
+          width: p.width ?? 1024,
+          height: p.height ?? 1024,
+          outputFormat: p.outputFormat ?? RUNWARE_DEFAULTS.outputFormat,
+        },
+      ],
+    })),
+  );
 }
 
 // ---- 2. Wix Media imports (one per generated image) -----------------------
 const imports = prompts.map((p) => ({
   taskUUID: p.taskUUID,
   mimeType: p.outputFormat === "JPG" ? "image/jpeg" : "image/png",
-  displayName: p.displayName ?? `${p.entityId}.${(p.outputFormat ?? "PNG").toLowerCase()}`,
+  displayName:
+    p.displayName ?? `${p.entityId}.${(p.outputFormat ?? "PNG").toLowerCase()}`,
 }));
 
 // ---- 3. Per-entity-type write requests ------------------------------------
@@ -97,11 +106,15 @@ for (const p of prompts) {
   if (p.entityType === "product") {
     const detail = productDetails[p.entityId];
     if (!detail) {
-      console.error(`plan-entity-image-waves: missing productDetails for entityId=${p.entityId}`);
+      console.error(
+        `plan-entity-image-waves: missing productDetails for entityId=${p.entityId}`,
+      );
       process.exit(1);
     }
     if (detail.revision === undefined || detail.revision === null) {
-      console.error(`plan-entity-image-waves: productDetails[${p.entityId}].revision is required (mandatory per Update-Product endpoint)`);
+      console.error(
+        `plan-entity-image-waves: productDetails[${p.entityId}].revision is required (mandatory per Update-Product endpoint)`,
+      );
       process.exit(1);
     }
     patches.push({
@@ -117,11 +130,15 @@ for (const p of prompts) {
           revision: detail.revision,
           media: {
             itemsInfo: {
-              items: [{ url: "__IMAGE_URL__", altText: p.displayName ?? p.entityId }],
+              items: [
+                { url: "__IMAGE_URL__", altText: p.displayName ?? p.entityId },
+              ],
             },
           },
           ...(detail.options !== undefined ? { options: detail.options } : {}),
-          ...(detail.variantsInfo !== undefined ? { variantsInfo: detail.variantsInfo } : {}),
+          ...(detail.variantsInfo !== undefined
+            ? { variantsInfo: detail.variantsInfo }
+            : {}),
         },
       },
     });
@@ -147,11 +164,15 @@ for (const p of prompts) {
   } else if (p.entityType === "cmsItem") {
     const detail = cmsDetails[p.entityId];
     if (!detail) {
-      console.error(`plan-entity-image-waves: missing cmsDetails for entityId=${p.entityId}`);
+      console.error(
+        `plan-entity-image-waves: missing cmsDetails for entityId=${p.entityId}`,
+      );
       process.exit(1);
     }
     if (!detail.collectionId || !detail.imageField || !detail.data) {
-      console.error(`plan-entity-image-waves: cmsDetails[${p.entityId}] requires collectionId, imageField, and data (existing item record)`);
+      console.error(
+        `plan-entity-image-waves: cmsDetails[${p.entityId}] requires collectionId, imageField, and data (existing item record)`,
+      );
       process.exit(1);
     }
     // Read-merge-PUT: echo every existing data field, set the image field
@@ -169,7 +190,9 @@ for (const p of prompts) {
       },
     });
   } else {
-    console.error(`plan-entity-image-waves: unknown entityType "${p.entityType}" for entityId=${p.entityId} — must be product | blogPost | cmsItem`);
+    console.error(
+      `plan-entity-image-waves: unknown entityType "${p.entityType}" for entityId=${p.entityId} — must be product | blogPost | cmsItem`,
+    );
     process.exit(1);
   }
 }

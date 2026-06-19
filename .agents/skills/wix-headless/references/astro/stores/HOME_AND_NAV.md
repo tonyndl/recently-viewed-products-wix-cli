@@ -12,6 +12,7 @@ Files this agent PATCHES (does NOT rewrite):
 - `src/components/Navigation.astro` — only at the `<!-- nav:links -->` marker; insert the Shop link + categories submenu
 
 Files this agent MUST NOT touch:
+
 - Any other part of `index.astro` — hero, copy, newsletter, decorative ornaments are designer-owned
 - Any part of `Navigation.astro` outside the `<!-- nav:links -->` marker — designer/ecom-owned (the marker model lets multiple verticals contribute siblings without conflict)
 - `src/utils/categories.ts` — pre-copied by the orchestrator; this scope only **imports** `listStoreCategories` from it. `src/components/CategoryRail.astro`, `src/pages/category/[slug].astro` — owned by `pages-categories`
@@ -75,14 +76,17 @@ try {
 ```
 
 Then pass each raw product to `ProductCard`. The ribbon is fetched inside ProductCard itself — pages don't wire offers:
+
 ```astro
 {featured.map((p) => <ProductCard product={p} />)}
 ```
 
 > **Gift-card mirror filter.** After `featured = featuredProducts ?? []`, apply the same filter the listing template uses:
+>
 > ```ts
 > featured = featured.filter((p) => p.ribbon?.name !== "Gift Card");
 > ```
+>
 > The Wix Gift Card app, when enabled in the dashboard, auto-creates 5 DIGITAL Stores products tagged with the "Gift Card" ribbon. They must not appear in the home featured grid for the same reason they're filtered from `/products`: buying a mirror produces a dud line item that doesn't trigger gift-card issuance, and the home teaser block (gift-cards pack) is the right surface for gift cards on the home page.
 
 Do **NOT** flat-map products into `{name, price, slug, image}` — pass the raw SDK objects. ProductCard handles its own field extraction, image resolution, and ribbon (offer) rendering internally.
@@ -200,10 +204,7 @@ Keep the marker comment immediately after the inserted `<li>` so other vertical 
     "categoryCardsFallbackToProducts": 1,
     "navSubmenuCategoryCount": 0
   },
-  "files": [
-    "src/pages/index.astro",
-    "src/components/Navigation.astro"
-  ],
+  "files": ["src/pages/index.astro", "src/components/Navigation.astro"],
   "errors": []
 }
 ```
@@ -220,10 +221,10 @@ Keep the marker comment immediately after the inserted `<li>` so other vertical 
 
 ## Anti-patterns
 
-| WRONG | CORRECT |
-|-------|---------|
-| Replace entire `index.astro` contents | Use `Edit` to patch only the stores-related sections |
-| Call `/stores/v3/categories/query` | Use `categoriesV3` SDK, or fall back to `/categories/v1/categories/query` |
-| Invent category slugs that don't exist | Match real categories; fall back to `/products` for unmatched |
+| WRONG                                                                             | CORRECT                                                                                  |
+| --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Replace entire `index.astro` contents                                             | Use `Edit` to patch only the stores-related sections                                     |
+| Call `/stores/v3/categories/query`                                                | Use `categoriesV3` SDK, or fall back to `/categories/v1/categories/query`                |
+| Invent category slugs that don't exist                                            | Match real categories; fall back to `/products` for unmatched                            |
 | Pass flat props (`name={p.name}`) when ProductCard expects `product={...}` object | ProductCard is a template — always `<ProductCard product={p} />` with the raw SDK object |
-| `featured = products.map(p => ({name: p.name, ...}))` — flat-mapping SDK results | Store raw products: `featured = featuredProducts ?? []` as `any[]` |
+| `featured = products.map(p => ({name: p.name, ...}))` — flat-mapping SDK results  | Store raw products: `featured = featuredProducts ?? []` as `any[]`                       |

@@ -16,13 +16,13 @@ Read the entry HTML (and other pages) — markup, copy, headings/`<title>`, `<fo
 
 `connect` is framework-blind, but the **Build** layer routes on `frontendBuild` — so resolve it here from the brought-in project (durable disk signal) and hold it in scratch as part of the Plan→Build contract core. **`frontend` stays `custom`** for every non-astro brought-in frontend; only `frontendBuild` distinguishes how Build installs/builds/wires:
 
-| Signal on disk | `frontendBuild` | What Build does |
-|---|---|---|
-| Loose `index.html` + CSS/JS, **no `package.json` build script** | `none` | CDN `@wix/sdk`, no build, release the HTML as-is (the original static path) |
-| `package.json` with a `scripts.build` **AND** a client bundler/framework dep (`vite`, `@vitejs/*`, `react`/`react-dom`, `vue`, `svelte`/`@sveltejs/*`, `webpack`, `parcel`, `rollup`, `esbuild`) **AND** an entry HTML that loads **un-built source** (e.g. `<script type="module" src="/src/main.jsx">`) | `own` | bundled `npm install @wix/sdk`, source-edit wiring, the project's own `npm run build` → `dist/`, then release |
-| `@astrojs/*`/`astro` dep with an astro build *(a brought-in astro project)* | `wix` | *out of SPA-plan scope — not yet exercised; the framework-blind connect flow does not forbid it, but Build's astro tenant assumes a scaffold. Treat as `own` (run its own build) unless/until a dedicated path lands.* |
+| Signal on disk                                                                                                                                                                                                                                                                                            | `frontendBuild` | What Build does                                                                                                                                                                                                        |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Loose `index.html` + CSS/JS, **no `package.json` build script**                                                                                                                                                                                                                                           | `none`          | CDN `@wix/sdk`, no build, release the HTML as-is (the original static path)                                                                                                                                            |
+| `package.json` with a `scripts.build` **AND** a client bundler/framework dep (`vite`, `@vitejs/*`, `react`/`react-dom`, `vue`, `svelte`/`@sveltejs/*`, `webpack`, `parcel`, `rollup`, `esbuild`) **AND** an entry HTML that loads **un-built source** (e.g. `<script type="module" src="/src/main.jsx">`) | `own`           | bundled `npm install @wix/sdk`, source-edit wiring, the project's own `npm run build` → `dist/`, then release                                                                                                          |
+| `@astrojs/*`/`astro` dep with an astro build _(a brought-in astro project)_                                                                                                                                                                                                                               | `wix`           | _out of SPA-plan scope — not yet exercised; the framework-blind connect flow does not forbid it, but Build's astro tenant assumes a scaffold. Treat as `own` (run its own build) unless/until a dedicated path lands._ |
 
-- Read `package.json` once (if present) + the entry HTML. The **un-built-source entry** is the decisive signal: a built `dist/index.html` referencing hashed bundles is *not* `own` to re-build blindly — but a brought-in SPA repo with `src/` + a build script is.
+- Read `package.json` once (if present) + the entry HTML. The **un-built-source entry** is the decisive signal: a built `dist/index.html` referencing hashed bundles is _not_ `own` to re-build blindly — but a brought-in SPA repo with `src/` + a build script is.
 - Record `frontendBuild` in orchestrator scratch (contract core, `PLAN.md` § "The Plan→Build contract"). It is **not** persisted to disk — on scratch loss it is recovered by re-reading `package.json` (this same signal).
 - Pass the resolved `frontendBuild` into the connection-plan dispatch (it tells the planner to read rendered markup for `none` vs un-built `src/**` for `own` — `CONNECTION_PLAN.md` § "What to read").
 
@@ -32,17 +32,17 @@ Map the site's purpose to the Wix capability + apps using the table in `referenc
 
 ## 3 · Present a light plan, then approval
 
-Same discipline as the create path (`DISCOVERY-create.md` § "Step 3" / `PLAN-create.md`): **present the plan as its own message first, then ask for approval as a separate step.** The connect plan is *light* (no Design Direction — the user already designed it), but it still shows the user what will happen before they commit. Structure:
+Same discipline as the create path (`DISCOVERY-create.md` § "Step 3" / `PLAN-create.md`): **present the plan as its own message first, then ask for approval as a separate step.** The connect plan is _light_ (no Design Direction — the user already designed it), but it still shows the user what will happen before they commit. Structure:
 
-- **What I found** — one line: the site's type/purpose + the pages/regions detected (e.g. *"A static wedding invitation — hero, date, venue, closing. No RSVP, no dynamic content."*).
-- **What I'll connect** — what you'll **wire** (existing dynamic regions → a Wix entity), what you'll **add** (the connected component the purpose implies), or what you'll **persist** (a client-state app's data layer → a Wix CMS collection), plus the **apps** to install. (e.g. *"I'll install Wix Forms and add an RSVP form styled to match the invitation."*; or *"I'll move your to-do storage into a Wix CMS collection so it persists on Wix — note it'll be shared across everyone who visits, not per-user."*)
+- **What I found** — one line: the site's type/purpose + the pages/regions detected (e.g. _"A static wedding invitation — hero, date, venue, closing. No RSVP, no dynamic content."_).
+- **What I'll connect** — what you'll **wire** (existing dynamic regions → a Wix entity), what you'll **add** (the connected component the purpose implies), or what you'll **persist** (a client-state app's data layer → a Wix CMS collection), plus the **apps** to install. (e.g. _"I'll install Wix Forms and add an RSVP form styled to match the invitation."_; or _"I'll move your to-do storage into a Wix CMS collection so it persists on Wix — note it'll be shared across everyone who visits, not per-user."_)
 
 > **Persistence-swap honesty.** When the connection is a persistence swap (a client-state app), the plan must state plainly that the data is **shared/public across all visitors**, not per-user — the visitor token has no per-user identity (`INSTRUCTIONS.md` § "Scope — deferred"). Say it in the plan, before approval.
 
-Then, as a separate step, ask for approval (`AskUserQuestion`): *"Ready to connect it?"* — Options: **Yes, connect it** / **Adjust something**. If the user adjusts (different capability, skip the augmentation, etc.), handle it conversationally and re-present.
+Then, as a separate step, ask for approval (`AskUserQuestion`): _"Ready to connect it?"_ — Options: **Yes, connect it** / **Adjust something**. If the user adjusts (different capability, skip the augmentation, etc.), handle it conversationally and re-present.
 
 > Example combined shape — present this as the plan message, then ask the approval question:
-> *"This is a wedding invitation with no RSVP. I'll install Wix Forms, add an RSVP form styled to match, and publish it live."*
+> _"This is a wedding invitation with no RSVP. I'll install Wix Forms, add an RSVP form styled to match, and publish it live."_
 
 ## 4 · After approval — hold the contract in scratch
 

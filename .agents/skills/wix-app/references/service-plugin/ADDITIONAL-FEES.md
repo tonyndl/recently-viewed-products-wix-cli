@@ -8,8 +8,8 @@ The Additional Fees SPI lets you add custom fees to orders during checkout (hand
 
 Before implementing, call `ReadFullDocsMethodSchema` on the docs URL to get the full request/response types.
 
-| Handler | Docs URL |
-| --- | --- |
+| Handler                   | Docs URL                                                                                                                                                             |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `calculateAdditionalFees` | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/extensions/additional-fees/additional-fees-service-plugin/calculate-additional-fees?apiView=SDK |
 
 ## Example: Global Additional Fee from Database Configuration
@@ -17,9 +17,9 @@ Before implementing, call `ReadFullDocsMethodSchema` on the docs URL to get the 
 This example queries a CMS collection to retrieve a configurable global fee that applies to all orders.
 
 ```typescript
-import { additionalFees } from '@wix/ecom/service-plugins';
-import { auth } from '@wix/essentials';
-import { items } from '@wix/data';
+import { additionalFees } from "@wix/ecom/service-plugins";
+import { auth } from "@wix/essentials";
+import { items } from "@wix/data";
 
 interface GlobalFeeConfig {
   _id: string;
@@ -32,7 +32,7 @@ additionalFees.provideHandlers({
     try {
       // Query the global additional fee configuration (elevated permissions required)
       const elevatedQuery = auth.elevate(items.query);
-      const configResult = await elevatedQuery('global-additional-fee-config')
+      const configResult = await elevatedQuery("global-additional-fee-config")
         .limit(1)
         .find();
 
@@ -40,7 +40,7 @@ additionalFees.provideHandlers({
       if (!configResult.items.length) {
         return {
           additionalFees: [],
-          currency: metadata.currency || 'USD'
+          currency: metadata.currency || "USD",
         };
       }
 
@@ -50,37 +50,36 @@ additionalFees.provideHandlers({
       if (!config.isEnabled || !config.feeAmount || config.feeAmount <= 0) {
         return {
           additionalFees: [],
-          currency: metadata.currency || 'USD'
+          currency: metadata.currency || "USD",
         };
       }
 
       // Ensure currency matches site currency
-      const responseCurrency = metadata.currency || 'USD';
+      const responseCurrency = metadata.currency || "USD";
 
       // Convert fee amount to string as required by Wix API
       const feeAmountString = config.feeAmount.toString();
 
       // Create the global additional fee
       const globalFee = {
-        code: 'global-additional-fee',
-        name: 'Global Additional Fee',
-        translatedName: 'Global Additional Fee',
+        code: "global-additional-fee",
+        name: "Global Additional Fee",
+        translatedName: "Global Additional Fee",
         price: feeAmountString,
         taxDetails: {
-          taxable: true
-        }
+          taxable: true,
+        },
         // No lineItemIds specified - applies to entire cart
       };
 
       return {
         additionalFees: [globalFee],
-        currency: responseCurrency
+        currency: responseCurrency,
       };
-
     } catch (error) {
       return {
         additionalFees: [],
-        currency: metadata.currency || 'USD'
+        currency: metadata.currency || "USD",
       };
     }
   },

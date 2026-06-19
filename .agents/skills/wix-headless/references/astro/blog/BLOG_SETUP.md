@@ -16,12 +16,12 @@ npm install @wix/blog @wix/ricos @astrojs/rss @astrojs/sitemap
 
 ## Files to Create / Modify
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `astro.config.mjs` | Modify | Add `site` property and `sitemap()` integration |
-| `src/lib/blog.ts` | Create | Blog service — queries posts, resolves categories/tags/media |
-| `src/consts.ts` | Create | Site-wide constants (title, description) |
-| `src/components/RicosViewer.tsx` | Create | React wrapper for `@wix/ricos` RicosViewer |
+| File                             | Action | Purpose                                                      |
+| -------------------------------- | ------ | ------------------------------------------------------------ |
+| `astro.config.mjs`               | Modify | Add `site` property and `sitemap()` integration              |
+| `src/lib/blog.ts`                | Create | Blog service — queries posts, resolves categories/tags/media |
+| `src/consts.ts`                  | Create | Site-wide constants (title, description)                     |
+| `src/components/RicosViewer.tsx` | Create | React wrapper for `@wix/ricos` RicosViewer                   |
 
 ---
 
@@ -39,7 +39,7 @@ import wixPages from "@wix/astro-pages";
 // https://astro.build/config
 export default defineConfig({
   site: "https://example.com",
-  integrations: [wix(), wixPages(), sitemap()]
+  integrations: [wix(), wixPages(), sitemap()],
 });
 ```
 
@@ -55,8 +55,8 @@ export default defineConfig({
 // Place any global data in this file.
 // You can import this data from anywhere in your site by using the `import` keyword.
 
-export const SITE_TITLE = 'Astro Blog';
-export const SITE_DESCRIPTION = 'Welcome to my website!';
+export const SITE_TITLE = "Astro Blog";
+export const SITE_DESCRIPTION = "Welcome to my website!";
 ```
 
 > Update `SITE_TITLE` and `SITE_DESCRIPTION` to match the user's site.
@@ -68,8 +68,8 @@ export const SITE_DESCRIPTION = 'Welcome to my website!';
 A thin React wrapper around `@wix/ricos` for use in Astro pages with `client:only="react"`.
 
 ```tsx
-import { quickStartViewerPlugins, RicosViewer } from '@wix/ricos';
-import '@wix/ricos/css/all-plugins-viewer.css';
+import { quickStartViewerPlugins, RicosViewer } from "@wix/ricos";
+import "@wix/ricos/css/all-plugins-viewer.css";
 
 const plugins = quickStartViewerPlugins();
 
@@ -84,6 +84,7 @@ export default function RicosContentViewer({ content }: { content: any }) {
 ```
 
 Key details:
+
 - `quickStartViewerPlugins()` is initialized at module level (once, not per render) — provides full content-type support (links, tables, galleries, embeds, etc.)
 - The CSS import is bundled by Vite into the client chunk
 - No key renaming needed — `@wix/ricos` accepts camelCase keys from the `@wix/blog` SDK directly
@@ -127,14 +128,14 @@ export async function queryBlogPosts(limit?: number): Promise<BlogPost[]> {
         (item.categoryIds || []).map(async (id) => {
           const { category } = await categories.getCategory(id);
           return category!;
-        })
+        }),
       );
 
       const resolvedTags = await Promise.all(
         (item.tagIds || []).map(async (id) => {
           const tag = await tags.getTag(id);
           return { label: tag.label!, slug: tag.slug! };
-        })
+        }),
       );
 
       const imageUrl = item.media?.wixMedia?.image
@@ -158,7 +159,7 @@ export async function queryBlogPosts(limit?: number): Promise<BlogPost[]> {
         richContent: item.richContent,
         tags: resolvedTags,
       };
-    })
+    }),
   );
 }
 
@@ -175,14 +176,14 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     (item.categoryIds || []).map(async (id) => {
       const { category } = await categories.getCategory(id);
       return category!;
-    })
+    }),
   );
 
   const resolvedTags = await Promise.all(
     (item.tagIds || []).map(async (id) => {
       const tag = await tags.getTag(id);
       return { label: tag.label!, slug: tag.slug! };
-    })
+    }),
   );
 
   const imageUrl = item.media?.wixMedia?.image
@@ -210,6 +211,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 ```
 
 Key details:
+
 - `categories.getCategory(id)` returns `{ category }` (envelope) — destructure it
 - `tags.getTag(id)` returns the `BlogTag` directly — do NOT destructure as `{ tag }`
 - `media.getImageUrl(ref).url` resolves Wix media references to real URLs

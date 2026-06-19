@@ -6,11 +6,11 @@ This file is **extended by every per-vertical `INSTRUCTIONS.md`** (stores, ecom,
 
 Read **only** the files your scope needs. The reading set varies by scope:
 
-| Your scope | Mandatory | Conditional |
-|---|---|---|
-| `seed` | this file, `RETURN_CONTRACT.md`, `DOCS_SEARCH.md` | — |
-| `components`, `components-css`, `pages`, `pages-*` | this file, `RETURN_CONTRACT.md`, `STYLING.md` | — |
-| Image scopes | (read `references/images/INSTRUCTIONS.md` § Self-Loading) | — |
+| Your scope                                         | Mandatory                                                 | Conditional |
+| -------------------------------------------------- | --------------------------------------------------------- | ----------- |
+| `seed`                                             | this file, `RETURN_CONTRACT.md`, `DOCS_SEARCH.md`         | —           |
+| `components`, `components-css`, `pages`, `pages-*` | this file, `RETURN_CONTRACT.md`, `STYLING.md`             | —           |
+| Image scopes                                       | (read `references/images/INSTRUCTIONS.md` § Self-Loading) | —           |
 
 Then read the specific reference(s) for your declared scope(s) (see your vertical's `INSTRUCTIONS.md` scope table). Do NOT read references for scopes **not** named in your prompt — wastes context and blurs ownership.
 
@@ -21,6 +21,7 @@ Your prompt includes a line naming your scope(s). Map **each** scope to its refe
 **Merged dispatch (the common case — one agent owns components + pages for a vertical).** Your prompt may list **several** scopes — e.g. `Scopes (write in this order): components, pages-products, pages-categories`. This is a single "build" agent for one vertical: read the **union** of those scopes' references and write them in the order given — **islands/components FIRST, then the pages/routes that mount them.** Writing the page before its island leaves a dangling import; the within-agent order is exactly why these were merged into one dispatch (it removes the cross-agent Components→Pages barrier). You still own only the files those scopes declare; do not touch another vertical's files or a shared shell unless your scope list explicitly includes a shell-patching `pages` scope.
 
 Standard scope names:
+
 - `seed` — Seed phase (REST data setup, no frontend code)
 - `components` — Components phase (reusable React/Astro islands, SDK wiring)
 - `pages` — Pages phase (route files with visual design + data queries, single scope per vertical)
@@ -38,10 +39,10 @@ Every input you need is either inlined in your prompt or — for seeded entity I
 
 **Phase-specific inputs:**
 
-| Scope | Where its inputs come from |
-|---|---|
-| `seed` | All **inlined**: `brand`, `intent.<pack>`, `siteId`, recipe path(s). Do NOT re-derive these. |
-| `components` | **Inlined**: `brand`. **Read from disk**: the design tokens (the DESIGN.md vocabulary — `colors`/`typography`/`spacing`/`rounded`/`containers`) from `.wix/design-tokens.css` (gate-verified present; also the CSS variables the build consumes). Components do not need seeded IDs. |
+| Scope               | Where its inputs come from                                                                                                                                                                                                                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `seed`              | All **inlined**: `brand`, `intent.<pack>`, `siteId`, recipe path(s). Do NOT re-derive these.                                                                                                                                                                                                                        |
+| `components`        | **Inlined**: `brand`. **Read from disk**: the design tokens (the DESIGN.md vocabulary — `colors`/`typography`/`spacing`/`rounded`/`containers`) from `.wix/design-tokens.css` (gate-verified present; also the CSS variables the build consumes). Components do not need seeded IDs.                                |
 | `pages` / `pages-*` | **Inlined:** `brand`. **Read from disk:** the design tokens (`.wix/design-tokens.css`, DESIGN.md vocabulary); your `seeded.<vertical>` slice from `.wix/seeded.json` (products, posts, collections IDs). Page data wiring uses live SDK queries; the `seeded` data is for path resolution + demo content authoring. |
 
 If a required **inlined** input is missing from your prompt, or your **`.wix/seeded.json` slice** is absent (e.g. you are dispatched as `pages-products` but `.wix/seeded.json` has no `seeded.stores`), fail fast — return `status: "failed"` with `errors: [{ code: "SEEDED_JSON_SLICE_MISSING", missing: "seeded.stores.products" }]` (or `PROMPT_INCOMPLETE` for an inlined gap). Do NOT re-fetch via curl — the gap means an upstream phase didn't complete, and re-querying would mask the real bug.
@@ -142,7 +143,12 @@ The `data` shapes for the scopes this file owns — `components` and `pages`/`pa
   "scope": "components",
   "summary": "Wrote React islands + utils; wired analytics; contract classes referenced: 7",
   "data": {
-    "islands": ["ProductPurchase.tsx", "CartView.tsx", "AddToCartButton.tsx", "CartBadge.tsx"],
+    "islands": [
+      "ProductPurchase.tsx",
+      "CartView.tsx",
+      "AddToCartButton.tsx",
+      "CartBadge.tsx"
+    ],
     "utils": ["wix-image.ts", "analytics.ts"],
     "astroComponents": ["SeoTags.astro"]
   },
@@ -181,26 +187,26 @@ The `data` shapes for the scopes this file owns — `components` and `pages`/`pa
 
 ## Common failure modes
 
-| Wrong | Right |
-|---|---|
-| Reading references for scopes **not** listed in your prompt | Read only the references for your declared scope(s) — the union when it's a merged build dispatch |
-| Writing a page/route before the island it mounts (merged dispatch) | Write islands/components FIRST, then the pages — in the prompt's scope order |
-| Issuing REST calls from a `components` or `pages` scope | Components/Pages are frontend-only; read `seeded` data from your `.wix/seeded.json` slice (pages only) — never curl |
-| Re-querying when your `seeded.<vertical>` slice is missing from `.wix/seeded.json` | Fail fast with `SEEDED_JSON_SLICE_MISSING` — an upstream phase didn't complete (do NOT re-query) |
-| Depending on mutable shared state the orchestrator holds in scratch | Every input is inlined; the one shared file you may read is your `.wix/seeded.json` slice (read-only) |
+| Wrong                                                                                | Right                                                                                                                                                        |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Reading references for scopes **not** listed in your prompt                          | Read only the references for your declared scope(s) — the union when it's a merged build dispatch                                                            |
+| Writing a page/route before the island it mounts (merged dispatch)                   | Write islands/components FIRST, then the pages — in the prompt's scope order                                                                                 |
+| Issuing REST calls from a `components` or `pages` scope                              | Components/Pages are frontend-only; read `seeded` data from your `.wix/seeded.json` slice (pages only) — never curl                                          |
+| Re-querying when your `seeded.<vertical>` slice is missing from `.wix/seeded.json`   | Fail fast with `SEEDED_JSON_SLICE_MISSING` — an upstream phase didn't complete (do NOT re-query)                                                             |
+| Depending on mutable shared state the orchestrator holds in scratch                  | Every input is inlined; the one shared file you may read is your `.wix/seeded.json` slice (read-only)                                                        |
 | Inventing class names for layout/spacing/typography (`.productCard`, `.heroSection`) | Tailwind utilities derived from `@theme` tokens (`class="flex flex-col gap-md"`, `class="py-4xl"`). For one-off page decoration, co-located `<style>` block. |
-| Removing a marker after inserting at it | Marker stays; other verticals may contribute after you |
-| Trailing narrative prose after the return JSON | JSON block must be the last content |
-| Fabricated timestamps in the return JSON | Do not include timing fields — orchestrator captures them |
-| Inline `style="color: red"` | Use design tokens: `style="color: var(--color-accent)"` |
-| Creating a new cross-cutting class name | Extract a shared primitive component instead |
+| Removing a marker after inserting at it                                              | Marker stays; other verticals may contribute after you                                                                                                       |
+| Trailing narrative prose after the return JSON                                       | JSON block must be the last content                                                                                                                          |
+| Fabricated timestamps in the return JSON                                             | Do not include timing fields — orchestrator captures them                                                                                                    |
+| Inline `style="color: red"`                                                          | Use design tokens: `style="color: var(--color-accent)"`                                                                                                      |
+| Creating a new cross-cutting class name                                              | Extract a shared primitive component instead                                                                                                                 |
 
 ### Astro/React build-blockers — check before returning `complete`
 
-| Failure | How to detect | Fix |
-|---------|---------------|-----|
-| HTML-style comments in `.astro` frontmatter | `grep '<!--' *.astro` frontmatter | Use `//` or `/* */` — frontmatter is TypeScript. Surfaces at build as `Legacy HTML single-line comments`. |
-| Missing `wixMetadata` on `/products/[slug]` | Check exports | Add the metadata export — required for Wix platform indexing |
-| `import { products }` instead of `productsV3` | `grep 'from "@wix/stores"'` import line | V1 silently returns 0 on V3 catalogs |
-| Missing `variantId` in cart operations | Check `catalogReference.options` | Always include — single-variant products have one |
-| React island using default Tailwind color class | `grep 'bg-blue-\|bg-green-\|text-red-\|bg-gray-' *.tsx` | Use brand `@theme` utilities (`bg-bark`, `text-cream`) or contract class names |
+| Failure                                         | How to detect                                           | Fix                                                                                                       |
+| ----------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| HTML-style comments in `.astro` frontmatter     | `grep '<!--' *.astro` frontmatter                       | Use `//` or `/* */` — frontmatter is TypeScript. Surfaces at build as `Legacy HTML single-line comments`. |
+| Missing `wixMetadata` on `/products/[slug]`     | Check exports                                           | Add the metadata export — required for Wix platform indexing                                              |
+| `import { products }` instead of `productsV3`   | `grep 'from "@wix/stores"'` import line                 | V1 silently returns 0 on V3 catalogs                                                                      |
+| Missing `variantId` in cart operations          | Check `catalogReference.options`                        | Always include — single-variant products have one                                                         |
+| React island using default Tailwind color class | `grep 'bg-blue-\|bg-green-\|text-red-\|bg-gray-' *.tsx` | Use brand `@theme` utilities (`bg-bark`, `text-cream`) or contract class names                            |

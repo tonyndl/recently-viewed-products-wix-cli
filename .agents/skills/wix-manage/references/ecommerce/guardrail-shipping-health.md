@@ -7,9 +7,11 @@ references:
     path: ecommerce/troubleshoot-checkout-delivery-dropoff.md
     load: false
 ---
+
 # Guardrail: Shipping Health
 
 > **Related skills**:
+>
 > - [Troubleshoot: Checkout Delivery Drop-off](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/troubleshoot-checkout-delivery-dropoff)
 
 ## When to use
@@ -115,10 +117,10 @@ A region is considered "international" if any of the following are true:
 
 ## Summary: Score decision table
 
-| Score | Key indicator | Action |
-|---|---|---|
-| CRITICAL | No profiles/options or all regions inactive | Immediate setup required |
-| POOR | Minimal config, low CVR, or no backup rates | Address fundamental gaps |
-| FAIR | Basic setup, no free shipping, moderate CVR | Add free shipping, expand regions |
-| GOOD | Domestic + international, free shipping, good CVR | Optimize rates and carriers |
-| EXCELLENT | Full coverage, tiered rates, high CVR | Maintain and fine-tune |
+| Score     | Key indicator                                     | Action                            |
+| --------- | ------------------------------------------------- | --------------------------------- |
+| CRITICAL  | No profiles/options or all regions inactive       | Immediate setup required          |
+| POOR      | Minimal config, low CVR, or no backup rates       | Address fundamental gaps          |
+| FAIR      | Basic setup, no free shipping, moderate CVR       | Add free shipping, expand regions |
+| GOOD      | Domestic + international, free shipping, good CVR | Optimize rates and carriers       |
+| EXCELLENT | Full coverage, tiered rates, high CVR             | Maintain and fine-tune            |

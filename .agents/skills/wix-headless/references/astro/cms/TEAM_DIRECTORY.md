@@ -8,27 +8,27 @@ Build a team directory using `@wix/data` — staff cards grouped by department w
 
 The schema the `seed` scope creates via REST (see `../../cms/CMS_FOUNDATIONS.md`) — fields:
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `name` | Text | Full name |
-| `slug` | Text | URL-friendly identifier |
-| `role` | Text | Job title or role |
-| `department` | Text | Department or team (e.g., "Engineering", "Design") |
-| `bio` | Rich Text | Bio or description (HTML) |
-| `photo` | Image | Headshot (`wix:image://` — resolve with `media.getScaledToFillImageUrl()`) |
-| `email` | Text | Contact email |
-| `linkedIn` | URL | LinkedIn profile URL |
-| `twitter` | URL | Twitter/X profile URL |
-| `orderIndex` | Number | Manual sort order within department |
+| Field        | Type      | Purpose                                                                    |
+| ------------ | --------- | -------------------------------------------------------------------------- |
+| `name`       | Text      | Full name                                                                  |
+| `slug`       | Text      | URL-friendly identifier                                                    |
+| `role`       | Text      | Job title or role                                                          |
+| `department` | Text      | Department or team (e.g., "Engineering", "Design")                         |
+| `bio`        | Rich Text | Bio or description (HTML)                                                  |
+| `photo`      | Image     | Headshot (`wix:image://` — resolve with `media.getScaledToFillImageUrl()`) |
+| `email`      | Text      | Contact email                                                              |
+| `linkedIn`   | URL       | LinkedIn profile URL                                                       |
+| `twitter`    | URL       | Twitter/X profile URL                                                      |
+| `orderIndex` | Number    | Manual sort order within department                                        |
 
 ## Files to Create
 
-| File | Purpose |
-|------|---------|
-| `src/lib/team.ts` | Service module — queries, department grouping |
-| `src/pages/team/index.astro` | Department-sectioned directory |
-| `src/pages/team/[slug].astro` | Individual member profile |
-| `src/components/TeamMemberCard.astro` | Photo, name, role, social icons |
+| File                                  | Purpose                                       |
+| ------------------------------------- | --------------------------------------------- |
+| `src/lib/team.ts`                     | Service module — queries, department grouping |
+| `src/pages/team/index.astro`          | Department-sectioned directory                |
+| `src/pages/team/[slug].astro`         | Individual member profile                     |
+| `src/components/TeamMemberCard.astro` | Photo, name, role, social icons               |
 
 ## Implementation
 
@@ -86,7 +86,9 @@ export async function queryTeamMembers(): Promise<TeamMember[]> {
   return results.map(mapMember);
 }
 
-export async function getMemberBySlug(slug: string): Promise<TeamMember | null> {
+export async function getMemberBySlug(
+  slug: string,
+): Promise<TeamMember | null> {
   const elevatedQuery = auth.elevate(items.query);
   const { items: results } = await elevatedQuery(COLLECTION_ID)
     .eq("slug", slug)
@@ -98,7 +100,9 @@ export async function getMemberBySlug(slug: string): Promise<TeamMember | null> 
   return mapMember(item);
 }
 
-export function groupByDepartment(members: TeamMember[]): Map<string, TeamMember[]> {
+export function groupByDepartment(
+  members: TeamMember[],
+): Map<string, TeamMember[]> {
   return members.reduce((map, member) => {
     const dept = member.department || "Team";
     if (!map.has(dept)) map.set(dept, []);
@@ -109,6 +113,7 @@ export function groupByDepartment(members: TeamMember[]): Map<string, TeamMember
 ```
 
 Key details:
+
 - `resolvePhoto()` uses 400x400 for square headshot crops
 - `groupByDepartment()` returns a `Map` preserving insertion order — departments appear in the order of their first member
 - Update `COLLECTION_ID` to match the exact collection name from the Wix dashboard (no namespace prefix for native collections)
@@ -159,6 +164,7 @@ const { member } = Astro.props;
 > **Styling note:** TeamMemberCard styling is created by the design skill. See `references/shared/STYLING.md` (Team Member Card).
 
 Key details:
+
 - Inline SVG icons — no icon library dependency
 - Fallback initial letter when no photo
 - Social links use `onclick="event.stopPropagation()"` to prevent navigation to profile when clicking social icons

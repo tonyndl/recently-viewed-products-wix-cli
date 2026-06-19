@@ -3,10 +3,22 @@ import { currentCart } from "@wix/ecom";
 import AddToCartButton from "./AddToCartButton";
 import BackInStockForm from "./BackInStockForm";
 
-interface Choice { choiceId?: string | null; name?: string | null; key?: string | null; }
-interface Option { _id?: string | null; name?: string | null; choicesSettings?: { choices?: Choice[]; }; }
+interface Choice {
+  choiceId?: string | null;
+  name?: string | null;
+  key?: string | null;
+}
+interface Option {
+  _id?: string | null;
+  name?: string | null;
+  choicesSettings?: { choices?: Choice[] };
+}
 // Modifiers: customization choices without separate variants/inventory/price.
-interface FreeTextSettings { title?: string | null; key?: string | null; maxLength?: number | null; }
+interface FreeTextSettings {
+  title?: string | null;
+  key?: string | null;
+  maxLength?: number | null;
+}
 interface Modifier {
   // SDK convention: outer entity IDs are `_id` (same as Variant/Option/Product).
   // REST returns `id`; @wix/stores remaps to `_id` in the SDK response.
@@ -14,15 +26,17 @@ interface Modifier {
   name?: string | null;
   key?: string | null;
   mandatory?: boolean;
-  modifierRenderType?: string | null;   // "TEXT_CHOICES" | "SWATCH_CHOICES" | "FREE_TEXT"
+  modifierRenderType?: string | null; // "TEXT_CHOICES" | "SWATCH_CHOICES" | "FREE_TEXT"
   choicesSettings?: { choices?: Choice[] };
   freeTextSettings?: FreeTextSettings;
 }
-interface VariantChoice { optionChoiceIds?: { optionId?: string; choiceId?: string; }; }
+interface VariantChoice {
+  optionChoiceIds?: { optionId?: string; choiceId?: string };
+}
 interface Variant {
   _id?: string | null;
   choices?: VariantChoice[];
-  price?: { actual?: { amount?: string; formattedAmount?: string; }; };
+  price?: { actual?: { amount?: string; formattedAmount?: string } };
   // productsV3 also exposes a per-variant inventoryStatus, but it's a STALE
   // cached flag — a variant with live quantity 0 can still report
   // `inStock: true`. Only used as a last-resort fallback when the
@@ -31,11 +45,23 @@ interface Variant {
   inventoryStatus?: { inStock?: boolean; preorderEnabled?: boolean };
   // Future-proofing: if a future wiring passes real quantities in props
   // (e.g. via @wix/inventory join by variantId), maxQuantity honors them.
-  stock?: { quantity?: number | null; inStock?: boolean; };
-  inventoryItem?: { quantity?: number | null; inStock?: boolean; trackQuantity?: boolean };
+  stock?: { quantity?: number | null; inStock?: boolean };
+  inventoryItem?: {
+    quantity?: number | null;
+    inStock?: boolean;
+    trackQuantity?: boolean;
+  };
 }
-interface Stock { trackInventory?: boolean; inventoryStatus?: string; quantity?: number | null; }
-interface VariantStock { quantity: number; trackQuantity: boolean; preorderEnabled: boolean }
+interface Stock {
+  trackInventory?: boolean;
+  inventoryStatus?: string;
+  quantity?: number | null;
+}
+interface VariantStock {
+  quantity: number;
+  trackQuantity: boolean;
+  preorderEnabled: boolean;
+}
 
 // Single `product` prop (the full productsV3 object) mirrors ProductCard's
 // contract so both components take the same shape. Keeps `[slug].astro`
@@ -81,27 +107,38 @@ export default function ProductPurchase({
   const stock = product.stock ?? undefined;
 
   const variants = variantsInfo.variants ?? [];
-  const hasMeaningfulOptions = options.length > 0 && options.some(
-    (opt) => (opt.choicesSettings?.choices?.length ?? 0) > 1,
-  );
+  const hasMeaningfulOptions =
+    options.length > 0 &&
+    options.some((opt) => (opt.choicesSettings?.choices?.length ?? 0) > 1);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const handleSelect = (optionId: string, choiceId: string) =>
     setSelections((prev) => ({ ...prev, [optionId]: choiceId }));
-  const allSelected = hasMeaningfulOptions && options.every((opt) => opt._id && selections[opt._id]);
+  const allSelected =
+    hasMeaningfulOptions &&
+    options.every((opt) => opt._id && selections[opt._id]);
 
   // Modifier state. Two parallel maps keyed by modifier._id, flattened below
   // into the shapes cart expects.
-  const [modifierChoice, setModifierChoice] = useState<Record<string, string>>({});
+  const [modifierChoice, setModifierChoice] = useState<Record<string, string>>(
+    {},
+  );
   const [modifierText, setModifierText] = useState<Record<string, string>>({});
-  const handleModifierChoice = (id: string, key: string) => setModifierChoice((p) => ({ ...p, [id]: key }));
-  const handleModifierText = (id: string, v: string) => setModifierText((p) => ({ ...p, [id]: v }));
+  const handleModifierChoice = (id: string, key: string) =>
+    setModifierChoice((p) => ({ ...p, [id]: key }));
+  const handleModifierText = (id: string, v: string) =>
+    setModifierText((p) => ({ ...p, [id]: v }));
 
-  const mandatoryModifiersSatisfied = useMemo(() => modifiers.every((m) => {
-    if (!m.mandatory) return true;
-    const id = m._id ?? "";
-    if (m.modifierRenderType === "FREE_TEXT") return (modifierText[id] ?? "").trim().length > 0;
-    return !!modifierChoice[id];
-  }), [modifiers, modifierChoice, modifierText]);
+  const mandatoryModifiersSatisfied = useMemo(
+    () =>
+      modifiers.every((m) => {
+        if (!m.mandatory) return true;
+        const id = m._id ?? "";
+        if (m.modifierRenderType === "FREE_TEXT")
+          return (modifierText[id] ?? "").trim().length > 0;
+        return !!modifierChoice[id];
+      }),
+    [modifiers, modifierChoice, modifierText],
+  );
 
   // Flatten to catalogReference shapes:
   //   options          → { [modifier.key]: choice.key }    for TEXT_CHOICES / SWATCH_CHOICES
@@ -129,21 +166,32 @@ export default function ProductPurchase({
   const resolvedVariant = useMemo(() => {
     if (!hasMeaningfulOptions) return variants[0] ?? null;
     if (!allSelected) return null;
-    return variants.find((v) =>
-      (v.choices ?? []).every(
-        (c) => c.optionChoiceIds?.optionId &&
-          selections[c.optionChoiceIds.optionId] === c.optionChoiceIds.choiceId,
-      ),
-    ) ?? null;
+    return (
+      variants.find((v) =>
+        (v.choices ?? []).every(
+          (c) =>
+            c.optionChoiceIds?.optionId &&
+            selections[c.optionChoiceIds.optionId] ===
+              c.optionChoiceIds.choiceId,
+        ),
+      ) ?? null
+    );
   }, [hasMeaningfulOptions, allSelected, selections, variants]);
 
   const variantLabel = useMemo(() => {
     if (!hasMeaningfulOptions) return undefined;
-    return options.map((opt) => {
-      const choiceId = opt._id ? selections[opt._id] : undefined;
-      const choice = opt.choicesSettings?.choices?.find((c) => c.choiceId === choiceId);
-      return choice?.name ? `${opt.name}: ${choice.name}` : null;
-    }).filter(Boolean).join(", ") || undefined;
+    return (
+      options
+        .map((opt) => {
+          const choiceId = opt._id ? selections[opt._id] : undefined;
+          const choice = opt.choicesSettings?.choices?.find(
+            (c) => c.choiceId === choiceId,
+          );
+          return choice?.name ? `${opt.name}: ${choice.name}` : null;
+        })
+        .filter(Boolean)
+        .join(", ") || undefined
+    );
   }, [hasMeaningfulOptions, options, selections]);
 
   const variantPrice = resolvedVariant?.price?.actual?.amount
@@ -179,15 +227,19 @@ export default function ProductPurchase({
   // backend still enforces stock on add-to-cart — this clamp just avoids
   // letting shoppers build a quantity they can't actually buy.
   const maxQuantity = useMemo(() => {
-    const live = resolvedVariant?._id ? inventoryByVariant[resolvedVariant._id] : undefined;
+    const live = resolvedVariant?._id
+      ? inventoryByVariant[resolvedVariant._id]
+      : undefined;
     if (live) {
       if (!live.trackQuantity) return 99;
       if (live.preorderEnabled) return 99;
       return Math.max(1, live.quantity);
     }
     if (stock?.trackInventory === false) return 99;
-    if (resolvedVariant?.stock?.quantity != null) return resolvedVariant.stock.quantity;
-    if (resolvedVariant?.inventoryItem?.quantity != null) return resolvedVariant.inventoryItem.quantity;
+    if (resolvedVariant?.stock?.quantity != null)
+      return resolvedVariant.stock.quantity;
+    if (resolvedVariant?.inventoryItem?.quantity != null)
+      return resolvedVariant.inventoryItem.quantity;
     if (stock?.quantity != null) return stock.quantity;
     return 99;
   }, [inventoryByVariant, stock, resolvedVariant]);
@@ -195,7 +247,9 @@ export default function ProductPurchase({
   // reflects "stock minus already-in-cart" instead of raw stock. Wix enforces
   // the same rule at add-to-cart time — this is just so the UI doesn't let
   // the shopper think they can add "max" after already adding "max".
-  const [qtyInCartByVariant, setQtyInCartByVariant] = useState<Record<string, number>>({});
+  const [qtyInCartByVariant, setQtyInCartByVariant] = useState<
+    Record<string, number>
+  >({});
   useEffect(() => {
     let cancelled = false;
     const syncCart = async () => {
@@ -211,32 +265,55 @@ export default function ProductPurchase({
           tally[vId] = (tally[vId] ?? 0) + (item.quantity ?? 0);
         }
         setQtyInCartByVariant(tally);
-      } catch { if (!cancelled) setQtyInCartByVariant({}); }
+      } catch {
+        if (!cancelled) setQtyInCartByVariant({});
+      }
     };
     syncCart();
     const handler = () => syncCart();
     window.addEventListener("cart-updated", handler);
-    return () => { cancelled = true; window.removeEventListener("cart-updated", handler); };
+    return () => {
+      cancelled = true;
+      window.removeEventListener("cart-updated", handler);
+    };
   }, [productId]);
 
-  const qtyInCartForResolved = resolvedVariant?._id ? qtyInCartByVariant[resolvedVariant._id] ?? 0 : 0;
+  const qtyInCartForResolved = resolvedVariant?._id
+    ? (qtyInCartByVariant[resolvedVariant._id] ?? 0)
+    : 0;
   const effectiveMax = Math.max(0, maxQuantity - qtyInCartForResolved);
   const alreadyMaxedInCart = qtyInCartForResolved > 0 && effectiveMax === 0;
 
   const [quantity, setQuantity] = useState(1);
   // When max shrinks (variant switch, or cart sync), clamp the current selection.
-  useEffect(() => { setQuantity((q) => Math.max(1, Math.min(q, Math.max(1, effectiveMax)))); }, [effectiveMax]);
+  useEffect(() => {
+    setQuantity((q) => Math.max(1, Math.min(q, Math.max(1, effectiveMax))));
+  }, [effectiveMax]);
 
   const quantitySelector = !isOutOfStock && (
     <div className="quantity-selector">
-      <button className="quantity-btn" onClick={() => setQuantity((q) => Math.max(1, q - 1))} disabled={quantity <= 1}>−</button>
+      <button
+        className="quantity-btn"
+        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+        disabled={quantity <= 1}
+      >
+        −
+      </button>
       <span className="quantity-value">{quantity}</span>
-      <button className="quantity-btn" onClick={() => setQuantity((q) => Math.min(effectiveMax, q + 1))} disabled={quantity >= effectiveMax}>+</button>
+      <button
+        className="quantity-btn"
+        onClick={() => setQuantity((q) => Math.min(effectiveMax, q + 1))}
+        disabled={quantity >= effectiveMax}
+      >
+        +
+      </button>
     </div>
   );
 
   const inCartNote = qtyInCartForResolved > 0 && (
-    <p className="stock-status" aria-live="polite">{qtyInCartForResolved} already in cart</p>
+    <p className="stock-status" aria-live="polite">
+      {qtyInCartForResolved} already in cart
+    </p>
   );
 
   // Modifier selectors — rendered between options and quantity in both branches.
@@ -248,13 +325,19 @@ export default function ProductPurchase({
         if (m.modifierRenderType === "FREE_TEXT") {
           return (
             <div key={id} className="option-group">
-              <div className="option-label">{m.name}{req && <span aria-hidden="true"> *</span>}</div>
-              <textarea className="modifier-text"
+              <div className="option-label">
+                {m.name}
+                {req && <span aria-hidden="true"> *</span>}
+              </div>
+              <textarea
+                className="modifier-text"
                 value={modifierText[id] ?? ""}
                 onChange={(e) => handleModifierText(id, e.target.value)}
                 placeholder={m.freeTextSettings?.title ?? ""}
                 maxLength={m.freeTextSettings?.maxLength ?? undefined}
-                rows={2} aria-label={m.name ?? ""} aria-required={req || undefined}
+                rows={2}
+                aria-label={m.name ?? ""}
+                aria-required={req || undefined}
               />
             </div>
           );
@@ -262,14 +345,22 @@ export default function ProductPurchase({
         const choices = m.choicesSettings?.choices ?? [];
         return (
           <div key={id} className="option-group">
-            <div className="option-label">{m.name}{req && <span aria-hidden="true"> *</span>}</div>
+            <div className="option-label">
+              {m.name}
+              {req && <span aria-hidden="true"> *</span>}
+            </div>
             <div className="option-choices">
               {choices.map((c) => {
                 const k = c.key ?? c.choiceId ?? "";
                 const sel = modifierChoice[id] === k;
                 return (
-                  <button key={k} type="button" onClick={() => handleModifierChoice(id, k)}
-                    className={`option-pill${sel ? " selected" : ""}`} aria-pressed={sel}>
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => handleModifierChoice(id, k)}
+                    className={`option-pill${sel ? " selected" : ""}`}
+                    aria-pressed={sel}
+                  >
                     {c.name}
                   </button>
                 );
@@ -327,8 +418,10 @@ export default function ProductPurchase({
           <>
             {quantitySelector}
             <AddToCartButton
-              productId={productId} productName={productName}
-              price={variantPrice} currency={currency}
+              productId={productId}
+              productName={productName}
+              price={variantPrice}
+              currency={currency}
               variantId={singleVariant?._id ?? undefined}
               quantity={quantity}
               modifierChoices={catalogModifierChoices}
@@ -354,8 +447,11 @@ export default function ProductPurchase({
                 const choiceId = choice.choiceId ?? "";
                 const isSelected = selections[optionId] === choiceId;
                 return (
-                  <button key={choiceId} onClick={() => handleSelect(optionId, choiceId)}
-                    className={`option-pill${isSelected ? " selected" : ""}`}>
+                  <button
+                    key={choiceId}
+                    onClick={() => handleSelect(optionId, choiceId)}
+                    className={`option-pill${isSelected ? " selected" : ""}`}
+                  >
                     {choice.name}
                   </button>
                 );
@@ -382,10 +478,13 @@ export default function ProductPurchase({
           {inCartNote}
           {quantitySelector}
           <AddToCartButton
-            productId={productId} productName={productName}
-            price={variantPrice} currency={currency}
+            productId={productId}
+            productName={productName}
+            price={variantPrice}
+            currency={currency}
             variantId={resolvedVariant?._id ?? undefined}
-            variantName={variantLabel} quantity={quantity}
+            variantName={variantLabel}
+            quantity={quantity}
             modifierChoices={catalogModifierChoices}
             customTextFields={catalogCustomTextFields}
             disabled={!resolvedVariant || !mandatoryModifiersSatisfied}

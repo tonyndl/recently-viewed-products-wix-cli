@@ -1,4 +1,3 @@
-
 # Wix App Validation
 
 Validates Wix CLI applications through a four-step sequential workflow: package installation, TypeScript compilation check, build, and preview.
@@ -12,6 +11,7 @@ Execute these steps sequentially. Stop and report errors if any step fails.
 Ensure all dependencies are installed before proceeding with the build.
 
 **Detect package manager:**
+
 - Check for `package-lock.json` → use `npm`
 - Check for `yarn.lock` → use `yarn`
 - Check for `pnpm-lock.yaml` → use `pnpm`
@@ -31,12 +31,14 @@ pnpm install
 ```
 
 **Success criteria:**
+
 - Exit code 0
 - All dependencies installed successfully
 - No missing peer dependencies warnings (unless expected)
 - `node_modules` directory exists and contains expected packages
 
 **On failure:** Report the installation errors, [check the debug log](#debug-log-on-errors) for detailed diagnostics, and stop validation. Common issues:
+
 - Network connectivity problems
 - Corrupted lock files
 - Version conflicts
@@ -47,6 +49,7 @@ pnpm install
 Run TypeScript compiler to check for type errors.
 
 **Full project check:**
+
 ```bash
 npx tsc --noEmit
 ```
@@ -73,21 +76,25 @@ npx tsc --noEmit src/extensions/backend/**/*.ts
 ```
 
 **When to use targeted checks:**
+
 - After implementing a single extension (faster feedback)
 - When debugging type errors in a specific area
 - During iterative development
 
 **When to use full project check:**
+
 - Before final validation
 - When changes affect shared types
 - Before building/deploying
 
 **Success criteria:**
+
 - Exit code 0
 - No TypeScript compilation errors
 - All type checks pass
 
 **On failure:** Report the specific TypeScript errors and stop validation. Common issues:
+
 - Type mismatches between expected and actual types
 - Missing type declarations for imported modules
 - Incorrect generic type parameters
@@ -103,6 +110,7 @@ npx wix build
 ```
 
 **Success criteria:**
+
 - Exit code 0
 - No TypeScript errors
 - No missing dependencies
@@ -118,10 +126,12 @@ npx wix preview
 ```
 
 **Success criteria:**
+
 - Preview server starts successfully
 - Preview URLs are generated (both site and dashboard)
 
 **URL extraction:** Parse the terminal output to find both preview URLs. Look for patterns like:
+
 - Site preview: `Site preview: https://...` or `Site URL: https://...`
 - Dashboard preview: `Dashboard preview: https://...` or `Preview URL: https://...` or `Your app is available at: https://...`
 
@@ -134,12 +144,14 @@ Extract both URLs and provide them to the user for manual verification.
 After completing all steps, provide a summary:
 
 **Pass:**
+
 - Dependencies: ✓ All packages installed successfully
 - TypeScript: ✓ No compilation errors
 - Build: ✓ Compiled successfully
 - Preview: ✓ Running at [URL]
 
 **Fail:**
+
 - Identify which step failed
 - Provide specific error messages
 - Suggest remediation steps
@@ -159,13 +171,13 @@ Read: .wix/debug.log (with offset to the end)
 
 ## Common Issues
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Package installation fails | Missing lock file, network issues, or corrupted node_modules | Delete `node_modules` and lock file, then reinstall |
-| TypeScript compilation fails | Type mismatches, missing declarations, or incorrect types | Fix TypeScript errors shown in `npx tsc --noEmit` output |
-| Build fails | TypeScript errors, missing dependencies, or internal CLI error | Fix TypeScript errors in source; for non-obvious failures, check `.wix/debug.log` |
-| Preview fails to start | Port conflict, config issue, or internal CLI error | Check `wix.config.json`; if unclear, check `.wix/debug.log` for details |
-| Console errors in preview | Runtime exceptions | Check browser console output |
-| UI not rendering | Component errors | Review component code and imports |
-| CLI error with no clear message | Truncated terminal output | Read `.wix/debug.log` for the full error trace and stack details |
-| Mysterious failures after config change | Stale CLI state | Read `.wix/debug.log` to confirm, then delete `.wix/` and rebuild |
+| Issue                                   | Cause                                                          | Solution                                                                          |
+| --------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Package installation fails              | Missing lock file, network issues, or corrupted node_modules   | Delete `node_modules` and lock file, then reinstall                               |
+| TypeScript compilation fails            | Type mismatches, missing declarations, or incorrect types      | Fix TypeScript errors shown in `npx tsc --noEmit` output                          |
+| Build fails                             | TypeScript errors, missing dependencies, or internal CLI error | Fix TypeScript errors in source; for non-obvious failures, check `.wix/debug.log` |
+| Preview fails to start                  | Port conflict, config issue, or internal CLI error             | Check `wix.config.json`; if unclear, check `.wix/debug.log` for details           |
+| Console errors in preview               | Runtime exceptions                                             | Check browser console output                                                      |
+| UI not rendering                        | Component errors                                               | Review component code and imports                                                 |
+| CLI error with no clear message         | Truncated terminal output                                      | Read `.wix/debug.log` for the full error trace and stack details                  |
+| Mysterious failures after config change | Stale CLI state                                                | Read `.wix/debug.log` to confirm, then delete `.wix/` and rebuild                 |

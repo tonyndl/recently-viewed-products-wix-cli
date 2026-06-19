@@ -7,12 +7,15 @@ The stores `components` scope writes the TSX/util files; the CSS rules ship in t
 Files written for back-in-stock, by scope:
 
 **`components` scope** (see `./SHARED_WIRING.md`):
+
 - `src/components/BackInStockForm.tsx` — React island that posts via `@wix/ecom`'s `backInStockNotifications.createBackInStockNotificationRequest`
 
 **Pre-copied by the orchestrator** (do NOT author — same treatment as `categories.ts`):
+
 - `src/utils/back-in-stock.ts` — SSR-elevated probe of the Wix back-in-stock service, plus the canonical Stores app id constant. Pre-copied into the project in the build-wave pre-batch (BUILD-astro.md § "Step 4.5"). **Import** `getBackInStockEnabled`/the app-id constants from `../utils/back-in-stock`; never `Write` it yourself (racing the pre-copy trips the harness staleness guard).
 
 **`components-css` scope** (see `./COMPONENTS_CSS.md`):
+
 - `src/styles/components-stores.css` — appends the back-in-stock form CSS rules at the end of the file (see § 3 below)
 
 This file is read by both scopes. Sections covering the SDK / probe / form island are for the `components` scope; § 3 (CSS append) is for the `components-css` scope.
@@ -52,6 +55,7 @@ Do NOT modify logic, imports, the bare-fields request shape, or the app-id const
 > Pre-copied by the orchestrator in the build-wave pre-batch (BUILD-astro.md § "Step 4.5") — same treatment as `categories.ts`. **Import** from `../utils/back-in-stock`; do NOT write it yourself. The exports below are documented here so callers (the form island, the `[slug].astro` probe) know the surface.
 
 Exports:
+
 - `WIX_STORES_BACK_IN_STOCK_APP_ID` — string constant. Use this for the `catalogReference.appId` in the form.
 - `WIX_STORES_INSTALL_APP_ID` — string constant. Exported for completeness; unused by this file.
 - `getBackInStockEnabled(): Promise<boolean>` — memoized SSR probe.
@@ -68,6 +72,7 @@ Props: `{ productId, variantId?, productName, productPrice: number | string, var
 State machine: `idle → submitting → (success | error)` with `success` carrying an optional `alreadySubscribed` flag for the duplicate-detection branch (`BACK_IN_STOCK_NOTIFICATION_REQUEST_ALREADY_EXISTS` → "You're already on the list").
 
 Class names:
+
 - `.back-in-stock-form`, `.back-in-stock-headline`, `.back-in-stock-eyebrow`, `.back-in-stock-lede`, `.back-in-stock-label`, `.back-in-stock-row`, `.back-in-stock-input`, `.back-in-stock-submit`, `.back-in-stock-error`, `.back-in-stock-success`, `.back-in-stock-success-headline`, `.back-in-stock-success-detail` — defined in the CSS append below.
 
 ### 3. `src/styles/components-stores.css` — append
@@ -151,7 +156,11 @@ The full components scope return must mention back-in-stock:
   "scope": "components",
   "summary": "Wrote stores islands, scoped CSS, back-in-stock probe + form",
   "data": {
-    "islands": ["ProductPurchase.tsx", "AddToCartButton.tsx", "BackInStockForm.tsx"],
+    "islands": [
+      "ProductPurchase.tsx",
+      "AddToCartButton.tsx",
+      "BackInStockForm.tsx"
+    ],
     "scopedCssFile": "src/styles/components-stores.css",
     "backInStockWired": true
   },
@@ -168,11 +177,11 @@ The full components scope return must mention back-in-stock:
 
 ## Anti-patterns
 
-| WRONG | CORRECT |
-|---|---|
-| Use `215238eb-…` (Stores install id) as `catalogReference.appId` for back-in-stock | Use `WIX_STORES_BACK_IN_STOCK_APP_ID` (`1380b703-…`); the install id is rejected on V3 |
-| Pass `itemUrl` or `image` to `createBackInStockNotificationRequest` | Send only `catalogReference`, `email`, `name`, numeric `price` — the SDK throws `Failed to construct 'URL': Invalid URL` on either optional field |
-| Send `"$385"` as `price` | Numeric string `"385"` only; the API rejects formatted prices with `400 DECIMAL_GTE` |
-| Wrap the subscribe call in `auth.elevate(...)` from the React island | Visitor scope is enough; elevation belongs only to the SSR probe |
-| Add a custom `src/pages/api/back-in-stock-subscribe.ts` route | Not needed — SDK from the island works. The Wix cloud adapter returned 403 on app-defined POST routes during the trial. |
-| Drop the module-memoization in `back-in-stock.ts` | Keep it; multiple SSR awaits in the same request coalesce into one `getSettings` call |
+| WRONG                                                                              | CORRECT                                                                                                                                           |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Use `215238eb-…` (Stores install id) as `catalogReference.appId` for back-in-stock | Use `WIX_STORES_BACK_IN_STOCK_APP_ID` (`1380b703-…`); the install id is rejected on V3                                                            |
+| Pass `itemUrl` or `image` to `createBackInStockNotificationRequest`                | Send only `catalogReference`, `email`, `name`, numeric `price` — the SDK throws `Failed to construct 'URL': Invalid URL` on either optional field |
+| Send `"$385"` as `price`                                                           | Numeric string `"385"` only; the API rejects formatted prices with `400 DECIMAL_GTE`                                                              |
+| Wrap the subscribe call in `auth.elevate(...)` from the React island               | Visitor scope is enough; elevation belongs only to the SSR probe                                                                                  |
+| Add a custom `src/pages/api/back-in-stock-subscribe.ts` route                      | Not needed — SDK from the island works. The Wix cloud adapter returned 403 on app-defined POST routes during the trial.                           |
+| Drop the module-memoization in `back-in-stock.ts`                                  | Keep it; multiple SSR awaits in the same request coalesce into one `getSettings` call                                                             |

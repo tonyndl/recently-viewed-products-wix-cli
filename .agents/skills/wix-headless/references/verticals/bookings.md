@@ -1,7 +1,24 @@
 ---
 name: bookings
 description: "Service-based booking — services catalog, availability calendar, and booking flow via Wix Bookings."
-triggers: ["booking", "appointment", "schedule", "reserve", "class", "session", "consult", "therapy", "lesson", "coaching", "trainer", "tutor", "salon", "spa", "clinic"]
+triggers:
+  [
+    "booking",
+    "appointment",
+    "schedule",
+    "reserve",
+    "class",
+    "session",
+    "consult",
+    "therapy",
+    "lesson",
+    "coaching",
+    "trainer",
+    "tutor",
+    "salon",
+    "spa",
+    "clinic",
+  ]
 requires: []
 
 features:

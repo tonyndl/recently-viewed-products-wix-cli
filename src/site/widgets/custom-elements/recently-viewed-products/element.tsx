@@ -1,21 +1,26 @@
-import { createElement } from 'react';
-import { createRoot, type Root } from 'react-dom/client';
-import RecentlyViewedWidget from './widget/index';
-import type { WidgetProps } from './types';
+import { createElement } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import RecentlyViewedWidget from "./widget/index";
+import type { WidgetProps } from "./types";
 import {
   PROP,
   DEFAULTS,
   LAYOUT_KINDS,
   type LayoutKind,
   type RatioKind,
-  type ImageFit,
   type TextPosition,
   type HoverEffect,
   type TextAlign,
-} from './constants';
+} from "./constants";
 
-const oneOf = <T extends string>(value: string | null, allowed: readonly T[], fallback: T): T =>
-  value != null && (allowed as readonly string[]).includes(value) ? (value as T) : fallback;
+const oneOf = <T extends string>(
+  value: string | null,
+  allowed: readonly T[],
+  fallback: T,
+): T =>
+  value != null && (allowed as readonly string[]).includes(value)
+    ? (value as T)
+    : fallback;
 
 // The Wix Astro runtime expects the custom-element `element` file to default
 // export a CustomElementConstructor. We mount the React widget into the
@@ -43,7 +48,7 @@ class RecentlyViewedElement extends HTMLElement {
 
   private bool(name: string, fallback: boolean): boolean {
     const v = this.getAttribute(name);
-    return v != null ? v === 'true' : fallback;
+    return v != null ? v === "true" : fallback;
   }
 
   private num(name: string, fallback: number): number {
@@ -54,39 +59,47 @@ class RecentlyViewedElement extends HTMLElement {
 
   private parseProps(): WidgetProps {
     return {
-      layout: oneOf<LayoutKind>(this.getAttribute(PROP.layout), LAYOUT_KINDS, DEFAULTS.layout),
+      layout: oneOf<LayoutKind>(
+        this.getAttribute(PROP.layout),
+        LAYOUT_KINDS,
+        DEFAULTS.layout,
+      ),
       columns: this.num(PROP.columns, DEFAULTS.columns),
       spacing: this.num(PROP.spacing, DEFAULTS.spacing),
       ratio: oneOf<RatioKind>(
         this.getAttribute(PROP.ratio),
-        ['square', 'portrait', 'landscape', 'original'],
+        ["square", "portrait", "landscape", "original"],
         DEFAULTS.ratio,
       ),
-      imageFit: oneOf<ImageFit>(this.getAttribute(PROP.imageFit), ['crop', 'fit'], DEFAULTS.imageFit),
       showTitle: this.bool(PROP.showTitle, DEFAULTS.showTitle),
       showPrice: this.bool(PROP.showPrice, DEFAULTS.showPrice),
       textPosition: oneOf<TextPosition>(
         this.getAttribute(PROP.textPosition),
-        ['below', 'top', 'onimage'],
+        ["below", "top", "onimage"],
         DEFAULTS.textPosition,
       ),
       cornerRadius: this.num(PROP.cornerRadius, DEFAULTS.cornerRadius),
       imageBorder: this.bool(PROP.imageBorder, DEFAULTS.imageBorder),
       hoverEffect: oneOf<HoverEffect>(
         this.getAttribute(PROP.hoverEffect),
-        ['none', 'zoom', 'fade'],
+        ["none", "zoom", "fade"],
         DEFAULTS.hoverEffect,
       ),
       bgColor: this.getAttribute(PROP.bgColor) ?? DEFAULTS.bgColor,
-      behavior: this.getAttribute(PROP.behavior) === 'text' ? 'text' : DEFAULTS.behavior,
-      isPremium: this.getAttribute(PROP.isPremium) === 'true',
+      behavior:
+        this.getAttribute(PROP.behavior) === "text"
+          ? "text"
+          : DEFAULTS.behavior,
+      emptyText: this.getAttribute(PROP.emptyText) ?? DEFAULTS.emptyText,
+      isPremium: this.getAttribute(PROP.isPremium) === "true",
       headingText: this.getAttribute(PROP.headingText) ?? DEFAULTS.headingText,
       headingShow: this.bool(PROP.headingShow, DEFAULTS.headingShow),
       headingSize: this.num(PROP.headingSize, DEFAULTS.headingSize),
-      headingColor: this.getAttribute(PROP.headingColor) ?? DEFAULTS.headingColor,
+      headingColor:
+        this.getAttribute(PROP.headingColor) ?? DEFAULTS.headingColor,
       headingAlign: oneOf<TextAlign>(
         this.getAttribute(PROP.headingAlign),
-        ['left', 'center', 'right'],
+        ["left", "center", "right"],
         DEFAULTS.headingAlign,
       ),
       textSize: this.num(PROP.textSize, DEFAULTS.textSize),

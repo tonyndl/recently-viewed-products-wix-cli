@@ -29,20 +29,37 @@ const fmt = (iso: string | null) => {
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
     ? null
-    : d.toLocaleString([], { weekday: "long", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    : d.toLocaleString([], {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 };
 
-export default function ManageBooking({ token, revision, serviceName, startDate, status, canCancel, showSummary }: Props) {
-  const [state, setState] = useState<"idle" | "canceling" | "canceled" | "error">(
-    status === "CANCELED" ? "canceled" : "idle",
-  );
+export default function ManageBooking({
+  token,
+  revision,
+  serviceName,
+  startDate,
+  status,
+  canCancel,
+  showSummary,
+}: Props) {
+  const [state, setState] = useState<
+    "idle" | "canceling" | "canceled" | "error"
+  >(status === "CANCELED" ? "canceled" : "idle");
   const when = fmt(startDate);
 
   const handleCancel = async () => {
     if (!token) return;
     setState("canceling");
     try {
-      await wixClient.bookings.bookingsCancelBookingAnonymously(token, revision);
+      await wixClient.bookings.bookingsCancelBookingAnonymously(
+        token,
+        revision,
+      );
       setState("canceled");
     } catch (err) {
       console.error("[manage-booking] cancel failed:", err);
@@ -54,9 +71,22 @@ export default function ManageBooking({ token, revision, serviceName, startDate,
     return (
       <div className="manage-booking">
         <p className="manage-booking-status">
-          Your booking for <strong>{serviceName}</strong>{when ? <> on <strong>{when}</strong></> : null} is canceled.
+          Your booking for <strong>{serviceName}</strong>
+          {when ? (
+            <>
+              {" "}
+              on <strong>{when}</strong>
+            </>
+          ) : null}{" "}
+          is canceled.
         </p>
-        <a href="/services" className="booking-submit" style={{ display: "inline-block" }}>Book another service</a>
+        <a
+          href="/services"
+          className="booking-submit"
+          style={{ display: "inline-block" }}
+        >
+          Book another service
+        </a>
       </div>
     );
   }
@@ -65,19 +95,35 @@ export default function ManageBooking({ token, revision, serviceName, startDate,
     <div className="manage-booking">
       {showSummary !== false && (
         <p className="manage-booking-summary">
-          <strong>{serviceName}</strong>{when ? <> · {when}</> : null}
+          <strong>{serviceName}</strong>
+          {when ? <> · {when}</> : null}
         </p>
       )}
-      {state === "error" && <p className="booking-error">Something went wrong canceling your booking. Please try again.</p>}
+      {state === "error" && (
+        <p className="booking-error">
+          Something went wrong canceling your booking. Please try again.
+        </p>
+      )}
       {canCancel ? (
-        <button type="button" className="booking-submit" onClick={handleCancel} disabled={state === "canceling"}>
+        <button
+          type="button"
+          className="booking-submit"
+          onClick={handleCancel}
+          disabled={state === "canceling"}
+        >
           {state === "canceling" ? "Canceling…" : "Cancel this booking"}
         </button>
       ) : (
-        <p className="manage-booking-note">This booking can no longer be canceled online.</p>
+        <p className="manage-booking-note">
+          This booking can no longer be canceled online.
+        </p>
       )}
       <p className="manage-booking-note">
-        Need a different time? Cancel above, then <a href="/services" className="manage-booking-link">book another time</a>.
+        Need a different time? Cancel above, then{" "}
+        <a href="/services" className="manage-booking-link">
+          book another time
+        </a>
+        .
       </p>
     </div>
   );

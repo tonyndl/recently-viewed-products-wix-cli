@@ -8,8 +8,8 @@ The Validations SPI lets you add custom validation rules to the checkout process
 
 Before implementing, call `ReadFullDocsMethodSchema` on the docs URL to get the full request/response types.
 
-| Handler | Docs URL |
-| --- | --- |
+| Handler                   | Docs URL                                                                                                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `getValidationViolations` | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/extensions/validations/validations-integration-service-plugin/get-validation-violations?apiView=SDK |
 
 ## Example: Minimum Quantity Validation

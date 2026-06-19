@@ -2,6 +2,7 @@
 name: "Create Product (Catalog V1)"
 description: Create products using the Catalog V1 Products API. Use this recipe when the site's catalog version is CATALOG_V1. Covers simple product creation, product with options, and key V1 request structure differences from V3.
 ---
+
 # RECIPE: Business Recipe - Create Product (Catalog V1)
 
 ## STEP 1: Create a Simple Product
@@ -29,13 +30,13 @@ curl -X POST 'https://www.wixapis.com/stores/v1/products' \
 
 **Key V1 fields:**
 
-| Field | Type | Notes |
-|---|---|---|
-| `name` | string | Required. Max 80 characters |
-| `description` | string | HTML string — NOT rich text nodes (e.g. `"<p>text</p>"`) |
-| `productType` | string | `"physical"` only (digital not supported via API) |
-| `priceData.price` | number | Product base price |
-| `visible` | boolean | Whether the product is visible to customers |
+| Field             | Type    | Notes                                                    |
+| ----------------- | ------- | -------------------------------------------------------- |
+| `name`            | string  | Required. Max 80 characters                              |
+| `description`     | string  | HTML string — NOT rich text nodes (e.g. `"<p>text</p>"`) |
+| `productType`     | string  | `"physical"` only (digital not supported via API)        |
+| `priceData.price` | number  | Product base price                                       |
+| `visible`         | boolean | Whether the product is visible to customers              |
 
 ---
 
@@ -79,6 +80,7 @@ curl -X POST 'https://www.wixapis.com/stores/v1/products' \
 ```
 
 **V1 Options structure:**
+
 - `optionType`: `"drop_down"` for text choices, `"color"` for color swatches
 - `choices[].description`: Display name shown to customers
 - `choices[].value`: Internal value (use hex color code for `color` type, e.g. `"#000000"`)
@@ -86,28 +88,30 @@ curl -X POST 'https://www.wixapis.com/stores/v1/products' \
 - `choices[].visible`: Whether this choice is visible to customers
 
 **Variants in V1 responses** are returned as an object with option name keys:
+
 ```json
 "choices": {
   "Weight": "250g",
   "Ground for": "Stovetop"
 }
 ```
+
 This is different from V3 which uses an array structure.
 
 ---
 
 ## Key Differences from V3
 
-| Feature | Catalog V1 | Catalog V3 |
-|---|---|---|
-| Create endpoint | `POST /stores/v1/products` | `POST /stores/v3/products` |
-| Description | HTML string (`"<p>text</p>"`) | Rich text nodes object |
-| Options field | `productOptions` | `options` |
+| Feature           | Catalog V1                          | Catalog V3                                            |
+| ----------------- | ----------------------------------- | ----------------------------------------------------- |
+| Create endpoint   | `POST /stores/v1/products`          | `POST /stores/v3/products`                            |
+| Description       | HTML string (`"<p>text</p>"`)       | Rich text nodes object                                |
+| Options field     | `productOptions`                    | `options`                                             |
 | Option type field | `optionType` (`drop_down`, `color`) | `optionRenderType` (`TEXT_CHOICES`, `SWATCH_CHOICES`) |
-| Choice visibility | `choices[].visible` | `choices[].isVisible` |
-| Variants | Auto-generated from choices | Must be explicitly defined in `variantsInfo.variants` |
-| Variant choices | Object: `{"Weight": "250g"}` | Array of `optionChoiceNames` |
-| Price field | `priceData.price` (number) | `price.actualPrice.amount` (string) |
+| Choice visibility | `choices[].visible`                 | `choices[].isVisible`                                 |
+| Variants          | Auto-generated from choices         | Must be explicitly defined in `variantsInfo.variants` |
+| Variant choices   | Object: `{"Weight": "250g"}`        | Array of `optionChoiceNames`                          |
+| Price field       | `priceData.price` (number)          | `price.actualPrice.amount` (string)                   |
 
 ---
 

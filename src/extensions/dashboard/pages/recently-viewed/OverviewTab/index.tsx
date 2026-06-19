@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import type { FC } from "react";
 import {
   Badge,
   Box,
@@ -8,10 +8,9 @@ import {
   Layout,
   Text,
   TextButton,
-} from '@wix/design-system';
-import * as Icons from '@wix/wix-ui-icons-common';
-import { SetupCard } from './ui/setupCard';
-import { LivePreview } from './ui/livePreview';
+} from "@wix/design-system";
+import * as Icons from "@wix/wix-ui-icons-common";
+import { SetupCard } from "./ui/setupCard";
 
 interface OverviewTabProps {
   isPremium: boolean;
@@ -53,18 +52,21 @@ export const OverviewTab: FC<OverviewTabProps> = ({
     <Cell span={6}>
       <StatCard
         title="Store products"
-        value={productCount == null ? '—' : String(productCount)}
+        value={productCount == null ? "—" : String(productCount)}
         icon={<Icons.Catalog />}
       />
     </Cell>
     <Cell span={6}>
       <StatCard
         title="Plan"
-        value={isPremium ? 'Premium' : 'Free'}
+        value={isPremium ? "Premium" : "Free"}
         icon={<Icons.PremiumFilled />}
         footer={
           !isPremium && upgradeUrl ? (
-            <TextButton size="small" onClick={() => window.open(upgradeUrl, '_blank')}>
+            <TextButton
+              size="small"
+              onClick={() => window.open(upgradeUrl, "_blank")}
+            >
               Upgrade
             </TextButton>
           ) : (
@@ -76,20 +78,8 @@ export const OverviewTab: FC<OverviewTabProps> = ({
       />
     </Cell>
 
-    <Cell span={6}>
+    <Cell span={12}>
       <SetupCard editorUrl={editorUrl} />
-    </Cell>
-    <Cell span={6}>
-      <Card>
-        <Card.Header
-          title="Preview"
-          subtitle="How the gallery looks on your storefront."
-        />
-        <Card.Divider />
-        <Card.Content>
-          <LivePreview />
-        </Card.Content>
-      </Card>
     </Cell>
   </Layout>
 );

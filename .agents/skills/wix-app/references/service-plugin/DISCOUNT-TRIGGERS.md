@@ -6,19 +6,19 @@ The Custom Triggers SPI allows you to define custom conditions that can trigger 
 
 ## Handlers
 
-| Handler | Description |
-| --- | --- |
+| Handler               | Description                                                      |
+| --------------------- | ---------------------------------------------------------------- |
 | `getEligibleTriggers` | Evaluate current conditions and return which triggers are active |
-| `listTriggers` | Return the list of all available custom triggers |
+| `listTriggers`        | Return the list of all available custom triggers                 |
 
 ## Request and Response Schema
 
 Before implementing, call `ReadFullDocsMethodSchema` on each docs URL to get the full request/response types.
 
-| Handler | Docs URL |
-| --- | --- |
+| Handler               | Docs URL                                                                                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `getEligibleTriggers` | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/extensions/discounts/custom-discount-triggers-integration-service-plugin/get-eligible-triggers?apiView=SDK |
-| `listTriggers` | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/extensions/discounts/custom-discount-triggers-integration-service-plugin/list-triggers?apiView=SDK |
+| `listTriggers`        | https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/extensions/discounts/custom-discount-triggers-integration-service-plugin/list-triggers?apiView=SDK         |
 
 ## Example: Happy Hour and Digital Products Triggers
 

@@ -15,7 +15,11 @@ interface Props {
   serviceType: "APPOINTMENT" | "CLASS";
 }
 
-export default function ServiceBookingFlow({ serviceId, serviceName, serviceType }: Props) {
+export default function ServiceBookingFlow({
+  serviceId,
+  serviceName,
+  serviceType,
+}: Props) {
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
 
   const handleSuccess = (bookingId: string, startDate?: string) => {

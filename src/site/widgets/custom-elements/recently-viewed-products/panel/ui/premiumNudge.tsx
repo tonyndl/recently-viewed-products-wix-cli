@@ -1,7 +1,7 @@
-import type { FC } from 'react';
-import { Text, Button } from '@wix/design-system';
-import * as Icons from '@wix/wix-ui-icons-common';
-import { styles } from './styles/premiumNudge';
+import type { FC } from "react";
+import { Text, Button } from "@wix/design-system";
+import * as Icons from "@wix/wix-ui-icons-common";
+import { styles } from "./styles/premiumNudge";
 
 interface Props {
   onUpgrade: () => void;

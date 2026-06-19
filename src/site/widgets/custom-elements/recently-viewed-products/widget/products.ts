@@ -1,6 +1,9 @@
-import { httpClient } from '@wix/essentials';
-import type { RecentlyViewedItem } from '../types';
-import { TRACKING_STORAGE_KEY, MAX_TRACKED_SLUGS } from '../../../../../constants';
+import { httpClient } from "@wix/essentials";
+import type { RecentlyViewedItem } from "../types";
+import {
+  TRACKING_STORAGE_KEY,
+  MAX_TRACKED_SLUGS,
+} from "../../../../../constants";
 
 const baseApiUrl = new URL(import.meta.url).origin;
 
@@ -13,7 +16,7 @@ export const readTrackedSlugs = (): string[] => {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
     return parsed
-      .filter((s): s is string => typeof s === 'string')
+      .filter((s): s is string => typeof s === "string")
       .slice(0, MAX_TRACKED_SLUGS);
   } catch {
     return [];
@@ -23,7 +26,9 @@ export const readTrackedSlugs = (): string[] => {
 // Product reads run through the app backend with elevated permissions
 // (/api/products), the modern equivalent of the original's suppressAuth.
 const fetchFromApi = async (query: string): Promise<RecentlyViewedItem[]> => {
-  const res = await httpClient.fetchWithAuth(`${baseApiUrl}/api/products?${query}`);
+  const res = await httpClient.fetchWithAuth(
+    `${baseApiUrl}/api/products?${query}`,
+  );
   const data = (await res.json()) as RecentlyViewedItem[] | { error: string };
   return Array.isArray(data) ? data : [];
 };
@@ -34,7 +39,9 @@ export const fetchRecentlyViewed = async (
 ): Promise<RecentlyViewedItem[]> => {
   if (slugs.length === 0) return [];
 
-  const items = await fetchFromApi(`slugs=${encodeURIComponent(slugs.join(','))}`);
+  const items = await fetchFromApi(
+    `slugs=${encodeURIComponent(slugs.join(","))}`,
+  );
   const bySlug = new Map<string, RecentlyViewedItem>();
   for (const item of items) {
     if (item.slug && !bySlug.has(item.slug)) bySlug.set(item.slug, item);

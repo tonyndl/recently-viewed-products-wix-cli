@@ -93,27 +93,27 @@ Don't read these files fully. Grep for keywords, then read specific sections wit
 
 ## Quick Component Mapping (Design to WDS)
 
-| Design Element | WDS Component | Notes |
-| --- | --- | --- |
-| Rectangle/container | `<Box>` | Layout wrapper |
-| Text button | `<TextButton>` | Secondary actions |
-| Input with label | `<FormField>` + `<Input>` | Wrap inputs |
-| Toggle | `<ToggleSwitch>` | On/off settings |
-| Modal | `<Modal>` + `<CustomModalLayout>` | Use together |
-| Grid | `<Layout>` + `<Cell>` | Responsive |
+| Design Element      | WDS Component                     | Notes             |
+| ------------------- | --------------------------------- | ----------------- |
+| Rectangle/container | `<Box>`                           | Layout wrapper    |
+| Text button         | `<TextButton>`                    | Secondary actions |
+| Input with label    | `<FormField>` + `<Input>`         | Wrap inputs       |
+| Toggle              | `<ToggleSwitch>`                  | On/off settings   |
+| Modal               | `<Modal>` + `<CustomModalLayout>` | Use together      |
+| Grid                | `<Layout>` + `<Cell>`             | Responsive        |
 
 ## Spacing (px to SP conversion)
 
 When designer specifies pixels, convert to the nearest SP token:
 
 | Token | Classic | Studio |
-| --- | --- | --- |
-| `SP1` | 6px | 4px |
-| `SP2` | 12px | 8px |
-| `SP3` | 18px | 12px |
-| `SP4` | 24px | 16px |
-| `SP5` | 30px | 20px |
-| `SP6` | 36px | 24px |
+| ----- | ------- | ------ |
+| `SP1` | 6px     | 4px    |
+| `SP2` | 12px    | 8px    |
+| `SP3` | 18px    | 12px   |
+| `SP4` | 24px    | 16px   |
+| `SP5` | 30px    | 20px   |
+| `SP6` | 36px    | 24px   |
 
 ```tsx
 <Box gap="SP2" padding="SP3">

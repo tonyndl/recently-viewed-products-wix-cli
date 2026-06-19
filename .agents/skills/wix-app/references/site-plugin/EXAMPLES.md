@@ -11,7 +11,7 @@ A customizable badge that displays on product pages with configurable text and c
 ```typescript
 class BestSellerBadge extends HTMLElement {
   static get observedAttributes() {
-    return ['badge-text', 'bg-color', 'text-color'];
+    return ["badge-text", "bg-color", "text-color"];
   }
 
   constructor() {
@@ -27,9 +27,9 @@ class BestSellerBadge extends HTMLElement {
   }
 
   render() {
-    const badgeText = this.getAttribute('badge-text') || 'Best Seller';
-    const bgColor = this.getAttribute('bg-color') || '#ff6b35';
-    const textColor = this.getAttribute('text-color') || '#ffffff';
+    const badgeText = this.getAttribute("badge-text") || "Best Seller";
+    const bgColor = this.getAttribute("bg-color") || "#ff6b35";
+    const textColor = this.getAttribute("text-color") || "#ffffff";
 
     this.innerHTML = `
       <span style="
@@ -146,32 +146,33 @@ export default Panel;
 ### Extension Configuration (`best-seller-badge.extension.ts`)
 
 ```typescript
-import { extensions } from '@wix/astro/builders';
+import { extensions } from "@wix/astro/builders";
 
 export default extensions.sitePlugin({
-  id: 'f8e2a1b3-c4d5-6789-abcd-ef0123456789',
-  name: 'Best Seller Badge',
+  id: "f8e2a1b3-c4d5-6789-abcd-ef0123456789",
+  name: "Best Seller Badge",
   marketData: {
-    name: 'Best Seller Badge',
-    description: 'Display a customizable badge on product pages',
-    logoUrl: '{{BASE_URL}}/best-seller-badge-logo.svg',
+    name: "Best Seller Badge",
+    description: "Display a customizable badge on product pages",
+    logoUrl: "{{BASE_URL}}/best-seller-badge-logo.svg",
   },
   placements: [
     {
-      appDefinitionId: '1380b703-ce81-ff05-f115-39571d94dfcd',
-      widgetId: '13a94f09-2766-3c40-4a32-8edb5acdd8bc',
-      slotId: 'product-page-details-2',
+      appDefinitionId: "1380b703-ce81-ff05-f115-39571d94dfcd",
+      widgetId: "13a94f09-2766-3c40-4a32-8edb5acdd8bc",
+      slotId: "product-page-details-2",
     },
     {
-      appDefinitionId: 'a0c68605-c2e7-4c8d-9ea1-767f9770e087',
-      widgetId: '6a25b678-53ec-4b37-a190-65fcd1ca1a63',
-      slotId: 'product-page-details-2',
+      appDefinitionId: "a0c68605-c2e7-4c8d-9ea1-767f9770e087",
+      widgetId: "6a25b678-53ec-4b37-a190-65fcd1ca1a63",
+      slotId: "product-page-details-2",
     },
   ],
   installation: { autoAdd: true },
-  tagName: 'best-seller-badge',
-  element: './extensions/site/plugins/best-seller-badge/best-seller-badge.tsx',
-  settings: './extensions/site/plugins/best-seller-badge/best-seller-badge.panel.tsx',
+  tagName: "best-seller-badge",
+  element: "./extensions/site/plugins/best-seller-badge/best-seller-badge.tsx",
+  settings:
+    "./extensions/site/plugins/best-seller-badge/best-seller-badge.panel.tsx",
 });
 ```
 
@@ -229,7 +230,7 @@ import { window as wixWindow } from "@wix/site-window";
 
 class DataPlugin extends HTMLElement {
   static get observedAttributes() {
-    return ['collection-id'];
+    return ["collection-id"];
   }
 
   constructor() {
@@ -254,13 +255,13 @@ class DataPlugin extends HTMLElement {
   }
 
   async loadData() {
-    const collectionId = this.getAttribute('collection-id');
+    const collectionId = this.getAttribute("collection-id");
     if (!collectionId) return;
 
     try {
       const viewMode = await wixWindow.viewMode();
 
-      if (viewMode === 'Editor') {
+      if (viewMode === "Editor") {
         this.innerHTML = `
           <div style="padding: 20px; border: 2px dashed #ccc;">
             <p>Plugin will display data on the live site</p>
@@ -273,11 +274,11 @@ class DataPlugin extends HTMLElement {
       const results = await items.query(collectionId).limit(10).find();
       this.innerHTML = `
         <div style="padding: 16px;">
-          ${results.items.map(item => `<div>${item.title}</div>`).join('')}
+          ${results.items.map((item) => `<div>${item.title}</div>`).join("")}
         </div>
       `;
     } catch (error) {
-      console.error('Failed to load data:', error);
+      console.error("Failed to load data:", error);
       this.innerHTML = `<div style="color: red;">Error loading data</div>`;
     }
   }

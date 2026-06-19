@@ -22,7 +22,10 @@ You wire the **ecom capability** (add-to-cart + checkout) into a brought-in stat
   import { currentCart } from "https://esm.sh/@wix/ecom@1";
   import { redirects } from "https://esm.sh/@wix/redirects@1";
 
-  const wix = createClient({ modules: { currentCart, redirects }, auth: OAuthStrategy({ clientId: "REPLACE_WITH_APP_ID" }) });
+  const wix = createClient({
+    modules: { currentCart, redirects },
+    auth: OAuthStrategy({ clientId: "REPLACE_WITH_APP_ID" }),
+  });
 
   // Add to cart — buttons carry data-product-id (set by the stores wiring)
   document.querySelectorAll("[data-add-to-cart]").forEach((btn) => {
@@ -30,31 +33,45 @@ You wire the **ecom capability** (add-to-cart + checkout) into a brought-in stat
       btn.disabled = true;
       try {
         await wix.currentCart.addToCurrentCart({
-          lineItems: [{
-            catalogReference: {
-              appId: "215238eb-22a5-4c36-9e7b-e7c08025e04e", // Wix Stores catalog appId (constant)
-              catalogItemId: btn.dataset.productId,
+          lineItems: [
+            {
+              catalogReference: {
+                appId: "215238eb-22a5-4c36-9e7b-e7c08025e04e", // Wix Stores catalog appId (constant)
+                catalogItemId: btn.dataset.productId,
+              },
+              quantity: 1,
             },
-            quantity: 1,
-          }],
+          ],
         });
-        document.querySelector("[data-cart-badge]")?.replaceChildren(document.createTextNode("•"));
-      } catch (err) { console.error("[wix-ecom] add-to-cart failed:", err); }
-      finally { btn.disabled = false; }
+        document
+          .querySelector("[data-cart-badge]")
+          ?.replaceChildren(document.createTextNode("•"));
+      } catch (err) {
+        console.error("[wix-ecom] add-to-cart failed:", err);
+      } finally {
+        btn.disabled = false;
+      }
     });
   });
 
   // Checkout — create a checkout from the current cart, then redirect to Wix-hosted checkout
-  document.querySelector("[data-checkout]")?.addEventListener("click", async () => {
-    try {
-      const { checkoutId } = await wix.currentCart.createCheckoutFromCurrentCart({ channelType: "WEB" });
-      const { redirectSession } = await wix.redirects.createRedirectSession({
-        ecomCheckout: { checkoutId },
-        callbacks: { postFlowUrl: location.href },
-      });
-      if (redirectSession?.fullUrl) location.assign(redirectSession.fullUrl);
-    } catch (err) { console.error("[wix-ecom] checkout failed:", err); }
-  });
+  document
+    .querySelector("[data-checkout]")
+    ?.addEventListener("click", async () => {
+      try {
+        const { checkoutId } =
+          await wix.currentCart.createCheckoutFromCurrentCart({
+            channelType: "WEB",
+          });
+        const { redirectSession } = await wix.redirects.createRedirectSession({
+          ecomCheckout: { checkoutId },
+          callbacks: { postFlowUrl: location.href },
+        });
+        if (redirectSession?.fullUrl) location.assign(redirectSession.fullUrl);
+      } catch (err) {
+        console.error("[wix-ecom] checkout failed:", err);
+      }
+    });
 </script>
 ```
 

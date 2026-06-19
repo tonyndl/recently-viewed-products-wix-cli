@@ -2,6 +2,7 @@
 name: "Create Product with Options (Catalog V3)"
 description: Single product creation with options using Catalog V3 Products API. Covers option types (TEXT_CHOICES, SWATCH_CHOICES), choice configuration, and automatic variant generation.
 ---
+
 # RECIPE: Business Recipe - Creating a Wix Store Product with options (Catalog V3)
 
 Learn how to create a Wix store product with customizable options like colors, sizes, or other variants, allowing customers to select their preferences when purchasing.
@@ -346,11 +347,11 @@ Response includes the wixstatic.com URL:
 
 ```json
 {
-    "file": {
-        "id": "e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
-        "url": "https://static.wixstatic.com/media/e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
-        "operationStatus": "PENDING"
-    }
+  "file": {
+    "id": "e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
+    "url": "https://static.wixstatic.com/media/e6a89e_19dae9fef9bb48a6b5e392d0d2e5b95d~mv2.jpg",
+    "operationStatus": "PENDING"
+  }
 }
 ```
 
@@ -379,20 +380,20 @@ Response includes the wixstatic.com URL:
 
 **CRITICAL: Options Structure**Each option MUST include:
 
-* `optionRenderType`: "TEXT_CHOICES" for text-based choices
-* `choicesSettings`: Object containing the choices array
-* `choicesSettings.choices`: Array with at least one choice
-* Each choice MUST have `choiceType`: "CHOICE_TEXT" and `name` properties
+- `optionRenderType`: "TEXT_CHOICES" for text-based choices
+- `choicesSettings`: Object containing the choices array
+- `choicesSettings.choices`: Array with at least one choice
+- Each choice MUST have `choiceType`: "CHOICE_TEXT" and `name` properties
 
 **CRITICAL: Variants Structure**
 
-* Create one variant for EVERY combination of option choices (Cartesian product of all options)
-* In this example: 2 colors and 3 sizes creates 6 variants (2 x 3) - all combinations must be included
-* Each variant must reference ALL options defined on the product
-* Use `optionChoiceNames` structure with `optionName`, `choiceName`, and `renderType`
-* Price must use `price.actualPrice.amount` with string values
-* Use `visible: true` for variants you want customers to see and purchase
-* Use `visible: false` for variants that exist but should be hidden from customers
+- Create one variant for EVERY combination of option choices (Cartesian product of all options)
+- In this example: 2 colors and 3 sizes creates 6 variants (2 x 3) - all combinations must be included
+- Each variant must reference ALL options defined on the product
+- Use `optionChoiceNames` structure with `optionName`, `choiceName`, and `renderType`
+- Price must use `price.actualPrice.amount` with string values
+- Use `visible: true` for variants you want customers to see and purchase
+- Use `visible: false` for variants that exist but should be hidden from customers
 
 The Create Product API can handle creating customizations and choices in a single call. There's no need to separately check for existing customizations, create new ones, or add choices to them—the API handles all of this automatically:
 
@@ -417,11 +418,11 @@ After Creating the product, verify that the options appear correctly in the stor
 
 ### Issue 1: "ChoicesSettings must not be empty" error
 
-* **Problem**: When creating a product with options, you get an error saying `choicesSettings must not be empty`. This can appear in several forms:
-   * `"product is invalid: options [at index 0] is invalid: value choicesSettings must not be empty"`
-   * `"product is invalid: options [at index 0] is invalid: value choicesSettings must not be empty"` with `"violatedRule":"REQUIRED_ONE_OF_FIELD"`
-   * `"choicesSettings must not be empty"` with field violations showing `"supported":["choicesSettings"]`
-* **Solution**: Always include the `choicesSettings` object with the full array of `choices` when creating a product with options. Every option MUST have a complete choicesSettings structure with at least one choice, even when using an existing customization.
+- **Problem**: When creating a product with options, you get an error saying `choicesSettings must not be empty`. This can appear in several forms:
+  - `"product is invalid: options [at index 0] is invalid: value choicesSettings must not be empty"`
+  - `"product is invalid: options [at index 0] is invalid: value choicesSettings must not be empty"` with `"violatedRule":"REQUIRED_ONE_OF_FIELD"`
+  - `"choicesSettings must not be empty"` with field violations showing `"supported":["choicesSettings"]`
+- **Solution**: Always include the `choicesSettings` object with the full array of `choices` when creating a product with options. Every option MUST have a complete choicesSettings structure with at least one choice, even when using an existing customization.
 
 **Common Causes:**
 
@@ -482,8 +483,8 @@ After Creating the product, verify that the options appear correctly in the stor
 
 ### Issue 2: "optionSettings.choicesSettings.choices must not be empty" error
 
-* **Problem**: You get an error like `"product is invalid: options [at index 0] is invalid: optionSettings.choicesSettings is invalid: choices has size 0, expected 1 or more"` or `"choices must not be empty"`.
-* **Solution**: This error occurs when using the incorrect nested structure `optionSettings.choicesSettings` instead of the correct `choicesSettings` directly under the option.
+- **Problem**: You get an error like `"product is invalid: options [at index 0] is invalid: optionSettings.choicesSettings is invalid: choices has size 0, expected 1 or more"` or `"choices must not be empty"`.
+- **Solution**: This error occurs when using the incorrect nested structure `optionSettings.choicesSettings` instead of the correct `choicesSettings` directly under the option.
 
 **WRONG Structure (causes the error):**
 
@@ -522,42 +523,42 @@ After Creating the product, verify that the options appear correctly in the stor
 
 **Key Points:**
 
-* Use `choicesSettings` directly under the option object, NOT nested under `optionSettings`
-* The `choicesSettings.choices` array MUST contain at least one choice
-* Each choice MUST have `choiceType` and `name` properties
-* Always include the complete choices array even when referencing existing customizations
+- Use `choicesSettings` directly under the option object, NOT nested under `optionSettings`
+- The `choicesSettings.choices` array MUST contain at least one choice
+- Each choice MUST have `choiceType` and `name` properties
+- Always include the complete choices array even when referencing existing customizations
 
 ### Issue 3: Variants not matching options
 
-* **Problem**: The API returns errors about variants not matching the product's options.
-* **Solution**:
-* Create one variant for each possible combination of option choices
-* Ensure each variant references all options defined on the product
-* If the product has only one option with three choices, you need three variants
-* Make sure each variant's option choice name exactly matches the corresponding option choice
+- **Problem**: The API returns errors about variants not matching the product's options.
+- **Solution**:
+- Create one variant for each possible combination of option choices
+- Ensure each variant references all options defined on the product
+- If the product has only one option with three choices, you need three variants
+- Make sure each variant's option choice name exactly matches the corresponding option choice
 
 ### Issue 4: Conflicts when using existing customizations
 
-* **Problem**: When attempting to use existing customizations, you encounter name conflicts or choice conflicts.
-* **Solution**:
-* If you need to use a specific existing customization ID, first query customizations to get the correct ID
-* When working with existing customizations, ensure all choices you reference actually exist in that customization
-* If you're creating a new customization with the same name as an existing one, the API will use the existing one
-* Be aware that customizations are shared across all products in your store
+- **Problem**: When attempting to use existing customizations, you encounter name conflicts or choice conflicts.
+- **Solution**:
+- If you need to use a specific existing customization ID, first query customizations to get the correct ID
+- When working with existing customizations, ensure all choices you reference actually exist in that customization
+- If you're creating a new customization with the same name as an existing one, the API will use the existing one
+- Be aware that customizations are shared across all products in your store
 
 ### Issue 5: "Expected an object" error for description
 
-* **Problem**: Using a plain string for the description field causes API failure.
-* **Solution**: Always use the rich text nodes structure for descriptions as shown in the CRITICAL section above.
+- **Problem**: Using a plain string for the description field causes API failure.
+- **Solution**: Always use the rich text nodes structure for descriptions as shown in the CRITICAL section above.
 
 ### Issue 6: Inconsistencies in documentation vs. actual API behavior
 
-* **Problem**: Several API requirements are not well-documented or are documented differently from how the API actually behaves.
-* **Solution**:
-* Always include choicesSettings with all choices when creating a product
-* Use optionChoiceNames rather than optionChoiceIds in variants for more reliable results
-* Include the renderType in optionChoiceNames
-* Use the exact same choice names as defined in the customization
+- **Problem**: Several API requirements are not well-documented or are documented differently from how the API actually behaves.
+- **Solution**:
+- Always include choicesSettings with all choices when creating a product
+- Use optionChoiceNames rather than optionChoiceIds in variants for more reliable results
+- Include the renderType in optionChoiceNames
+- Use the exact same choice names as defined in the customization
 
 ## Conclusion
 

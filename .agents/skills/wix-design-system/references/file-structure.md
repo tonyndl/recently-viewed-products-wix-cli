@@ -21,6 +21,7 @@ All files are under `node_modules/@wix/design-system/dist/docs/`.
 
 ```markdown
 ### propName
+
 - type: TypeDefinition
 - description: What it does
 ```
@@ -42,6 +43,7 @@ All files are under `node_modules/@wix/design-system/dist/docs/`.
 ### API
 
 ### methodName
+
 - signature: methodName(arg)
 - returns: Promise<ReturnType>
 - description: What it does

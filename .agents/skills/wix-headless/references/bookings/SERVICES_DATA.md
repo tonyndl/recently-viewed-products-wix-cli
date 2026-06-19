@@ -1,6 +1,7 @@
 # Bookings Seed — Services Data
 
 You are seeding Wix Bookings services for a headless site. Your job:
+
 1. Mint a site-scoped token once.
 2. **If `intent.bookings.hasStaff` is `true`** — create staff members FIRST (Step 3 below), then pass their `resourceId`s on each service. **Every APPOINTMENT service needs a non-empty `staffMemberIds`** or it's rejected with `MISSING_APPOINTMENT_RESOURCES` — even when `hasStaff` is false you must pass the default **Business Owner** `resourceId` (see § "When hasStaff is false"). (CLASS services don't need a resource at create time.)
 3. Create `intent.bookings.serviceCount` services via the Bookings V2 REST API. When staff exist, pass their `resourceId` values via `staffMemberIds`.
@@ -17,6 +18,7 @@ TOKEN=$(npx @wix/cli@latest token --site "<siteId>")
 ```
 
 Cache in subagent scratch. Every subsequent `curl` reuses it. Every call carries:
+
 ```
 Authorization: Bearer $TOKEN
 wix-site-id: <siteId>
@@ -79,7 +81,7 @@ Save `staffMember.id` and `staffMember.resourceId` from each response. **You wil
 
 For `serviceType: "CLASS"`, no staff/resource is needed at service-creation time — skip this step.
 
-For `serviceType: "APPOINTMENT"` with `hasStaff: false`, you **still must pass a resource** in `staffMemberIds` — an empty `[]` is **rejected** with `MISSING_APPOINTMENT_RESOURCES` (*"service of type appointment requires at least one staff member or service resource"*). The Wix Bookings app provisions a default **Business Owner** resource at install; query it and pass **its** `resourceId`:
+For `serviceType: "APPOINTMENT"` with `hasStaff: false`, you **still must pass a resource** in `staffMemberIds` — an empty `[]` is **rejected** with `MISSING_APPOINTMENT_RESOURCES` (_"service of type appointment requires at least one staff member or service resource"_). The Wix Bookings app provisions a default **Business Owner** resource at install; query it and pass **its** `resourceId`:
 
 ```bash
 # Get the default Business-Owner resourceId (no staff were created).
@@ -154,6 +156,7 @@ curl -sS -X POST \
 > **`staffMemberIds`:** pass `resourceId` values (not staffMember `id` values). For APPOINTMENT this array must be **non-empty** — when `hasStaff` is `false`, pass the default **Business Owner** `resourceId` (query it per § "When hasStaff is false"); `[]` is rejected with `MISSING_APPOINTMENT_RESOURCES` (verified live). CLASS services don't require it.
 
 **Response shape:**
+
 ```json
 {
   "service": {
@@ -177,6 +180,7 @@ curl -sS -X POST \
 - **Type**: Use `"APPOINTMENT"` for 1-on-1 services (the default); use `"CLASS"` when `intent.bookings.serviceType === "CLASS"`. For `CLASS`, set `defaultCapacity` to the max participants (e.g. `20`) instead of `1`.
 
 > **⚠️ CLASS services need scheduled sessions before anyone can sign up.** Creating a CLASS service does **not** create any bookable sessions. The front-end lists bookable sessions via `eventTimeSlots.listEventTimeSlots()`, which returns scheduled **session events** — a freshly created CLASS service has none, so its calendar is permanently empty. **For CLASS services you MUST run Step 4b below** to schedule sessions; otherwise the class calendar is a dead end. (APPOINTMENT services don't need this — their bookable times come from staff working hours + `availabilityTimeSlots`.)
+
 - **`sessionDurations`**: Required for APPOINTMENT. An array containing one integer (minutes). Do NOT specify for CLASS or COURSE services.
 - **Names + descriptions**: Derive from `brand.description`. Examples: a yoga studio → "60-min Vinyasa Flow" (60 min), "30-min Morning Meditation" (30 min), "90-min Deep Restore" (90 min). A hair salon → "Women's Cut & Style" (60 min, $85), "Men's Haircut" (30 min, $45), "Balayage Color" (120 min, $150). Make them brand-appropriate — not generic.
 - **Duration** (integers in minutes): Brand-appropriate. Consultation → 30; standard service → 60; premium/complex → 90–120.
@@ -186,15 +190,15 @@ curl -sS -X POST \
 
 ### Required fields summary (V2)
 
-| Field | Required | Notes |
-|-------|----------|-------|
-| `type` | Yes | `APPOINTMENT`, `CLASS`, or `COURSE` |
-| `name` | Yes | Display name |
-| `defaultCapacity` | Yes | `1` for APPOINTMENT; participant count for CLASS |
-| `onlineBooking.enabled` | Yes | Set to `true` for online booking |
-| `payment.rateType` | Yes | `FIXED`, `NO_FEE`, `VARIED`, or `CUSTOM` |
-| `payment.options.online` or `payment.options.inPerson` | Yes | At least one must be `true` |
-| `schedule.availabilityConstraints.sessionDurations` | APPOINTMENT only | Array with one integer (minutes) |
+| Field                                                  | Required         | Notes                                            |
+| ------------------------------------------------------ | ---------------- | ------------------------------------------------ |
+| `type`                                                 | Yes              | `APPOINTMENT`, `CLASS`, or `COURSE`              |
+| `name`                                                 | Yes              | Display name                                     |
+| `defaultCapacity`                                      | Yes              | `1` for APPOINTMENT; participant count for CLASS |
+| `onlineBooking.enabled`                                | Yes              | Set to `true` for online booking                 |
+| `payment.rateType`                                     | Yes              | `FIXED`, `NO_FEE`, `VARIED`, or `CUSTOM`         |
+| `payment.options.online` or `payment.options.inPerson` | Yes              | At least one must be `true`                      |
+| `schedule.availabilityConstraints.sessionDurations`    | APPOINTMENT only | Array with one integer (minutes)                 |
 
 ---
 
@@ -205,6 +209,7 @@ A CLASS service is bookable only once its **schedule** has scheduled session eve
 **Endpoint:** `POST https://www.wixapis.com/calendar/v3/events`
 
 You need two things from earlier steps:
+
 - the service's **schedule id** — `service.schedule.id` from the Step 4 create response (every service has one);
 - a **resource id** — a CLASS event requires **at least one resource** (`resources` non-empty) or it's rejected. Use a staff `resourceId` from Step 3; if no staff were created, use the default Business-Owner resource's `resourceId` (query `POST /bookings/v1/staff-members/query` with `{"query":{}}` and take the one named `Business Owner`).
 
@@ -227,6 +232,7 @@ curl -sS -X POST \
 ```
 
 > **Gotchas (verified against the live API):**
+>
 > - `resources[].permissionRole` **must** be `"WRITER"` (or `"COMMENTER"`). Omitting it defaults to `UNKNOWN_ROLE` → `400 "resources.permissionRole must not be UNKNOWN_ROLE"`.
 > - `resources` must be **non-empty** for CLASS — a session with no resource is rejected.
 > - `start`/`end` use `{ "localDate": "YYYY-MM-DDThh:mm:ss" }` (local, no `Z`); seconds are ignored.
@@ -236,6 +242,7 @@ curl -sS -X POST \
 Verify by fetching slots the way the front-end does (`eventTimeSlots.listEventTimeSlots({ serviceIds: [id], … })`) or `POST /calendar/v3/events/query` filtered by `scheduleId`. Record each session's event id in your return under `seeded.bookings.services[].sessionEventIds` if you want Phase 4 to deep-link.
 
 > **Booking-policy toggles (optional, CLASS).** Both live on the default booking policy — get it once via `POST /bookings/v1/booking-policies/query` with body `{"query":{}}` (an empty `{}` body is rejected with `query must not be empty`), then `PATCH /bookings/v1/booking-policies/<id>` with the relevant block + `fieldMask`:
+>
 > - **Waitlist** (so a full session offers "join waitlist"): `"waitlistPolicy": { "enabled": true, "capacity": 10, "reservationTimeInMinutes": 10 }`, `fieldMask.paths: ["waitlistPolicy"]`.
 > - **Multi-participant** (party size > 1): `"participantsPolicy": { "maxParticipantsPerBooking": <N> }`, `fieldMask.paths: ["participantsPolicy"]`. **Defaults to `1`** — without raising it, the front-end party-size selector lets the user pick >1 but `createBooking` rejects it. Raise it (e.g. `4`) to actually enable multi-participant class booking.
 >
@@ -263,12 +270,13 @@ Verify by fetching slots the way the front-end does (`eventTimeSlots.listEventTi
         "currency": "USD"
       }
     ],
-    "staff": [
-      { "id": "<uuid>", "resourceId": "<uuid>", "name": "<name>" }
-    ]
+    "staff": [{ "id": "<uuid>", "resourceId": "<uuid>", "name": "<name>" }]
   },
   "recipeCalls": [
-    { "url": "https://www.wixapis.com/_api/bookings/v2/services", "status": 200 }
+    {
+      "url": "https://www.wixapis.com/_api/bookings/v2/services",
+      "status": 200
+    }
   ]
 }
 ```
@@ -281,15 +289,15 @@ Verify by fetching slots the way the front-end does (`eventTimeSlots.listEventTi
 
 ## Common failure modes
 
-| Failure | Recovery |
-|---------|----------|
-| 403 on service create | Re-mint token and retry once. If still 403, Bookings app was not installed — return `status: "error"`. |
-| 400 `"defaultCapacity is required"` | Add `"defaultCapacity": 1` to the payload (required in V2, not obvious from V1 docs). |
-| 400 `"onlineBooking is required"` | Add `"onlineBooking": { "enabled": true }` — required in V2. |
-| 400 on `payment.options` | At least one of `online` or `inPerson` must be `true`. Set `"inPerson": true` as fallback. |
-| 400 `"sessionDurations is required"` | Add `"schedule": { "availabilityConstraints": { "sessionDurations": [60] } }` for APPOINTMENT types. |
+| Failure                                               | Recovery                                                                                                                                                                                                                                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 403 on service create                                 | Re-mint token and retry once. If still 403, Bookings app was not installed — return `status: "error"`.                                                                                                                                                                                      |
+| 400 `"defaultCapacity is required"`                   | Add `"defaultCapacity": 1` to the payload (required in V2, not obvious from V1 docs).                                                                                                                                                                                                       |
+| 400 `"onlineBooking is required"`                     | Add `"onlineBooking": { "enabled": true }` — required in V2.                                                                                                                                                                                                                                |
+| 400 on `payment.options`                              | At least one of `online` or `inPerson` must be `true`. Set `"inPerson": true` as fallback.                                                                                                                                                                                                  |
+| 400 `"sessionDurations is required"`                  | Add `"schedule": { "availabilityConstraints": { "sessionDurations": [60] } }` for APPOINTMENT types.                                                                                                                                                                                        |
 | 400 `MISSING_APPOINTMENT_RESOURCES` on service create | An APPOINTMENT service's `staffMemberIds` must be **non-empty**. Pass the created staff `resourceId`s (Step 3), or — when `hasStaff` is false — the default **Business Owner** `resourceId` (query `/bookings/v1/staff-members/query` with `{"query":{}}`). An empty `[]` always 400s here. |
-| 400 enum error on `locations.type` | Use `"BUSINESS"`, not `"OWNER_BUSINESS"`. The services endpoint accepts `UNKNOWN_LOCATION_TYPE`, `CUSTOM`, `BUSINESS`, `CUSTOMER`. `OWNER_BUSINESS` is valid on `createBooking.bookedEntity.slot.location.locationType` only. |
-| 400 `is not a valid email/phone` on staff create | Don't send `"phone": ""` or `"email": ""`. Omit the keys entirely when you don't have a real value. |
-| `mainSlug` absent in response | Derive slug from `service.name`: lowercase, replace spaces with hyphens, strip non-alphanumeric. |
-| Staff create returns "Business schedule not found" | Skip staff creation. Return partial seeded data with `notes: ["Staff creation skipped — business schedule not found; configure via Bookings dashboard"]`. |
+| 400 enum error on `locations.type`                    | Use `"BUSINESS"`, not `"OWNER_BUSINESS"`. The services endpoint accepts `UNKNOWN_LOCATION_TYPE`, `CUSTOM`, `BUSINESS`, `CUSTOMER`. `OWNER_BUSINESS` is valid on `createBooking.bookedEntity.slot.location.locationType` only.                                                               |
+| 400 `is not a valid email/phone` on staff create      | Don't send `"phone": ""` or `"email": ""`. Omit the keys entirely when you don't have a real value.                                                                                                                                                                                         |
+| `mainSlug` absent in response                         | Derive slug from `service.name`: lowercase, replace spaces with hyphens, strip non-alphanumeric.                                                                                                                                                                                            |
+| Staff create returns "Business schedule not found"    | Skip staff creation. Return partial seeded data with `notes: ["Staff creation skipped — business schedule not found; configure via Bookings dashboard"]`.                                                                                                                                   |

@@ -18,12 +18,16 @@ interface GiftCardPurchaseProps {
 // On ORDER_PAID, Wix's gift-card backend auto-issues a redeemable card with
 // source: "ORDER" and emails the recipient — no follow-up API call needed.
 export default function GiftCardPurchase({ product }: GiftCardPurchaseProps) {
-  const [variantId, setVariantId] = useState<string>(product.presetVariants[0]?.id ?? "");
+  const [variantId, setVariantId] = useState<string>(
+    product.presetVariants[0]?.id ?? "",
+  );
   const [recipientFirstName, setRecipientFirstName] = useState("");
   const [recipientLastName, setRecipientLastName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [greetingMessage, setGreetingMessage] = useState("");
-  const [status, setStatus] = useState<"idle" | "adding" | "added" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "adding" | "added" | "error">(
+    "idle",
+  );
   const [error, setError] = useState<string | null>(null);
 
   const selectedVariant: GiftCardPresetVariant | undefined =
@@ -66,7 +70,9 @@ export default function GiftCardPurchase({ product }: GiftCardPurchaseProps) {
           },
         ],
       });
-      window.dispatchEvent(new CustomEvent("cart-updated", { detail: { cart, delta: 1 } }));
+      window.dispatchEvent(
+        new CustomEvent("cart-updated", { detail: { cart, delta: 1 } }),
+      );
       trackEvent("AddToCart", {
         id: product.id,
         name: product.name,
@@ -79,7 +85,10 @@ export default function GiftCardPurchase({ product }: GiftCardPurchaseProps) {
       window.location.href = "/cart";
     } catch (err: any) {
       console.error("[gift-cards] addToCurrentCart failed:", err);
-      setError(err?.message ?? "Could not add the gift card to your cart. Please try again.");
+      setError(
+        err?.message ??
+          "Could not add the gift card to your cart. Please try again.",
+      );
       setStatus("error");
     }
   };
@@ -148,17 +157,19 @@ export default function GiftCardPurchase({ product }: GiftCardPurchaseProps) {
             rows={3}
             placeholder="A short note to the recipient…"
           />
-          <span className="gift-card-counter">{greetingMessage.length} / 500</span>
+          <span className="gift-card-counter">
+            {greetingMessage.length} / 500
+          </span>
         </label>
       </div>
 
-      {error && <p className="gift-card-error" role="alert">{error}</p>}
+      {error && (
+        <p className="gift-card-error" role="alert">
+          {error}
+        </p>
+      )}
 
-      <button
-        type="submit"
-        disabled={!canSubmit}
-        className="add-to-cart-btn"
-      >
+      <button type="submit" disabled={!canSubmit} className="add-to-cart-btn">
         {status === "adding"
           ? "Adding…"
           : status === "added"

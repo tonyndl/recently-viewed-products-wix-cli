@@ -1,4 +1,3 @@
-
 # Wix Data Collection Builder
 
 Creates CMS data collections for Wix CLI apps. The data collections extension allows your app to automatically create CMS collections when it's installed on a site. Collections store structured data that can be accessed from dashboard pages, site pages, backend code, and external applications.
@@ -18,9 +17,11 @@ The CLI manages a shared aggregator file (`data-collections.extension.ts`) that 
 ### Implementation Behavior
 
 **If app namespace is provided in the prompt:**
+
 - Use it in all code examples: `<actual-namespace>/collection-suffix`
 
 **If app namespace is NOT provided:**
+
 - Use the placeholder `<app-namespace>` in all code examples: `<app-namespace>/collection-suffix`
 - Add to Manual Action Items: "Replace `<app-namespace>` with your actual app namespace from Wix Dev Center"
 
@@ -36,16 +37,20 @@ The CLI manages a shared aggregator file (`data-collections.extension.ts`) that 
 The CLI scaffolds `<CollectionName>.ts` as a `satisfies DataCollection` default export. The scaffolded `fields` and `dataPermissions` are placeholders — replace them with your real schema, and set permissions per the [Context-Based Permission Rules](#context-based-permission-rules) before shipping.
 
 ```typescript
-import type { DataCollection } from '@wix/astro/builders';
+import type { DataCollection } from "@wix/astro/builders";
 
-export const collectionIdSuffix = '<CollectionName>';
+export const collectionIdSuffix = "<CollectionName>";
 
 export default {
   idSuffix: collectionIdSuffix,
-  displayName: '<CollectionName>',
-  displayField: 'title',            // Field shown when referencing items
-  fields: [ /* field definitions */ ],
-  dataPermissions: { /* itemRead, itemInsert, itemUpdate, itemRemove */ },
+  displayName: "<CollectionName>",
+  displayField: "title", // Field shown when referencing items
+  fields: [
+    /* field definitions */
+  ],
+  dataPermissions: {
+    /* itemRead, itemInsert, itemUpdate, itemRemove */
+  },
   indexes: [],
   initialData: [],
 } satisfies DataCollection;
@@ -126,13 +131,13 @@ For structured objects, define nested fields inside `objectOptions.fields`:
 }
 ```
 
-| Property      | Required | Description                          |
-| ------------- | -------- | ------------------------------------ |
-| `key`         | yes      | Field identifier (lowerCamelCase)    |
-| `type`        | yes      | Field data type (see Field Types)    |
-| `displayName` | no       | Label shown in CMS                   |
-| `description` | no       | Help text                            |
-| `encrypted`   | no       | Encrypt value at rest                |
+| Property      | Required | Description                       |
+| ------------- | -------- | --------------------------------- |
+| `key`         | yes      | Field identifier (lowerCamelCase) |
+| `type`        | yes      | Field data type (see Field Types) |
+| `displayName` | no       | Label shown in CMS                |
+| `description` | no       | Help text                         |
+| `encrypted`   | no       | Encrypt value at rest             |
 
 **There is no field-level `required`, `defaultValue`, or `unique`.** The `DevCenterDataCollectionField` type does not accept them and TypeScript will reject the build. Use these alternatives instead:
 
@@ -159,12 +164,12 @@ indexes: [
 ],
 ```
 
-| Property        | Required | Description                                            |
-| --------------- | -------- | ------------------------------------------------------ |
-| `fields`        | yes      | One or more `{ path, order? }` entries (composite index when more than one) |
-| `fields[].path` | yes      | Field key to index                                     |
-| `fields[].order`| no       | `'ASC'` (default) or `'DESC'`                          |
-| `unique`        | no       | Enforce uniqueness on the indexed field(s)             |
+| Property         | Required | Description                                                                 |
+| ---------------- | -------- | --------------------------------------------------------------------------- |
+| `fields`         | yes      | One or more `{ path, order? }` entries (composite index when more than one) |
+| `fields[].path`  | yes      | Field key to index                                                          |
+| `fields[].order` | no       | `'ASC'` (default) or `'DESC'`                                               |
+| `unique`         | no       | Enforce uniqueness on the indexed field(s)                                  |
 
 Leave `indexes: []` when no custom indexing is needed; the `_id` index is created automatically.
 
@@ -206,13 +211,13 @@ Access levels control who can read, create, update, and delete items in collecti
 
 **Determine permissions by asking: "Who interacts with this data, and from where?"**
 
-| Access Context | Who Sees / Uses It | Implication |
-|---|---|---|
-| **Custom element widget** (`CUSTOM_ELEMENT_WIDGET`) | Any site visitor (public) | Reads must be `ANYONE`. If the widget accepts input (e.g., reviews, submissions), inserts must also be `ANYONE` or `SITE_MEMBER`. |
-| **Embedded Script** | Any site visitor (public) | Same as custom element widget — reads must be `ANYONE`. Writes depend on whether visitors can submit data. |
-| **Dashboard Page** (`DASHBOARD_PAGE`) | Site owner / collaborators only | Can use `CMS_EDITOR` or `PRIVILEGED` for all operations since only authorized users access the dashboard. |
-| **Backend code (site-side)** | Runs in visitor context | If called from page code or site-side modules, the caller has visitor-level permissions — data must be readable/writable at the appropriate public level. |
-| **Backend code (elevated)** | Runs with `auth.elevate()` from `@wix/essentials` | Can bypass permissions, but the collection still needs correct defaults for any non-elevated callers. |
+| Access Context                                      | Who Sees / Uses It                                | Implication                                                                                                                                               |
+| --------------------------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Custom element widget** (`CUSTOM_ELEMENT_WIDGET`) | Any site visitor (public)                         | Reads must be `ANYONE`. If the widget accepts input (e.g., reviews, submissions), inserts must also be `ANYONE` or `SITE_MEMBER`.                         |
+| **Embedded Script**                                 | Any site visitor (public)                         | Same as custom element widget — reads must be `ANYONE`. Writes depend on whether visitors can submit data.                                                |
+| **Dashboard Page** (`DASHBOARD_PAGE`)               | Site owner / collaborators only                   | Can use `CMS_EDITOR` or `PRIVILEGED` for all operations since only authorized users access the dashboard.                                                 |
+| **Backend code (site-side)**                        | Runs in visitor context                           | If called from page code or site-side modules, the caller has visitor-level permissions — data must be readable/writable at the appropriate public level. |
+| **Backend code (elevated)**                         | Runs with `auth.elevate()` from `@wix/essentials` | Can bypass permissions, but the collection still needs correct defaults for any non-elevated callers.                                                     |
 
 Use `SITE_MEMBER_AUTHOR` on `itemUpdate` / `itemRemove` when members should only modify their **own** items (e.g., a member can edit only their own reviews).
 
@@ -311,28 +316,28 @@ wix generate --params '{"extensionType":"DATA_COLLECTION","collectionName":"addi
 Edit the generated `src/extensions/backend/data-collections/additional-fees.ts`:
 
 ```typescript
-import type { DataCollection } from '@wix/astro/builders';
+import type { DataCollection } from "@wix/astro/builders";
 
-export const collectionIdSuffix = 'additional-fees';
+export const collectionIdSuffix = "additional-fees";
 
 export default {
   idSuffix: collectionIdSuffix,
-  displayName: 'Additional Fees',
-  displayField: 'title',
+  displayName: "Additional Fees",
+  displayField: "title",
   fields: [
-    { key: 'title', displayName: 'Fee Title', type: 'TEXT' },
-    { key: 'amount', displayName: 'Fee Amount', type: 'NUMBER' },
+    { key: "title", displayName: "Fee Title", type: "TEXT" },
+    { key: "amount", displayName: "Fee Amount", type: "NUMBER" },
   ],
   dataPermissions: {
-    itemRead: 'ANYONE',
-    itemInsert: 'PRIVILEGED',
-    itemUpdate: 'PRIVILEGED',
-    itemRemove: 'PRIVILEGED',
+    itemRead: "ANYONE",
+    itemInsert: "PRIVILEGED",
+    itemUpdate: "PRIVILEGED",
+    itemRemove: "PRIVILEGED",
   },
   indexes: [],
   initialData: [
-    { title: 'Handling Fee', amount: 5 },
-    { title: 'Gift Wrapping', amount: 3.5 },
+    { title: "Handling Fee", amount: 5 },
+    { title: "Gift Wrapping", amount: 3.5 },
   ],
 } satisfies DataCollection;
 ```

@@ -1,18 +1,18 @@
 ---
 name: ecom
 description: "Vertical-agnostic ecommerce — cart page, checkout redirect, order confirmation. Co-loaded by packs that require it."
-triggers: []   # never triggered independently — co-loaded via another pack's `requires:`
+triggers: [] # never triggered independently — co-loaded via another pack's `requires:`
 
 features:
   - name: "Cart & checkout"
     description: "Add items to cart, review order, check out via Wix's secure hosted checkout. Order confirmation on thank-you page."
 
-apps: []   # no app to install — @wix/ecom works with any installed catalog app
+apps: [] # no app to install — @wix/ecom works with any installed catalog app
 
 routes:
   - route: "/cart"
   - route: "/thank-you"
-  - route: "Hosted by Wix"   # Wix-hosted endpoint — no .astro file. Listed so the discovery plan's Section C table includes a Checkout row for the Wix-hosted endpoint. The route cell renders the literal string "Hosted by Wix".
+  - route: "Hosted by Wix" # Wix-hosted endpoint — no .astro file. Listed so the discovery plan's Section C table includes a Checkout row for the Wix-hosted endpoint. The route cell renders the literal string "Hosted by Wix".
     name: "Checkout"
 
 disabled: false

@@ -1,4 +1,3 @@
-
 # Wix Dashboard Menu Plugin Builder
 
 Dashboard menu plugins are menu items that integrate into predefined **menu slots** on dashboard pages managed by Wix first-party business apps (Wix Stores, Wix Bookings, Wix Blog, Wix eCommerce, Wix Events, Wix CRM, Wix Restaurants).
@@ -30,10 +29,10 @@ For the complete list of available menu slot IDs, see the [Slot Lookup Table](#s
 
 The `action` field determines what happens when the user clicks the menu item. Configure **exactly one** of the following:
 
-| Action | Scaffold param | Value |
-|---|---|---|
-| Navigate to a dashboard page | `{ "action": { "pageId": "<PAGE_ID>" } }` | `pageId` is the `id` (UUID) of an existing dashboard page extension. |
-| Open a dashboard modal | `{ "action": { "modalId": "<MODAL_ID>" } }` | `modalId` is the `id` (UUID) of an existing dashboard modal extension. |
+| Action                       | Scaffold param                              | Value                                                                  |
+| ---------------------------- | ------------------------------------------- | ---------------------------------------------------------------------- |
+| Navigate to a dashboard page | `{ "action": { "pageId": "<PAGE_ID>" } }`   | `pageId` is the `id` (UUID) of an existing dashboard page extension.   |
+| Open a dashboard modal       | `{ "action": { "modalId": "<MODAL_ID>" } }` | `modalId` is the `id` (UUID) of an existing dashboard modal extension. |
 
 ## Icon Selection
 
@@ -48,13 +47,12 @@ The generated builder file has an `iconKey` field. It must be a valid icon name 
 
 Identify which Wix app the user is targeting, then read **only** the corresponding reference file for slot IDs.
 
-| Wix App | Keywords | Slot Reference |
-|---------|----------|----------------|
-| Wix Blog | blog, posts, categories, tags, drafts, scheduled | [blog-slots.md](dashboard-menu-plugin/blog-slots.md) |
-| Wix Bookings | bookings, calendar, services, staff, booking list | [bookings-slots.md](dashboard-menu-plugin/bookings-slots.md) |
-| Wix CRM | CRM, contacts | [crm-slots.md](dashboard-menu-plugin/crm-slots.md) |
-| Wix eCommerce | ecommerce, orders, payment | [ecommerce-slots.md](dashboard-menu-plugin/ecommerce-slots.md) |
-| Wix Events | events, guests, RSVP, ticketed | [events-slots.md](dashboard-menu-plugin/events-slots.md) |
-| Wix Stores | stores, products, inventory, catalog | [stores-slots.md](dashboard-menu-plugin/stores-slots.md) |
-| Wix Restaurants | restaurants, reservations, online orders, menus | [restaurants-slots.md](dashboard-menu-plugin/restaurants-slots.md) |
-
+| Wix App         | Keywords                                          | Slot Reference                                                     |
+| --------------- | ------------------------------------------------- | ------------------------------------------------------------------ |
+| Wix Blog        | blog, posts, categories, tags, drafts, scheduled  | [blog-slots.md](dashboard-menu-plugin/blog-slots.md)               |
+| Wix Bookings    | bookings, calendar, services, staff, booking list | [bookings-slots.md](dashboard-menu-plugin/bookings-slots.md)       |
+| Wix CRM         | CRM, contacts                                     | [crm-slots.md](dashboard-menu-plugin/crm-slots.md)                 |
+| Wix eCommerce   | ecommerce, orders, payment                        | [ecommerce-slots.md](dashboard-menu-plugin/ecommerce-slots.md)     |
+| Wix Events      | events, guests, RSVP, ticketed                    | [events-slots.md](dashboard-menu-plugin/events-slots.md)           |
+| Wix Stores      | stores, products, inventory, catalog              | [stores-slots.md](dashboard-menu-plugin/stores-slots.md)           |
+| Wix Restaurants | restaurants, reservations, online orders, menus   | [restaurants-slots.md](dashboard-menu-plugin/restaurants-slots.md) |

@@ -9,6 +9,7 @@ This article seeds backend data. Every loaded pack with a seed recipe gets its o
 The recipe map and per-pack input notes are inlined below — **do NOT separately `Read references/seed-recipes.md`**. The Step 1 table here is canonical for the run; `seed-recipes.md` exists only as a human-readable index of the same data, and reading it adds a turn and a thinking gap before the dispatch batch.
 
 From the `verticals` list in orchestrator scratch (captured in Discovery), build the dispatch list. For each loaded pack:
+
 - If the pack has a recipe in the table below (`stores`, `cms`, `blog`, `forms`, `bookings`) → add to the dispatch list.
 - If the pack has no recipe (`gift-cards`, `ecom`) → record a phase entry as `{phase: "seed-<pack>", status: "skipped", notes: "no seed surface for this pack"}` directly. No subagent.
 
@@ -16,21 +17,22 @@ Resolve absolute recipe paths by joining `<wix-manage-root>` (already in scratch
 
 ### Recipe map
 
-| Pack       | Recipes                                                                                                                                                                                                                                                                      | Returns                                                                             |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| stores     | (relative to `<wix-manage-root>`) `references/stores/setup-online-store-catalog-v3.md` (idempotent catalog setup) + `references/stores/bulk-create-products-with-options.md` (single bulk call for N products)                                                              | `productIds[]`, `categoryIds[]` (when `intent.stores.categoriesNamed` is non-empty) |
-| cms        | (relative to `<wix-manage-root>`) `references/cms/cms-schema-management.md` (collection create) + `references/cms/cms-data-items-crud.md` (item create per collection) + `references/cms/cms-references-and-relationships.md` (only when a collection's `intent.cms.collections[N]` declares cross-references) | `collectionIds{}`, `itemIds{<collection>: []}`                                      |
-| blog       | (relative to `<wix-manage-root>`) `references/blog/how-to-create-blog-posts.md`                                                                                                                                                                                              | `postIds[]`, `categoryIds[]`                                                        |
-| forms      | (relative to `<wix-manage-root>`) `references/forms/create-form.md`                                                                                                                                                                                                          | `formIds[]`                                                                         |
-| bookings   | (within skill) `<SKILL_ROOT>/references/bookings/SERVICES_DATA.md` — service creation + optional staff. Recipe path uses `<SKILL_ROOT>`, NOT `<wix-manage-root>`.                                                                                                           | `services[{id, slug, name, type, durationMinutes, price, currency}]`, `staff[{id, resourceId, name}]` |
-| gift-cards | — (no seed surface; activation lives in Phase 2 app-install)                                                                                                                                                                                                                 | `{status: "skipped"}`                                                               |
-| ecom       | — (cart/checkout vertical; no seed surface)                                                                                                                                                                                                                                  | `{status: "skipped"}`                                                               |
+| Pack       | Recipes                                                                                                                                                                                                                                                                                                        | Returns                                                                                               |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| stores     | (relative to `<wix-manage-root>`) `references/stores/setup-online-store-catalog-v3.md` (idempotent catalog setup) + `references/stores/bulk-create-products-with-options.md` (single bulk call for N products)                                                                                                 | `productIds[]`, `categoryIds[]` (when `intent.stores.categoriesNamed` is non-empty)                   |
+| cms        | (relative to `<wix-manage-root>`) `references/cms/cms-schema-management.md` (collection create) + `references/cms/cms-data-items-crud.md` (item create per collection) + `references/cms/cms-references-and-relationships.md` (only when a collection's `intent.cms.collections[N]` declares cross-references) | `collectionIds{}`, `itemIds{<collection>: []}`                                                        |
+| blog       | (relative to `<wix-manage-root>`) `references/blog/how-to-create-blog-posts.md`                                                                                                                                                                                                                                | `postIds[]`, `categoryIds[]`                                                                          |
+| forms      | (relative to `<wix-manage-root>`) `references/forms/create-form.md`                                                                                                                                                                                                                                            | `formIds[]`                                                                                           |
+| bookings   | (within skill) `<SKILL_ROOT>/references/bookings/SERVICES_DATA.md` — service creation + optional staff. Recipe path uses `<SKILL_ROOT>`, NOT `<wix-manage-root>`.                                                                                                                                              | `services[{id, slug, name, type, durationMinutes, price, currency}]`, `staff[{id, resourceId, name}]` |
+| gift-cards | — (no seed surface; activation lives in Phase 2 app-install)                                                                                                                                                                                                                                                   | `{status: "skipped"}`                                                                                 |
+| ecom       | — (cart/checkout vertical; no seed surface)                                                                                                                                                                                                                                                                    | `{status: "skipped"}`                                                                                 |
 
 ### Per-pack input notes
 
 These notes reduce dispatch-time guesswork. The recipe itself is the source of truth for the API shape — these notes are about how to translate `intent.<pack>` + `brand` into the recipe's input.
 
 **stores:**
+
 - Bulk recipe wants `products: [{name, slug, sku, price, options?, variants?}]`. Populate `name` and `slug` from `intent.stores.productCount` and `brand` (e.g. for a coffee shop with `productCount: 3`, generate three product names that fit the brand vibe).
 - `sku` defaults to `<slug>-001`; `price` is a positive brand-appropriate value (don't default to $1).
 - When `intent.stores.categoriesNamed` is non-empty, the subagent creates those categories via the Categories API after the bulk product create and assigns products into them. **Fire the N category-create calls as one parallel batch** (independent calls — they don't need to serialize). When the array is empty, skip categories entirely (do not invent a default set).
@@ -38,23 +40,27 @@ These notes reduce dispatch-time guesswork. The recipe itself is the source of t
 - Text-only seeding: do not generate or attach product images. Follow the recipe's documented placeholder pattern.
 
 **cms:**
+
 - Schema recipe wants one `POST /wix-data/v2/collections` call per collection in `intent.cms.collections`. Field shape comes from `collection.purpose` — e.g. `purpose: "about"` → single-row text collection with `title` + `body`; `purpose: "faq"` → repeated `question` + `answer` rows.
 - After all collections exist, the items recipe inserts `intent.cms.collections[N].itemCount` rows per collection, content generated from `brand`.
 - `cms-references-and-relationships.md` is consulted **only** when a collection's intent block declares cross-references. Otherwise skip it.
 - Return shape: `collectionIds: { <purpose>: <id> }` and `itemIds: { <purpose>: [<id>, ...] }`. Keying by `purpose` (not display name) lets Phase 4 wire pages without re-deriving slug ↔ id.
 
 **blog:**
+
 - Part 0 (member ID lookup) is mandatory. One `GET /members/v1/members?paging.limit=1`; reuse the returned id for every post.
 - `intent.blog.postCount` posts created. Topics from `intent.blog.topics` when present; otherwise pick brand-appropriate topics from `brand.description`.
 - **Use the bulk endpoint** `POST https://www.wixapis.com/blog/v3/bulk/draft-posts/create` for any `postCount ≥ 2`. The recipe's single-post curl is for demonstration; the bulk URL is the production path. (Skipping this and using N single-post creates costs ~30s per post.)
 - Text-only: cover images use the recipe's documented placeholder pattern; no Media Manager import.
 
 **forms:**
+
 - One `POST /form-schema-service/v4/forms` call per entry in `intent.forms.forms`. Map `intent.forms.forms[N].fields` (string array) into the recipe's `formFields` payload using the documented field templates (`CONTACTS_FIRST_NAME`, `CONTACTS_EMAIL`, etc.).
 - `purpose` ("contact", "lead", "signup") drives the form's `name` — e.g. `"contact"` → `"Contact Form"`.
 - Wix Forms app is pre-installed via Phase 2; don't reinstall.
 
 **bookings:**
+
 - Recipe path is `<SKILL_ROOT>/references/bookings/SERVICES_DATA.md` — NOT under `<wix-manage-root>`. Resolve the path with `<SKILL_ROOT>` (same root as all other skill references).
 - `intent.bookings.serviceCount` services (default 3). Names + descriptions from `brand`.
 - `intent.bookings.serviceType` (`"APPOINTMENT"` or `"CLASS"`) determines the service `type` field. Default `"APPOINTMENT"`.
@@ -175,7 +181,7 @@ Every seeder ends its message with a fenced JSON block per `references/shared/RE
 
 **On error:** the subagent's return additionally carries `error: <failing recipe-call response verbatim>`. The orchestrator keeps that field on the entry it holds.
 
-There are no seed-coordination files **between agents** — seeders return JSON inline, and no seeder writes or reads `.wix/seed-returns/<pack>.json`; the agent return *is* the contract. (This is distinct from `.wix/seeded.json`, which the **orchestrator** writes once at the seed gate from the aggregated returns — not a seeder-authored sidecar. Seeders never touch it; it's a read-only consumer handoff. See Step 4.)
+There are no seed-coordination files **between agents** — seeders return JSON inline, and no seeder writes or reads `.wix/seed-returns/<pack>.json`; the agent return _is_ the contract. (This is distinct from `.wix/seeded.json`, which the **orchestrator** writes once at the seed gate from the aggregated returns — not a seeder-authored sidecar. Seeders never touch it; it's a read-only consumer handoff. See Step 4.)
 
 ---
 
@@ -186,6 +192,7 @@ The seed gate — waiting on seeders + `npm_handle`, and the decorative-slot pat
 **Aggregate seeder returns in orchestrator context.** Each seeder's return JSON is in your session context (the harness surfaces it when the subagent completes). Build a `seeded` map keyed by pack from those returns and hold it in scratch.
 
 For each return:
+
 - `status: "ok"` — keep the `seeded` payload under `seeded[<pack>]`.
 - `status: "skipped"` — record `seeded[<pack>] = {status: "skipped"}`.
 - `status: "error"` — surface the `error` field verbatim. Do **not** autonomously retry; partial state for other packs is intact, so a targeted re-run is bounded.
@@ -198,7 +205,7 @@ For each return:
 
 Per `PLAN.md` § "User-facing output", emit one short plain-prose sentence naming what was seeded per pack — no tables, no machinery:
 
-> *"Seeded `<brand>`: `<N>` products in stores, `<M>` items across `<C>` CMS collections, `<P>` blog posts, `<F>` forms. Continuing with components and page build…"*
+> _"Seeded `<brand>`: `<N>` products in stores, `<M>` items across `<C>` CMS collections, `<P>` blog posts, `<F>` forms. Continuing with components and page build…"_
 
 Adapt the sentence to whichever packs were loaded — drop the irrelevant clauses.
 
@@ -206,9 +213,9 @@ Adapt the sentence to whichever packs were loaded — drop the irrelevant clause
 
 ## Recovery
 
-| Failure mode                                       | What the orchestrator does                                                                                                                                                              |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| One subagent returns `error`                       | Surface the `error` payload verbatim; do not retry. Other packs' `seeded` data is intact in orchestrator scratch, so a re-run of the failing pack alone is bounded.                     |
+| Failure mode                                       | What the orchestrator does                                                                                                                                                                 |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| One subagent returns `error`                       | Surface the `error` payload verbatim; do not retry. Other packs' `seeded` data is intact in orchestrator scratch, so a re-run of the failing pack alone is bounded.                        |
 | Subagent return has no fenced JSON block           | Per `RETURN_CONTRACT.md` § "Observed failure mode" — the harness falls back to narrative parsing, which is fragile. Surface the issue; retry the failing seeder once with the same prompt. |
-| Recipe path drifted (Read fails inside a subagent) | The subagent should return `status: "error"` with the Read error in `error`. Surface it; the fix is to correct the recipe path in the Step 1 table (and the wix-manage recipe), not retry.                                               |
-| Bulk product create rate limit                     | The stores recipe documents the limit; the subagent fans out into batches of 5 internally. If it still hits a limit, returns `error`.                                                   |
+| Recipe path drifted (Read fails inside a subagent) | The subagent should return `status: "error"` with the Read error in `error`. Surface it; the fix is to correct the recipe path in the Step 1 table (and the wix-manage recipe), not retry. |
+| Bulk product create rate limit                     | The stores recipe documents the limit; the subagent fans out into batches of 5 internally. If it still hits a limit, returns `error`.                                                      |

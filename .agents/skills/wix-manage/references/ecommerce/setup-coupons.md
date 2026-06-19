@@ -3,6 +3,7 @@ name: "Setup: Coupons"
 description: Creates and manages coupon codes using the Coupons V2 API. Covers coupon types (percentage, fixed amount, fixed price, free shipping), scope targeting, usage limits, and the mapping from discount recommendations to coupon API payloads.
 layer: config
 ---
+
 # Setup Coupons
 
 ## Prerequisites
@@ -25,6 +26,7 @@ Before creating a coupon, check for code conflicts and existing promotions on th
 **Endpoint**: `POST https://www.wixapis.com/v2/coupons/query`
 
 **Request**:
+
 ```json
 {
   "query": {
@@ -36,6 +38,7 @@ Before creating a coupon, check for code conflicts and existing promotions on th
 ```
 
 **Response**:
+
 ```json
 {
   "coupons": [
@@ -73,6 +76,7 @@ Check for: duplicate codes, overlapping scopes with active coupons, and cross-me
 **Endpoint**: `POST https://www.wixapis.com/v2/coupons`
 
 **Request** — 15% off all store products:
+
 ```json
 {
   "specification": {
@@ -94,6 +98,7 @@ Check for: duplicate codes, overlapping scopes with active coupons, and cross-me
 ```
 
 **Response**:
+
 ```json
 {
   "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901"
@@ -101,6 +106,7 @@ Check for: duplicate codes, overlapping scopes with active coupons, and cross-me
 ```
 
 **Request** — 20% off a specific collection:
+
 ```json
 {
   "specification": {
@@ -124,6 +130,7 @@ Check for: duplicate codes, overlapping scopes with active coupons, and cross-me
 ```
 
 **Request** — 10% off a specific product:
+
 ```json
 {
   "specification": {
@@ -149,6 +156,7 @@ Check for: duplicate codes, overlapping scopes with active coupons, and cross-me
 ## Step 3: Create a fixed-amount coupon
 
 **Request** — $10 off all products:
+
 ```json
 {
   "specification": {
@@ -174,6 +182,7 @@ Check for: duplicate codes, overlapping scopes with active coupons, and cross-me
 Instead of targeting a scope, you can require a minimum cart subtotal. This is a **oneOf** with scope — you set EITHER `scope` OR `minimumSubtotal`, not both.
 
 **Request** — 15% off orders over $100:
+
 ```json
 {
   "specification": {
@@ -193,35 +202,35 @@ Instead of targeting a scope, you can require a minimum cart subtotal. This is a
 
 ## Key field rules
 
-| Field | Required | Notes |
-|---|---|---|
-| `name` | Yes | Display name shown to customers |
-| `code` | Yes | Unique coupon code. Max 20 characters. Case-insensitive at checkout. |
-| `startTime` | Yes | UNIX epoch in **milliseconds** (not seconds). E.g., `1714521600000` for 2024-05-01T00:00:00Z |
-| `expirationTime` | No | UNIX epoch in milliseconds. Omit for no expiration. |
+| Field                        | Required     | Notes                                                                                                                                      |
+| ---------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `name`                       | Yes          | Display name shown to customers                                                                                                            |
+| `code`                       | Yes          | Unique coupon code. Max 20 characters. Case-insensitive at checkout.                                                                       |
+| `startTime`                  | Yes          | UNIX epoch in **milliseconds** (not seconds). E.g., `1714521600000` for 2024-05-01T00:00:00Z                                               |
+| `expirationTime`             | No           | UNIX epoch in milliseconds. Omit for no expiration.                                                                                        |
 | `scope` OR `minimumSubtotal` | One required | **OneOf** — set scope to target items, OR minimumSubtotal for cart threshold. Cannot set both. Exception: freeShipping type ignores scope. |
-| `usageLimit` | No | Total uses across all customers. Omit for unlimited. |
-| `limitPerCustomer` | No | Max uses per customer. Omit for unlimited. |
-| `limitedToOneItem` | No | If true, discount applies only to lowest-priced item when customer buys multiple. |
-| `active` | No | Default `true`. Set `false` to create as draft. |
+| `usageLimit`                 | No           | Total uses across all customers. Omit for unlimited.                                                                                       |
+| `limitPerCustomer`           | No           | Max uses per customer. Omit for unlimited.                                                                                                 |
+| `limitedToOneItem`           | No           | If true, discount applies only to lowest-priced item when customer buys multiple.                                                          |
+| `active`                     | No           | Default `true`. Set `false` to create as draft.                                                                                            |
 
 ## Coupon types (oneOf — set exactly one)
 
-| Type | Field | Value | Example |
-|---|---|---|---|
-| Percentage off | `percentOffRate` | Double (e.g., `15` for 15%) | `"percentOffRate": 15` |
-| Fixed amount off | `moneyOffAmount` | Double (e.g., `10` for $10 off) | `"moneyOffAmount": 10` |
-| Fixed price | `fixedPriceAmount` | Double (e.g., `29.99`) | `"fixedPriceAmount": 29.99` |
-| Free shipping | `freeShipping` | Boolean `true` | `"freeShipping": true` |
-| Buy X Get Y | `buyXGetY` | Object with `x` and `y` fields | `"buyXGetY": {"x": 2, "y": 1}` |
+| Type             | Field              | Value                           | Example                        |
+| ---------------- | ------------------ | ------------------------------- | ------------------------------ |
+| Percentage off   | `percentOffRate`   | Double (e.g., `15` for 15%)     | `"percentOffRate": 15`         |
+| Fixed amount off | `moneyOffAmount`   | Double (e.g., `10` for $10 off) | `"moneyOffAmount": 10`         |
+| Fixed price      | `fixedPriceAmount` | Double (e.g., `29.99`)          | `"fixedPriceAmount": 29.99`    |
+| Free shipping    | `freeShipping`     | Boolean `true`                  | `"freeShipping": true`         |
+| Buy X Get Y      | `buyXGetY`         | Object with `x` and `y` fields  | `"buyXGetY": {"x": 2, "y": 1}` |
 
 ## Scope values for Wix Stores
 
-| Scope target | `namespace` | `group.name` | `group.entityId` |
-|---|---|---|---|
-| All store products | `"stores"` | `"product"` | Omit (applies to all) |
-| Specific product | `"stores"` | `"product"` | Product UUID |
-| Specific collection | `"stores"` | `"collection"` | Collection UUID |
+| Scope target        | `namespace` | `group.name`   | `group.entityId`      |
+| ------------------- | ----------- | -------------- | --------------------- |
+| All store products  | `"stores"`  | `"product"`    | Omit (applies to all) |
+| Specific product    | `"stores"`  | `"product"`    | Product UUID          |
+| Specific collection | `"stores"`  | `"collection"` | Collection UUID       |
 
 ---
 
@@ -231,44 +240,46 @@ When the recommendation output has `mechanism: "COUPON"`, use this mapping to co
 
 ### Scope mapping
 
-| Recommendation `scope` | Coupon `scope` |
-|---|---|
-| `SITE` | `{ "namespace": "stores", "group": { "name": "product" } }` (all products, no entityId) |
-| `CATEGORY` | `{ "namespace": "stores", "group": { "name": "collection", "entityId": "<first categoryId>" } }` |
-| `ITEMS` | `{ "namespace": "stores", "group": { "name": "product", "entityId": "<first productId>" } }` |
+| Recommendation `scope` | Coupon `scope`                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------ |
+| `SITE`                 | `{ "namespace": "stores", "group": { "name": "product" } }` (all products, no entityId)          |
+| `CATEGORY`             | `{ "namespace": "stores", "group": { "name": "collection", "entityId": "<first categoryId>" } }` |
+| `ITEMS`                | `{ "namespace": "stores", "group": { "name": "product", "entityId": "<first productId>" } }`     |
 
 **Important limitation**: The Coupons API scope supports only **one entityId** (one product or one collection). If the recommendation targets multiple products or categories:
+
 - For CATEGORY with multiple categoryIds: Create one coupon per collection, or pick the primary collection.
 - For ITEMS with multiple productIds: Create one coupon per product, or use `minimumSubtotal` instead of `scope` if the intent is cart-level.
 
 ### Discount type mapping
 
-| Recommendation `discountType` | Coupon field |
-|---|---|
-| `PERCENTAGE` | `"percentOffRate": <value>` |
-| `FIXED_AMOUNT` | `"moneyOffAmount": <value>` |
-| `FIXED_PRICE` | `"fixedPriceAmount": <value>` |
+| Recommendation `discountType` | Coupon field                  |
+| ----------------------------- | ----------------------------- |
+| `PERCENTAGE`                  | `"percentOffRate": <value>`   |
+| `FIXED_AMOUNT`                | `"moneyOffAmount": <value>`   |
+| `FIXED_PRICE`                 | `"fixedPriceAmount": <value>` |
 
 ### Condition mapping
 
-| Recommendation condition | Coupon approach |
-|---|---|
-| `minSubTotal > 0` | Use `minimumSubtotal` instead of `scope` (they are oneOf — cannot use both) |
-| `minItemQuantity > 0` | **Not natively supported by Coupons API**. Mention in the coupon name (e.g., "Buy 3+, use code BUNDLE15") but the API cannot enforce item quantity. |
-| `startDate` | Convert to UNIX epoch milliseconds: `Date.parse("2026-06-01") → 1748736000000`. Set as `startTime`. |
-| `endDate` | Convert to UNIX epoch milliseconds. Set as `expirationTime`. |
+| Recommendation condition | Coupon approach                                                                                                                                     |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `minSubTotal > 0`        | Use `minimumSubtotal` instead of `scope` (they are oneOf — cannot use both)                                                                         |
+| `minItemQuantity > 0`    | **Not natively supported by Coupons API**. Mention in the coupon name (e.g., "Buy 3+, use code BUNDLE15") but the API cannot enforce item quantity. |
+| `startDate`              | Convert to UNIX epoch milliseconds: `Date.parse("2026-06-01") → 1748736000000`. Set as `startTime`.                                                 |
+| `endDate`                | Convert to UNIX epoch milliseconds. Set as `expirationTime`.                                                                                        |
 
 ### Code generation
 
-| Recommendation field | Coupon field | Rules |
-|---|---|---|
-| `code` from recommendation | `specification.code` | Max 20 characters. Must be unique on the site. Suggest memorable, brand-relevant codes (e.g., `SUMMER25`, `SAVE15`, `VIP20`). |
-| `usageLimit` from recommendation | `specification.usageLimit` | Total times the coupon can be used. `0` in recommendation → omit (unlimited). |
-| `limitPerCustomer` from recommendation | `specification.limitPerCustomer` | Max per customer. `0` → omit (unlimited). Recommend setting to `1` for most campaigns. |
+| Recommendation field                   | Coupon field                     | Rules                                                                                                                         |
+| -------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `code` from recommendation             | `specification.code`             | Max 20 characters. Must be unique on the site. Suggest memorable, brand-relevant codes (e.g., `SUMMER25`, `SAVE15`, `VIP20`). |
+| `usageLimit` from recommendation       | `specification.usageLimit`       | Total times the coupon can be used. `0` in recommendation → omit (unlimited).                                                 |
+| `limitPerCustomer` from recommendation | `specification.limitPerCustomer` | Max per customer. `0` → omit (unlimited). Recommend setting to `1` for most campaigns.                                        |
 
 ### Full mapping example
 
 **Recommendation output**:
+
 ```json
 {
   "mechanism": "COUPON",
@@ -288,6 +299,7 @@ When the recommendation output has `mechanism: "COUPON"`, use this mapping to co
 ```
 
 **Coupon API request**:
+
 ```json
 {
   "specification": {
@@ -312,25 +324,25 @@ When the recommendation output has `mechanism: "COUPON"`, use this mapping to co
 
 ### Key differences from Automatic Discounts
 
-| Aspect | Automatic Discount (Discount Rules API) | Coupon (Coupons API) |
-|---|---|---|
-| Scope supports multiple items | Yes (multiple IDs in arrays) | No (one entityId per scope) |
-| minSubTotal + scope together | Yes (scope + trigger) | No (oneOf — choose one) |
-| minItemQuantity enforcement | Yes (ITEM_QUANTITY_RANGE trigger) | Not supported by API |
-| Date format | ISO 8601 timestamps | UNIX epoch milliseconds |
-| Created state | `active: false`, `status: PENDING` | `active: true` by default |
-| Triggers/conditions | Separate trigger object with typed ranges | Only minimumSubtotal (simple threshold) |
+| Aspect                        | Automatic Discount (Discount Rules API)   | Coupon (Coupons API)                    |
+| ----------------------------- | ----------------------------------------- | --------------------------------------- |
+| Scope supports multiple items | Yes (multiple IDs in arrays)              | No (one entityId per scope)             |
+| minSubTotal + scope together  | Yes (scope + trigger)                     | No (oneOf — choose one)                 |
+| minItemQuantity enforcement   | Yes (ITEM_QUANTITY_RANGE trigger)         | Not supported by API                    |
+| Date format                   | ISO 8601 timestamps                       | UNIX epoch milliseconds                 |
+| Created state                 | `active: false`, `status: PENDING`        | `active: true` by default               |
+| Triggers/conditions           | Separate trigger object with typed ranges | Only minimumSubtotal (simple threshold) |
 
 ---
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|---|---|---|
-| Duplicate code | Another coupon uses the same code | Generate a different code |
-| Invalid startTime | Value too low (must be epoch ms, not seconds) | Multiply by 1000 if in seconds |
-| Both scope and minimumSubtotal set | These are oneOf — cannot use both | Choose scope OR minimumSubtotal |
-| Code exceeds 20 characters | Code is too long | Shorten the code |
+| Error                              | Cause                                         | Fix                             |
+| ---------------------------------- | --------------------------------------------- | ------------------------------- |
+| Duplicate code                     | Another coupon uses the same code             | Generate a different code       |
+| Invalid startTime                  | Value too low (must be epoch ms, not seconds) | Multiply by 1000 if in seconds  |
+| Both scope and minimumSubtotal set | These are oneOf — cannot use both             | Choose scope OR minimumSubtotal |
+| Code exceeds 20 characters         | Code is too long                              | Shorten the code                |
 
 ## References
 

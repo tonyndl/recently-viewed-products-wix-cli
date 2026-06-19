@@ -9,10 +9,10 @@ Extends `references/shared/IMPLEMENTER.md`. Read that file first for phase routi
 
 ## Scope routing
 
-| Scope | Phase | Reference |
-|-------|-------|-----------|
-| `seed` | Seed (create collections + seed items via REST) | `./CMS_FOUNDATIONS.md` (seeding, business half) + use-case ref under `../astro/cms/` (collection schema + seed-with-images) |
-| `pages` | Pages (About + FAQ pages read CMS via @wix/data inline) | `../astro/cms/CMS_FOUNDATIONS.md` (code patterns) + use-case ref under `../astro/cms/` |
+| Scope   | Phase                                                   | Reference                                                                                                                   |
+| ------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `seed`  | Seed (create collections + seed items via REST)         | `./CMS_FOUNDATIONS.md` (seeding, business half) + use-case ref under `../astro/cms/` (collection schema + seed-with-images) |
+| `pages` | Pages (About + FAQ pages read CMS via @wix/data inline) | `../astro/cms/CMS_FOUNDATIONS.md` (code patterns) + use-case ref under `../astro/cms/`                                      |
 
 No `components` scope — CMS pages SSR content inline via `@wix/data`; no React islands.
 
@@ -61,11 +61,11 @@ Read `references/shared/STYLING.md` § "Prose / reading width". **Do not** wrap 
 
 ## CMS-specific failure modes
 
-| Wrong | Right |
-|---|---|
-| `items.queryDataItems(...)` / `items.query({ dataCollectionId })` | `items.query("CollectionId").find()` — queryDataItems doesn't exist |
-| React islands for static content pages | SSR inline with `@wix/data`; no islands needed |
-| `max-w-3xl` on FAQ/About wrappers without `--container-3xl` in `@theme` | `container-reading` or `max-w-[48rem]` / `max-w-6xl` per STYLING.md |
-| Return `status: "complete"` without re-querying the collection | Always run the verify-after-insert query (see CMS_FOUNDATIONS.md § "Verify inserts with a live query"); fail fast if any field is missing |
-| Report `fields: [...]` guessed from the insert body | Report `storedFields: [...]` matching the actual keys in the query response's `data` object — pages agents compare against these |
-| Assume text fields survive downstream image PATCHes | Seeder's job is to verify content is present; images agent must preserve via read-merge-PUT (images INSTRUCTIONS.md § "CMS Items") |
+| Wrong                                                                   | Right                                                                                                                                     |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `items.queryDataItems(...)` / `items.query({ dataCollectionId })`       | `items.query("CollectionId").find()` — queryDataItems doesn't exist                                                                       |
+| React islands for static content pages                                  | SSR inline with `@wix/data`; no islands needed                                                                                            |
+| `max-w-3xl` on FAQ/About wrappers without `--container-3xl` in `@theme` | `container-reading` or `max-w-[48rem]` / `max-w-6xl` per STYLING.md                                                                       |
+| Return `status: "complete"` without re-querying the collection          | Always run the verify-after-insert query (see CMS_FOUNDATIONS.md § "Verify inserts with a live query"); fail fast if any field is missing |
+| Report `fields: [...]` guessed from the insert body                     | Report `storedFields: [...]` matching the actual keys in the query response's `data` object — pages agents compare against these          |
+| Assume text fields survive downstream image PATCHes                     | Seeder's job is to verify content is present; images agent must preserve via read-merge-PUT (images INSTRUCTIONS.md § "CMS Items")        |

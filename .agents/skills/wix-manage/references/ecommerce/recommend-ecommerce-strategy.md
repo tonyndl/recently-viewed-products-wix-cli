@@ -25,10 +25,11 @@ references:
     path: ecommerce/setup-coupons.md
     load: false
 ---
+
 # Recommend: eCommerce Strategy
 
->
 > **After classifying domains in Step 4b**, load the matching goal skill with `ReadFullDocsArticle`:
+>
 > - **SEASONAL** → [Goal: Seasonal Revenue](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-seasonal-revenue)
 > - **UPSELL_BOOST** / **SHIPPING** → [Goal: Increase AOV](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-increase-aov) (includes both discount and shipping flows)
 > - **STOCK_MOVER** → [Goal: Clear Inventory](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-clear-inventory)
@@ -36,6 +37,7 @@ references:
 > - **ABANDONED_CART** → [Goal: Reduce Cart Abandonment](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-reduce-cart-abandonment)
 >
 > **If COUPON mechanism in Step 4c**, load:
+>
 > - [Setup: Coupons](https://dev.wix.com/docs/api-reference/business-solutions/coupons)
 
 ## EXECUTION RULES — READ BEFORE ANYTHING ELSE
@@ -81,13 +83,13 @@ CallWixSiteAPI(
 
 **Use the returned history to inform your analysis:**
 
-| State | How to use it |
-|---|---|
-| `PROPOSED` | Don't re-propose — ask about the pending one |
-| `DONE` | Don't re-propose — consider complementary recommendations |
+| State      | How to use it                                                                            |
+| ---------- | ---------------------------------------------------------------------------------------- |
+| `PROPOSED` | Don't re-propose — ask about the pending one                                             |
+| `DONE`     | Don't re-propose — consider complementary recommendations                                |
 | `REJECTED` | Do NOT re-propose. If `rejectionPermanent` is true, never suggest this action type again |
-| `FAILED` | Offer to retry or suggest alternative |
-| `EXPIRED` | Can re-propose if still relevant with fresh data |
+| `FAILED`   | Offer to retry or suggest alternative                                                    |
+| `EXPIRED`  | Can re-propose if still relevant with fresh data                                         |
 
 If the query returns empty results or fails, continue — this is a fresh session.
 
@@ -119,16 +121,16 @@ CallWixSiteAPI(
 
 **Available fields:**
 
-| Field ID | Type | Description | Used for |
-|---|---|---|---|
-| `language` | STRING | Wix site language code | Locale-aware recommendations |
-| `merchant_business_country` | STRING | Merchant's business country (ISO alpha-2) | Holiday detection, region analysis, shipping |
-| `suggested_main_industry` | STRING | Dominant industry in last 30 days (user growth model) | Domain classification, goal selection |
-| `suggested_sub_industry` | STRING | Dominant sub-industry in last 30 days | Domain classification |
-| `last_30_days_distinct_visitors` | LONG | Distinct visitors in last 30 days (incl. app sessions) | Traffic-based thresholds |
-| `last_30_days_orders_count` | LONG | Order count in last 30 days | AOV calculation, goal selection |
-| `online_gpv_last_30_days` | LONG | Online Gross Payment Volume in last 30 days (site currency units) | Revenue analysis, AOV calculation |
-| `payment_currency` | STRING | Store payment currency code (ISO-4217) | Discount/shipping amount formatting |
+| Field ID                         | Type   | Description                                                       | Used for                                     |
+| -------------------------------- | ------ | ----------------------------------------------------------------- | -------------------------------------------- |
+| `language`                       | STRING | Wix site language code                                            | Locale-aware recommendations                 |
+| `merchant_business_country`      | STRING | Merchant's business country (ISO alpha-2)                         | Holiday detection, region analysis, shipping |
+| `suggested_main_industry`        | STRING | Dominant industry in last 30 days (user growth model)             | Domain classification, goal selection        |
+| `suggested_sub_industry`         | STRING | Dominant sub-industry in last 30 days                             | Domain classification                        |
+| `last_30_days_distinct_visitors` | LONG   | Distinct visitors in last 30 days (incl. app sessions)            | Traffic-based thresholds                     |
+| `last_30_days_orders_count`      | LONG   | Order count in last 30 days                                       | AOV calculation, goal selection              |
+| `online_gpv_last_30_days`        | LONG   | Online Gross Payment Volume in last 30 days (site currency units) | Revenue analysis, AOV calculation            |
+| `payment_currency`               | STRING | Store payment currency code (ISO-4217)                            | Discount/shipping amount formatting          |
 
 **Response shape** — each field is a nested object; missing fields = no data for this site:
 
@@ -136,16 +138,17 @@ CallWixSiteAPI(
 {
   "metaSiteId": "<msid>",
   "fields": {
-    "language":                    { "aSingleValue": { "aString": "en-US" } },
-    "merchant_business_country":   { "aSingleValue": { "aString": "US" } },
-    "payment_currency":            { "aSingleValue": { "aString": "USD" } },
-    "last_30_days_orders_count":   { "aSingleValue": { "aLong": "2141" } },
-    "online_gpv_last_30_days":     { "aSingleValue": { "aLong": "526550" } }
+    "language": { "aSingleValue": { "aString": "en-US" } },
+    "merchant_business_country": { "aSingleValue": { "aString": "US" } },
+    "payment_currency": { "aSingleValue": { "aString": "USD" } },
+    "last_30_days_orders_count": { "aSingleValue": { "aLong": "2141" } },
+    "online_gpv_last_30_days": { "aSingleValue": { "aLong": "526550" } }
   }
 }
 ```
 
 Extracting values:
+
 - String: `fields.<name>.aSingleValue.aString`
 - Number: `fields.<name>.aSingleValue.aLong` — **returned as a JSON string, parse to int before arithmetic**
 
@@ -161,11 +164,11 @@ Extracting values:
 
 Check if the merchant's request includes anything unsupported. **Reject** these:
 
-| Unsupported request | Response |
-|---|---|
-| Buy one get one (BOGO) | Explain: not supported by Discount Rules API |
-| Fixed-price bundles ("3 for $100") | Explain: requires custom pricing logic |
-| Unrelated to eCommerce | Decline politely |
+| Unsupported request                | Response                                     |
+| ---------------------------------- | -------------------------------------------- |
+| Buy one get one (BOGO)             | Explain: not supported by Discount Rules API |
+| Fixed-price bundles ("3 for $100") | Explain: requires custom pricing logic       |
+| Unrelated to eCommerce             | Decline politely                             |
 
 If valid, continue.
 
@@ -175,11 +178,11 @@ If valid, continue.
 
 Based on the merchant's request AND the site data, determine which domains to analyze. **Multiple domains can be active simultaneously.**
 
-| Domain | When to activate | Data signals |
-|---|---|---|
-| **DISCOUNTS** | Merchant mentions sales, promotions, revenue, AOV, clearance, holidays, coupons. **Also activate if no specific domain is mentioned** (default). | Always — site data contains discount metrics |
-| **SHIPPING** | Merchant mentions shipping, delivery, checkout conversion, cart abandonment. **Also activate proactively** if site data suggests shipping issues. | High visitors + low orders may indicate shipping friction |
-| **ABANDONED_CART** | Activate proactively if site data shows abandoned carts with no active recovery automation. No merchant trigger needed — detect from data. | `currentDiscounts` empty or no cart recovery automation visible |
+| Domain             | When to activate                                                                                                                                  | Data signals                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **DISCOUNTS**      | Merchant mentions sales, promotions, revenue, AOV, clearance, holidays, coupons. **Also activate if no specific domain is mentioned** (default).  | Always — site data contains discount metrics                    |
+| **SHIPPING**       | Merchant mentions shipping, delivery, checkout conversion, cart abandonment. **Also activate proactively** if site data suggests shipping issues. | High visitors + low orders may indicate shipping friction       |
+| **ABANDONED_CART** | Activate proactively if site data shows abandoned carts with no active recovery automation. No merchant trigger needed — detect from data.        | `currentDiscounts` empty or no cart recovery automation visible |
 
 **Priority rule**: If the merchant mentions a specific holiday/event/date, the DISCOUNTS domain MUST use the **SEASONAL** strategy — even if other signals like "boost sales" or "increase revenue" could match other goals. Holidays are time-sensitive and take priority over general intent.
 
@@ -195,13 +198,13 @@ Based on the merchant's request AND the site data, determine which domains to an
 
 **For DISCOUNTS domain — classify the discount goal and load it:**
 
-| Discount goal | Trigger | Load this skill |
-|---|---|---|
-| SEASONAL | Holiday/event/date mentioned | [Goal: Seasonal Revenue](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-seasonal-revenue) |
-| UPSELL_BOOST | "increase AOV", "spend more", "upsell" | [Goal: Increase AOV](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-increase-aov) |
-| STOCK_MOVER | "clear inventory", "overstock", "clearance" | [Goal: Clear Inventory](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-clear-inventory) |
-| BUNDLE_AND_SAVE | "bundle", "cross-sell", "buy together" | [Goal: Drive Cross-Sells](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-drive-cross-sells) |
-| Generic (no clear goal) | "boost sales", ambiguous | Default to SEASONAL if holiday nearby, else UPSELL_BOOST |
+| Discount goal           | Trigger                                     | Load this skill                                                                                                               |
+| ----------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| SEASONAL                | Holiday/event/date mentioned                | [Goal: Seasonal Revenue](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-seasonal-revenue)   |
+| UPSELL_BOOST            | "increase AOV", "spend more", "upsell"      | [Goal: Increase AOV](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-increase-aov)           |
+| STOCK_MOVER             | "clear inventory", "overstock", "clearance" | [Goal: Clear Inventory](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-clear-inventory)     |
+| BUNDLE_AND_SAVE         | "bundle", "cross-sell", "buy together"      | [Goal: Drive Cross-Sells](https://dev.wix.com/docs/api-reference/business-solutions/e-commerce/skills/goal-drive-cross-sells) |
+| Generic (no clear goal) | "boost sales", ambiguous                    | Default to SEASONAL if holiday nearby, else UPSELL_BOOST                                                                      |
 
 **For SHIPPING domain — load the same goal as discounts.** Shipping flows (free shipping threshold, rate optimization) serve the same business goals as discount flows. Load the matching discount goal above — it now includes shipping flow references.
 
@@ -219,12 +222,12 @@ Based on the merchant's request AND the site data, determine which domains to an
 
 **Only for DISCOUNTS domain. Skip if DISCOUNTS is not active.**
 
-| Merchant says | Mechanism |
-|---|---|
-| "sale", "promotion", "discount for everyone" | **AUTOMATIC** |
-| "coupon", "code", "promo code", "voucher" | **COUPON** |
-| "discount for subscribers", "influencer code" | **COUPON** |
-| Unclear | **Ask the merchant** |
+| Merchant says                                 | Mechanism            |
+| --------------------------------------------- | -------------------- |
+| "sale", "promotion", "discount for everyone"  | **AUTOMATIC**        |
+| "coupon", "code", "promo code", "voucher"     | **COUPON**           |
+| "discount for subscribers", "influencer code" | **COUPON**           |
+| Unclear                                       | **Ask the merchant** |
 
 **If unclear, ask:** "Would you like this to apply automatically to everyone, or as a coupon code?"
 
@@ -256,15 +259,16 @@ Valid `aggregates` values: `op` ∈ `count|sum|avg|min|max|stddev|quantiles` · 
 
 **Aggregates by goal:**
 
-| Goal | `aggregates` array |
-|---|---|
-| UPSELL_BOOST | `[{"op":"count","field":"price"}, {"op":"quantiles","field":"price","q":[0.5,0.75,0.9]}, {"op":"avg","field":"profitMargin"}]` |
+| Goal            | `aggregates` array                                                                                                                  |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| UPSELL_BOOST    | `[{"op":"count","field":"price"}, {"op":"quantiles","field":"price","q":[0.5,0.75,0.9]}, {"op":"avg","field":"profitMargin"}]`      |
 | BUNDLE_AND_SAVE | `[{"op":"min","field":"price"}, {"op":"max","field":"price"}, {"op":"avg","field":"profitMargin"}, {"op":"count","field":"price"}]` |
-| STOCK_MOVER | `[{"op":"sum","field":"quantity"}, {"op":"sum","field":"ordersCount"}, {"op":"avg","field":"profitMargin"}]` |
-| SEASONAL | `[{"op":"sum","field":"ordersCount"}, {"op":"quantiles","field":"price","q":[0.5,0.9]}, {"op":"avg","field":"profitMargin"}]` |
-| SHIPPING | `[{"op":"count","field":"price"}, {"op":"quantiles","field":"price","q":[0.5,0.75]}, {"op":"avg","field":"profitMargin"}]` |
+| STOCK_MOVER     | `[{"op":"sum","field":"quantity"}, {"op":"sum","field":"ordersCount"}, {"op":"avg","field":"profitMargin"}]`                        |
+| SEASONAL        | `[{"op":"sum","field":"ordersCount"}, {"op":"quantiles","field":"price","q":[0.5,0.9]}, {"op":"avg","field":"profitMargin"}]`       |
+| SHIPPING        | `[{"op":"count","field":"price"}, {"op":"quantiles","field":"price","q":[0.5,0.75]}, {"op":"avg","field":"profitMargin"}]`          |
 
 **Response shape:**
+
 ```json
 {
   "categoryGroups": [
@@ -279,10 +283,14 @@ Valid `aggregates` values: `op` ∈ `count|sum|avg|min|max|stddev|quantiles` · 
         "avg(profitMargin)": 0.42
       }
     },
-    { "categoryName": "All Products", "fields": { "count()": 120, "avg(profitMargin)": 0.35 } }
+    {
+      "categoryName": "All Products",
+      "fields": { "count()": 120, "avg(profitMargin)": 0.35 }
+    }
   ]
 }
 ```
+
 **Important**: Use "All Products" only for overall catalog stats. Exclude it from category-level analysis.
 
 ### Call 2: GetProductCatalogData
@@ -303,14 +311,15 @@ CallWixSiteAPI(
 
 **Sort order applied server-side by `businessGoal`:**
 
-| Goal | Sort order |
-|---|---|
-| UPSELL_BOOST | price DESC, ordersCount DESC |
-| BUNDLE_AND_SAVE | price DESC, ordersCount DESC |
-| STOCK_MOVER | quantity DESC, ordersCount ASC |
-| SEASONAL / SHIPPING | ordersCount DESC |
+| Goal                | Sort order                     |
+| ------------------- | ------------------------------ |
+| UPSELL_BOOST        | price DESC, ordersCount DESC   |
+| BUNDLE_AND_SAVE     | price DESC, ordersCount DESC   |
+| STOCK_MOVER         | quantity DESC, ordersCount ASC |
+| SEASONAL / SHIPPING | ordersCount DESC               |
 
 **Response shape:**
+
 ```json
 {
   "items": [
@@ -319,13 +328,14 @@ CallWixSiteAPI(
       "name": "Premium Headphones",
       "quantity": 85,
       "price": 149.99,
-      "profit": 67.50,
+      "profit": 67.5,
       "profitMargin": 0.45,
       "ordersCount": 23
     }
   ]
 }
 ```
+
 `price` and `profit` are in `payment_currency` units. `id` is the product UUID — use for `productIds` in rules.
 
 ### Step 5b: Convert category names to GUIDs (if using CATEGORY scope)
@@ -363,12 +373,12 @@ Maximum **5 recommendations total** across all domains. Each recommendation incl
 
 Use site data + catalog data to generate discount recommendations. Each should use a **different strategy**:
 
-| Strategy | When to use | Key parameters |
-|---|---|---|
-| SEASONAL | Holiday/event within 30 days | Time-bounded, site-wide or category scope |
-| UPSELL_BOOST | AOV data available | minSubTotal above current AOV |
-| STOCK_MOVER | Products with high stock + low orders | Deeper discounts on slow movers |
-| BUNDLE_AND_SAVE | Many low-priced items | minItemQuantity conditions |
+| Strategy        | When to use                           | Key parameters                            |
+| --------------- | ------------------------------------- | ----------------------------------------- |
+| SEASONAL        | Holiday/event within 30 days          | Time-bounded, site-wide or category scope |
+| UPSELL_BOOST    | AOV data available                    | minSubTotal above current AOV             |
+| STOCK_MOVER     | Products with high stock + low orders | Deeper discounts on slow movers           |
+| BUNDLE_AND_SAVE | Many low-priced items                 | minItemQuantity conditions                |
 
 **Scope selection** (in order of preference):
 
@@ -378,14 +388,15 @@ Use site data + catalog data to generate discount recommendations. Each should u
 
 **Performance signals:**
 
-| What you observe in the data | What to recommend |
-|---|---|
-| High visitors, low ordersCount | Site-wide discount to convert traffic |
-| High AOV, few items per order | BUNDLE_AND_SAVE |
-| Products with high stock + low orders | STOCK_MOVER |
-| Holiday within 30 days | SEASONAL |
+| What you observe in the data          | What to recommend                     |
+| ------------------------------------- | ------------------------------------- |
+| High visitors, low ordersCount        | Site-wide discount to convert traffic |
+| High AOV, few items per order         | BUNDLE_AND_SAVE                       |
+| Products with high stock + low orders | STOCK_MOVER                           |
+| Holiday within 30 days                | SEASONAL                              |
 
 **Discount constraints:**
+
 - Discount must not exceed `discountMargin` from site data (unless merchant overrides)
 - Round percentages to 5/10/15/20/25% unless merchant specified exact value
 - All categoryIds must be GUIDs from GetCategoryIds
@@ -400,19 +411,19 @@ Analyze the site's shipping configuration using the rules below. All shipping re
 
 **Shipping analysis rules — evaluate each and recommend where data supports:**
 
-| Rule | Finding | Recommendation |
-|---|---|---|
-| **Coverage** | Active region with zero shipping options | CRITICAL — `create_shipping_option` for that region |
-| **Coverage** | Domestic country not covered by any region | CRITICAL — `activate_region` or create domestic region |
-| **Coverage** | Inactive regions with shipping options | `activate_region` or clean up orphaned options |
-| **Free Shipping** | No free shipping option anywhere | `create_shipping_option` with AOV-calibrated threshold (1.2-1.5x AOV) |
-| **Free Shipping** | Free shipping threshold > 2x AOV | Lower threshold — too high for most customers |
-| **Rates** | Flat rate > 15% of AOV | Reduce rate or add conditional tiering — sticker shock risk |
-| **Rates** | All flat rates, no conditional pricing | Add threshold-based tiers for better conversion |
-| **Rates** | Per-item pricing enabled | Review — usually causes unexpectedly high totals |
-| **Carrier** | No backup rate on carrier regions | `enable_backup_rate` as fallback |
-| **Options** | Too many options per region (> 5) | Consolidate — choice paralysis reduces conversion |
-| **Options** | Only 1 option per region | Add at least one alternative (e.g., express tier) |
+| Rule              | Finding                                    | Recommendation                                                        |
+| ----------------- | ------------------------------------------ | --------------------------------------------------------------------- |
+| **Coverage**      | Active region with zero shipping options   | CRITICAL — `create_shipping_option` for that region                   |
+| **Coverage**      | Domestic country not covered by any region | CRITICAL — `activate_region` or create domestic region                |
+| **Coverage**      | Inactive regions with shipping options     | `activate_region` or clean up orphaned options                        |
+| **Free Shipping** | No free shipping option anywhere           | `create_shipping_option` with AOV-calibrated threshold (1.2-1.5x AOV) |
+| **Free Shipping** | Free shipping threshold > 2x AOV           | Lower threshold — too high for most customers                         |
+| **Rates**         | Flat rate > 15% of AOV                     | Reduce rate or add conditional tiering — sticker shock risk           |
+| **Rates**         | All flat rates, no conditional pricing     | Add threshold-based tiers for better conversion                       |
+| **Rates**         | Per-item pricing enabled                   | Review — usually causes unexpectedly high totals                      |
+| **Carrier**       | No backup rate on carrier regions          | `enable_backup_rate` as fallback                                      |
+| **Options**       | Too many options per region (> 5)          | Consolidate — choice paralysis reduces conversion                     |
+| **Options**       | Only 1 option per region                   | Add at least one alternative (e.g., express tier)                     |
 
 **Shipping action types:** `create_shipping_option`, `update_shipping_option`, `enable_backup_rate`, `activate_region`.
 
@@ -423,6 +434,7 @@ Analyze the site's shipping configuration using the rules below. All shipping re
 Detect if the merchant has significant cart abandonment without active recovery. All abandoned cart recommendations use `domain: "abandoned_cart_recovery"`.
 
 **Eligibility gate (BOTH conditions required):**
+
 1. Cart abandonment recovery automation is **NOT active** on the site
 2. Estimated missing sales >= $200 over the last 30 days
 
@@ -430,11 +442,11 @@ Detect if the merchant has significant cart abandonment without active recovery.
 
 **Urgency thresholds based on missing sales (USD, last 30 days):**
 
-| Missing sales | Urgency |
-|---|---|
-| >= $1,000 | HIGH |
-| $200 — $999 | MEDIUM |
-| < $200 | Do not recommend |
+| Missing sales | Urgency          |
+| ------------- | ---------------- |
+| >= $1,000     | HIGH             |
+| $200 — $999   | MEDIUM           |
+| < $200        | Do not recommend |
 
 **Action type:** `activate_abandoned_cart_recovery`
 
@@ -545,27 +557,27 @@ If BatchCreate fails, report the error and include recommendations without track
 
 ### Field rules
 
-| Field | Rule |
-|---|---|
-| `id` | GUID from tracking BatchCreate response (omit if tracking skipped/failed) |
-| `title` | Short, actionable. Max 200 chars. Always English. |
-| `reasoning` | **Must reference which API call returned the data.** Always English. |
-| `domain` | `"discounts"`, `"shipping"`, or `"abandoned_cart_recovery"` (future: `"gift_cards"`, `"taxes"`) |
-| `urgency` | `CRITICAL`, `HIGH`, `MEDIUM`, or `LOW` |
-| `mechanism` | `AUTOMATIC` or `COUPON`. From Step 4c. Only for discounts domain. |
-| `name` | Marketing headline, 2-5 words. Translate to site `language` if not English. |
-| `why` | 1-2 sentences with specific data points from API responses. Translate to site `language`. |
-| `code` | Only for COUPON mechanism. Memorable code, max 20 chars (e.g., "SAVE15"). |
-| `scope` + IDs | For discounts: SITE = both empty, CATEGORY = categoryIds only (max 3), ITEMS = productIds only (max 5). |
-| `success_criteria` | How to verify the recommendation was applied correctly |
+| Field              | Rule                                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------------------- |
+| `id`               | GUID from tracking BatchCreate response (omit if tracking skipped/failed)                               |
+| `title`            | Short, actionable. Max 200 chars. Always English.                                                       |
+| `reasoning`        | **Must reference which API call returned the data.** Always English.                                    |
+| `domain`           | `"discounts"`, `"shipping"`, or `"abandoned_cart_recovery"` (future: `"gift_cards"`, `"taxes"`)         |
+| `urgency`          | `CRITICAL`, `HIGH`, `MEDIUM`, or `LOW`                                                                  |
+| `mechanism`        | `AUTOMATIC` or `COUPON`. From Step 4c. Only for discounts domain.                                       |
+| `name`             | Marketing headline, 2-5 words. Translate to site `language` if not English.                             |
+| `why`              | 1-2 sentences with specific data points from API responses. Translate to site `language`.               |
+| `code`             | Only for COUPON mechanism. Memorable code, max 20 chars (e.g., "SAVE15").                               |
+| `scope` + IDs      | For discounts: SITE = both empty, CATEGORY = categoryIds only (max 3), ITEMS = productIds only (max 5). |
+| `success_criteria` | How to verify the recommendation was applied correctly                                                  |
 
 ### Valid action types by domain
 
-| Domain | Action types |
-|---|---|
-| discounts | `apply_discount` |
-| shipping | `create_shipping_option`, `update_shipping_option`, `enable_backup_rate`, `activate_region` |
-| abandoned_cart_recovery | `activate_abandoned_cart_recovery` |
+| Domain                  | Action types                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------------- |
+| discounts               | `apply_discount`                                                                            |
+| shipping                | `create_shipping_option`, `update_shipping_option`, `enable_backup_rate`, `activate_region` |
+| abandoned_cart_recovery | `activate_abandoned_cart_recovery`                                                          |
 
 ---
 

@@ -41,12 +41,12 @@ ARIA labels are user-facing content and must NEVER be hardcoded as string litera
    ```tsx
    // constants.ts
    export const ARIA_LABELS = {
-     playButton: 'Play audio',
-     muteButton: 'Mute audio',
+     playButton: "Play audio",
+     muteButton: "Mute audio",
    } as const;
 
    // component.tsx
-   import { ARIA_LABELS } from './constants';
+   import { ARIA_LABELS } from "./constants";
    <Button aria-label={ARIA_LABELS.playButton}>▶</Button>;
    ```
 
@@ -73,7 +73,7 @@ ARIA labels are user-facing content and must NEVER be hardcoded as string litera
 | --------------------- | ----------------- | ----------------------------------------- |
 | Visible text only     | ❌ No             | `<Button>Play</Button>`                   |
 | Icon component + text | ❌ No             | `<Button><PlayIcon />Play</Button>`       |
-| Icon/emoji only       | ✅ YES            | `<Button>▶</Button>`                     |
+| Icon/emoji only       | ✅ YES            | `<Button>▶</Button>`                      |
 | Image only            | ✅ YES            | `<Button><img src="play.png" /></Button>` |
 | SVG only              | ✅ YES            | `<Button><svg>...</svg></Button>`         |
 
@@ -84,15 +84,15 @@ ARIA labels are user-facing content and must NEVER be hardcoded as string litera
 ```tsx
 // constants.ts
 export const ARIA_LABELS = {
-  playButton: 'Play audio',
-  pauseButton: 'Pause audio',
+  playButton: "Play audio",
+  pauseButton: "Pause audio",
 } as const;
 
 // component.tsx
 <Button
   aria-label={isPlaying ? ARIA_LABELS.pauseButton : ARIA_LABELS.playButton}
 >
-  {isPlaying ? '⏸' : '▶'}
+  {isPlaying ? "⏸" : "▶"}
 </Button>;
 ```
 
@@ -103,7 +103,7 @@ export const ARIA_LABELS = {
 **❌ Wrong:**
 
 ```typescript
-import type { Direction } from '@wix/editor-react-types';
+import type { Direction } from "@wix/editor-react-types";
 
 export interface TabsProps {
   id?: string;

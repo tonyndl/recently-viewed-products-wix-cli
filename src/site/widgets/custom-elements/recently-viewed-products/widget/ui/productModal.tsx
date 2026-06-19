@@ -1,6 +1,6 @@
-import type { FC } from 'react';
-import type { RecentlyViewedItem } from '../../types';
-import { styles } from './styles/productModal';
+import type { FC } from "react";
+import type { RecentlyViewedItem } from "../../types";
+import { styles } from "./styles/productModal";
 
 interface ProductDetailProps {
   item: RecentlyViewedItem;
@@ -15,31 +15,53 @@ interface ProductDetailProps {
 // overlays get clipped or pushed off-screen, so instead of a modal we render the
 // detail INLINE in the widget's normal flow — guaranteed visible. It replaces
 // the product grid until the visitor clicks "Back".
-export const ProductDetail: FC<ProductDetailProps> = ({ item, onViewProduct, onBack }) => (
+export const ProductDetail: FC<ProductDetailProps> = ({
+  item,
+  onViewProduct,
+  onBack,
+}) => (
   <div style={styles.panel}>
     <button type="button" style={styles.back} onClick={onBack}>
-      <span style={styles.backArrow} aria-hidden="true">
-        ‹
-      </span>
+      <svg
+        style={styles.backArrow}
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M15 5l-7 7 7 7"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
       Back
     </button>
 
     <div style={styles.card}>
       <div style={styles.imageWrap}>
-        {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={styles.image} /> : null}
+        {item.imageUrl ? (
+          <img src={item.imageUrl} alt={item.name} style={styles.image} />
+        ) : null}
       </div>
 
       <div style={styles.body}>
         <p style={styles.name}>{item.name}</p>
-        {item.formattedPrice ? <p style={styles.price}>{item.formattedPrice}</p> : null}
-        {item.description ? <p style={styles.description}>{item.description}</p> : null}
+        {item.formattedPrice ? (
+          <p style={styles.price}>{item.formattedPrice}</p>
+        ) : null}
 
-        {onViewProduct ? (
-          <button type="button" style={styles.button} onClick={() => onViewProduct(item)}>
+        {onViewProduct && (
+          <button
+            type="button"
+            style={styles.button}
+            onClick={() => onViewProduct(item)}
+          >
             View Product
           </button>
-        ) : (
-          <p style={styles.note}>Opens the product page on your published site.</p>
         )}
       </div>
     </div>

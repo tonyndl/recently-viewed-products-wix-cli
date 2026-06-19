@@ -8,22 +8,22 @@ Build a FAQ page using `@wix/data` — Q&A pairs organized by category with acco
 
 The schema the `seed` scope creates via REST (see `../../cms/CMS_FOUNDATIONS.md`) — fields:
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `question` | Text | The question |
-| `slug` | Text | URL-friendly identifier (for anchor links) |
-| `answer` | Rich Text | The answer (HTML) |
-| `category` | Text | FAQ category (e.g., "Shipping", "Returns") |
-| `orderIndex` | Number | Manual sort order within category |
-| `published` | Boolean | Publish status |
+| Field        | Type      | Purpose                                    |
+| ------------ | --------- | ------------------------------------------ |
+| `question`   | Text      | The question                               |
+| `slug`       | Text      | URL-friendly identifier (for anchor links) |
+| `answer`     | Rich Text | The answer (HTML)                          |
+| `category`   | Text      | FAQ category (e.g., "Shipping", "Returns") |
+| `orderIndex` | Number    | Manual sort order within category          |
+| `published`  | Boolean   | Publish status                             |
 
 ## Files to Create
 
-| File | Purpose |
-|------|---------|
-| `src/lib/faq.ts` | Service module — queries, category grouping |
-| `src/pages/faq/index.astro` | Single FAQ page with category sections |
-| `src/components/FaqSection.tsx` | React island — accordion + search combined |
+| File                            | Purpose                                     |
+| ------------------------------- | ------------------------------------------- |
+| `src/lib/faq.ts`                | Service module — queries, category grouping |
+| `src/pages/faq/index.astro`     | Single FAQ page with category sections      |
+| `src/components/FaqSection.tsx` | React island — accordion + search combined  |
 
 > FAQ is a single-page pattern — no detail pages needed.
 
@@ -79,6 +79,7 @@ export function groupByCategory(faqItems: FaqItem[]): Map<string, FaqItem[]> {
 ```
 
 Key details:
+
 - No image resolution needed — FAQ items are text-only
 - `published` filter ensures draft items don't appear
 - Higher limit (200) since FAQ items are lightweight
@@ -112,7 +113,7 @@ export default function FaqSection({ categories }: Props) {
           items: cat.items.filter(
             (item) =>
               item.question.toLowerCase().includes(query) ||
-              item.answer.toLowerCase().includes(query)
+              item.answer.toLowerCase().includes(query),
           ),
         }))
         .filter((cat) => cat.items.length > 0)
@@ -130,12 +131,14 @@ export default function FaqSection({ categories }: Props) {
         />
       </div>
 
-      {filtered.length === 0 && (
-        <p>No matching questions found.</p>
-      )}
+      {filtered.length === 0 && <p>No matching questions found.</p>}
 
       {filtered.map((cat) => (
-        <section key={cat.name} className="faq-section" id={cat.name.toLowerCase().replace(/\s+/g, "-")}>
+        <section
+          key={cat.name}
+          className="faq-section"
+          id={cat.name.toLowerCase().replace(/\s+/g, "-")}
+        >
           <h2 className="faq-category">{cat.name}</h2>
           <div>
             {cat.items.map((item) => (
@@ -172,6 +175,7 @@ export default function FaqSection({ categories }: Props) {
 > **Styling note:** Uses `.faq-search`, `.faq-section`, `.faq-category`, `.faq-item`, `.faq-question`, `.faq-toggle`, `.faq-answer` from the designed component's `<style is:global>` block. See `references/shared/STYLING.md` (FAQ Accordion).
 
 Key details:
+
 - `<details>/<summary>` for native accordion behavior — no JavaScript needed for open/close
 - CSS transition on the chevron via the `.faq-toggle` class
 - Client-side search filters across both question and answer text
@@ -216,6 +220,7 @@ const categories = [...grouped.entries()].map(([name, items]) => ({ name, items 
 ```
 
 Key details:
+
 - Category jump links in the nav work because `FaqSection` renders matching `id` attributes
 - `client:only="react"` — required for search state
 - Data is fetched server-side and passed as props to the React island

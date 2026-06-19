@@ -1,4 +1,3 @@
-
 # Wix Dashboard Plugin Builder
 
 Dashboard plugins are interactive widgets that embed into predefined **slots** on dashboard pages managed by Wix first-party business apps (Wix Stores, Wix Bookings, Wix Blog, Wix eCommerce, etc.). They occupy the full width of their slot and maintain dynamic height based on content.
@@ -80,7 +79,6 @@ const Plugin: FC<Props> = (props) => {
 - **Height** adjusts dynamically based on content within slot boundaries
 - When using Dashboard SDK or dashboard-react SDK, dimensions change dynamically based on contents
 
-
 ## Examples
 
 ### Blog Posts Banner Plugin
@@ -100,4 +98,3 @@ const Plugin: FC<Props> = (props) => {
 **Request:** "Create a plugin on the eCommerce order page showing fulfillment status"
 
 **Output:** Plugin targeting slot `cb16162e-42aa-41bd-a644-dc570328c6cc` (eCommerce Order page) with status badges and fulfillment details, using `observeState()` to access order data.
-

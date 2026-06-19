@@ -2,6 +2,7 @@
 name: "Setup: Store Pickup Location"
 description: Configures a pickup option for an online store so customers can choose in-store pickup at checkout. Uses the Delivery Profiles API to discover the Pickup carrier, add a delivery region, and attach the carrier with a free pickup rate.
 ---
+
 # Set Up Store Pickup Location
 
 ## Prerequisites
@@ -25,6 +26,7 @@ Call [List Installed Delivery Carriers](https://dev.wix.com/docs/api-reference/b
 **Endpoint**: `GET https://www.wixapis.com/ecom/v1/delivery-profiles/installed-carriers`
 
 **Response**:
+
 ```json
 {
   "installedDeliveryCarriers": [
@@ -58,6 +60,7 @@ Call [Query Delivery Profiles](https://dev.wix.com/docs/api-reference/business-s
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/delivery-profiles/query`
 
 **Request**:
+
 ```json
 {}
 ```
@@ -65,6 +68,7 @@ Call [Query Delivery Profiles](https://dev.wix.com/docs/api-reference/business-s
 The response contains an array of `deliveryProfiles`. Find the one where `"default": true`. Save its `id` and `revision`. Inspect its `deliveryRegions` array.
 
 **Decision point:**
+
 - **Region exists for the user's country** (match on `destinations[].countryCode`): save that region's `id` → skip to Step 4.
 - **No matching region**: proceed to Step 3.
 
@@ -79,6 +83,7 @@ If no region exists for the user's country in the default profile, call [Add Del
 Replace `{deliveryProfileId}` with the default profile's `id` from Step 2.
 
 **Request**:
+
 ```json
 {
   "deliveryRegion": {
@@ -99,6 +104,7 @@ Replace `{deliveryProfileId}` with the default profile's `id` from Step 2.
 - `revision`: from the profile returned in Step 2.
 
 **Response**:
+
 ```json
 {
   "deliveryProfile": {
@@ -135,6 +141,7 @@ Call [Add Delivery Carrier](https://dev.wix.com/docs/api-reference/business-solu
 **Endpoint**: `POST https://www.wixapis.com/ecom/v1/delivery-profiles/add-delivery-carrier`
 
 **Request**:
+
 ```json
 {
   "deliveryRegionId": "<REGION_ID>",
@@ -156,6 +163,7 @@ Call [Add Delivery Carrier](https://dev.wix.com/docs/api-reference/business-solu
 - `backupRate.active`: must be `true` for the option to appear at checkout.
 
 **Response**:
+
 ```json
 {
   "deliveryProfile": {
@@ -195,11 +203,11 @@ Call [Add Delivery Carrier](https://dev.wix.com/docs/api-reference/business-solu
 
 ## Error Handling
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `DESTINATIONS_COLLISION` | The country is already assigned to another region in the same profile. | Skip Step 3 — use the existing region's `id` and add the carrier to it in Step 4. |
-| `CARRIER_ALREADY_EXISTS_IN_REGION` | The Pickup carrier is already configured in this region. | The pickup option is already set up. No action needed. |
-| `DELIVERY_CARRIER_MISSING_BACKUP_RATE` | The `backupRate` or `backupRate.amount` field is missing. | Ensure `backupRate` includes `title`, `amount`, and `active`. |
+| Error                                  | Cause                                                                  | Fix                                                                               |
+| -------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `DESTINATIONS_COLLISION`               | The country is already assigned to another region in the same profile. | Skip Step 3 — use the existing region's `id` and add the carrier to it in Step 4. |
+| `CARRIER_ALREADY_EXISTS_IN_REGION`     | The Pickup carrier is already configured in this region.               | The pickup option is already set up. No action needed.                            |
+| `DELIVERY_CARRIER_MISSING_BACKUP_RATE` | The `backupRate` or `backupRate.amount` field is missing.              | Ensure `backupRate` includes `title`, `amount`, and `active`.                     |
 
 ---
 

@@ -9,14 +9,14 @@ Extends `references/shared/IMPLEMENTER.md`. Read that file first for phase routi
 
 ## Scope routing
 
-| Scope | Phase | Reference |
-|-------|-------|-----------|
-| `seed` | Seed (REST catalog setup — products only; categories are merchant-driven, not seeded) | `./PRODUCT_CATALOG_DATA.md` |
-| `components` | Components (React islands + SeoTags + back-in-stock util — TSX/Astro only, **no CSS**) | `../astro/stores/SHARED_WIRING.md` |
-| ~~`components-css`~~ | **Do not dispatch.** `src/styles/components-stores.css` is copied from `<SKILL_ROOT>/references/astro/templates/stores/components-stores.css` by the orchestrator's pre-Step-4.5 batch (see BUILD-astro.md § Step 4.5). The template uses direct `var(--token)` CSS, so it works against any designer-published vocabulary without per-run rewrites. `COMPONENTS_CSS.md` documents that CSS for reference — there is no `components-css` subagent to dispatch. | — |
-| `pages-categories` | Pages (`/category/[slug]` listing + shared CategoryRail + `utils/categories.ts`) | `../astro/stores/CATEGORY_PAGES.md` |
-| `pages-products` | Pages (products listing + detail + ProductCard; mounts the rail written by `pages-categories`) | `../astro/stores/PRODUCT_PAGES.md` |
-| `pages-home-and-nav` | Pages (home-page contribution + Shop submenu in Navigation) | `../astro/stores/HOME_AND_NAV.md` |
+| Scope                | Phase                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Reference                           |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `seed`               | Seed (REST catalog setup — products only; categories are merchant-driven, not seeded)                                                                                                                                                                                                                                                                                                                                                                          | `./PRODUCT_CATALOG_DATA.md`         |
+| `components`         | Components (React islands + SeoTags + back-in-stock util — TSX/Astro only, **no CSS**)                                                                                                                                                                                                                                                                                                                                                                         | `../astro/stores/SHARED_WIRING.md`  |
+| ~~`components-css`~~ | **Do not dispatch.** `src/styles/components-stores.css` is copied from `<SKILL_ROOT>/references/astro/templates/stores/components-stores.css` by the orchestrator's pre-Step-4.5 batch (see BUILD-astro.md § Step 4.5). The template uses direct `var(--token)` CSS, so it works against any designer-published vocabulary without per-run rewrites. `COMPONENTS_CSS.md` documents that CSS for reference — there is no `components-css` subagent to dispatch. | —                                   |
+| `pages-categories`   | Pages (`/category/[slug]` listing + shared CategoryRail + `utils/categories.ts`)                                                                                                                                                                                                                                                                                                                                                                               | `../astro/stores/CATEGORY_PAGES.md` |
+| `pages-products`     | Pages (products listing + detail + ProductCard; mounts the rail written by `pages-categories`)                                                                                                                                                                                                                                                                                                                                                                 | `../astro/stores/PRODUCT_PAGES.md`  |
+| `pages-home-and-nav` | Pages (home-page contribution + Shop submenu in Navigation)                                                                                                                                                                                                                                                                                                                                                                                                    | `../astro/stores/HOME_AND_NAV.md`   |
 
 > **Why `components` is TSX/Astro-only.** The scoped CSS (`src/styles/components-stores.css`) has no runtime coupling to the TSX components — it's referenced only by class name at build time — so it ships pre-copied from the template by the orchestrator (see § "CSS ownership" below) rather than being written by an agent. The `components` agent gets a smaller reading set and a smaller write list. See `../astro/stores/COMPONENTS_CSS.md` § "What this scope owns".
 
@@ -65,20 +65,24 @@ If a declared file is missing, return `status: "partial"` with `errors: [{ code:
 Canonical templates live at `<SKILL_ROOT>/references/astro/templates/stores/`. Your `components` and `pages-*` scopes read these and adapt them — don't invent markup or logic.
 
 Components (`components` scope — TSX/Astro only):
+
 - `<SKILL_ROOT>/references/astro/templates/stores/AddToCartButton.tsx`
 - `<SKILL_ROOT>/references/astro/templates/stores/ProductPurchase.tsx`
 - `<SKILL_ROOT>/references/astro/templates/stores/BackInStockForm.tsx`
 - `<SKILL_ROOT>/references/astro/templates/stores/SeoTags.astro`
 
 Components CSS (pre-copied by the orchestrator — no agent writes it):
+
 - `<SKILL_ROOT>/references/astro/templates/stores/components-stores.css`
 
 Pages (`pages-products` scope):
+
 - `<SKILL_ROOT>/references/astro/templates/stores/ProductCard.astro`
 - `<SKILL_ROOT>/references/astro/templates/stores/products/index.astro`
 - `<SKILL_ROOT>/references/astro/templates/stores/products/[slug].astro`
 
 Pages (`pages-categories` scope):
+
 - `<SKILL_ROOT>/references/astro/templates/stores/CategoryRail.astro`
 - `<SKILL_ROOT>/references/astro/templates/stores/category/[slug].astro`
 
@@ -113,14 +117,14 @@ If the merchant hasn't enabled "Start Collecting Requests", the probe returns `f
 
 ## Stores-specific failure modes
 
-| Wrong | Right |
-|---|---|
-| `import { products }` | `import { productsV3 }` — V1 silently returns 0 on V3 catalogs |
-| Skip `variantId` on cart add | Always include — single-variant products have one |
-| Omit `wixMetadata` on `/products/[slug]` | Required for Wix sitemap/SEO/deep-link routing |
-| Mount CartBadge on a page component | Mount via ecom's `contributes:` marker in `Navigation.astro` so it appears on all pages |
-| Hit `/stores/v3/categories/...` for category endpoints | Categories live under `/categories/v1/` — `POST /categories/v1/categories`, `POST /categories/v1/bulk/categories/{id}/add-items`, `POST /categories/v1/categories/query` |
-| Use the back-in-stock app id `1380b703-…` when adding items to a category | Use the **Stores install id** `215238eb-22a5-4c36-9e7b-e7c08025e04e` for `appId` on `bulkAddItemsToCategory` items — it's the same id Wix Stores writes to its products |
-| Call `categories.queryCategories(...).limit(N).find()` with no filter | The SDK builder rejects empty filter expressions with `INVALID_FILTER`. Always chain at least `.eq("visible", true)` before `.find()` |
-| Call `categories.listCategoriesForItems(items, ...)` from the SDK | The SDK function ships items via GET querystring and breaks on arrays. Use `POST /categories/v1/categories/list-categories-for-items` directly, or fan out per-category via `listItemsInCategory` |
+| Wrong                                                                         | Right                                                                                                                                                                                                 |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `import { products }`                                                         | `import { productsV3 }` — V1 silently returns 0 on V3 catalogs                                                                                                                                        |
+| Skip `variantId` on cart add                                                  | Always include — single-variant products have one                                                                                                                                                     |
+| Omit `wixMetadata` on `/products/[slug]`                                      | Required for Wix sitemap/SEO/deep-link routing                                                                                                                                                        |
+| Mount CartBadge on a page component                                           | Mount via ecom's `contributes:` marker in `Navigation.astro` so it appears on all pages                                                                                                               |
+| Hit `/stores/v3/categories/...` for category endpoints                        | Categories live under `/categories/v1/` — `POST /categories/v1/categories`, `POST /categories/v1/bulk/categories/{id}/add-items`, `POST /categories/v1/categories/query`                              |
+| Use the back-in-stock app id `1380b703-…` when adding items to a category     | Use the **Stores install id** `215238eb-22a5-4c36-9e7b-e7c08025e04e` for `appId` on `bulkAddItemsToCategory` items — it's the same id Wix Stores writes to its products                               |
+| Call `categories.queryCategories(...).limit(N).find()` with no filter         | The SDK builder rejects empty filter expressions with `INVALID_FILTER`. Always chain at least `.eq("visible", true)` before `.find()`                                                                 |
+| Call `categories.listCategoriesForItems(items, ...)` from the SDK             | The SDK function ships items via GET querystring and breaks on arrays. Use `POST /categories/v1/categories/list-categories-for-items` directly, or fan out per-category via `listItemsInCategory`     |
 | Ship a client-side filter (`data-category-ids` + JS hide) on the product grid | Filter server-side via `/category/[slug]` routes; client-side filtering doesn't scale past ~100 products and breaks SEO. The `<CategoryRail/>` swaps cards via `<ClientRouter />`, not by hiding them |

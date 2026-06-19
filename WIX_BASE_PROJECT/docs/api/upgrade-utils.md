@@ -13,28 +13,28 @@ A small collection of upgrade-related constants and helpers used by the dashboar
 
 // ─── Replace with your app's actual feature lists ─────────────────────────────
 export const FREE_FEATURES = [
-  'Up to [N] items',
-  '[Core feature available on free]',
+  "Up to [N] items",
+  "[Core feature available on free]",
 ];
 
 export const PREMIUM_FEATURES = [
-  'Unlimited items',
-  '[Core feature]',
-  'Remove watermark',
-  'Priority support',
+  "Unlimited items",
+  "[Core feature]",
+  "Remove watermark",
+  "Priority support",
 ];
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const openUpgradeUrl = (url: string | undefined) => {
   if (!url) return;
-  window.open(url, '_blank');
+  window.open(url, "_blank");
 };
 
 export const formatPrice = (raw: string, currency: string): string => {
   const num = parseFloat(raw);
   if (isNaN(num)) return raw;
   return new Intl.NumberFormat(undefined, {
-    style: 'currency',
+    style: "currency",
     currency,
     minimumFractionDigits: 0,
   }).format(num);
@@ -46,7 +46,12 @@ export const formatPrice = (raw: string, currency: string): string => {
 ## Usage
 
 ```ts
-import { FREE_FEATURES, PREMIUM_FEATURES, openUpgradeUrl, formatPrice } from '../upgradeUtils';
+import {
+  FREE_FEATURES,
+  PREMIUM_FEATURES,
+  openUpgradeUrl,
+  formatPrice,
+} from "../upgradeUtils";
 
 // In PlanUpgradeTab/utils.ts — buildPricingTiers uses FREE_FEATURES / PREMIUM_FEATURES
 // In PricingTierCard — openUpgradeUrl() opens the upgrade page in a new tab

@@ -22,4 +22,4 @@ Before finalising, verify each proposed part against its parent:
 
 > Would the editor controls generated for this part be a strict subset of its parent's controls?
 
-If yes — the part adds no independent editor surface and should be removed. This catches rationalisation after-the-fact ("the parent *could* expose this CSS property too, but so could the child separately"). When in doubt, fewer parts is usully better.
+If yes — the part adds no independent editor surface and should be removed. This catches rationalisation after-the-fact ("the parent _could_ expose this CSS property too, but so could the child separately"). When in doubt, fewer parts is usully better.

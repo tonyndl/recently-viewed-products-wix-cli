@@ -1,14 +1,14 @@
 ---
 name: gift-cards
 description: "Conditional gift-card buy page + nav/home contributions. Detects the Wix Gift Card app at runtime; renders only when installed."
-triggers: []   # never triggered independently — co-loaded by packs that include a storefront via `requires:`
-requires: ["ecom"]   # buy flow uses currentCart.addToCurrentCart
+triggers: [] # never triggered independently — co-loaded by packs that include a storefront via `requires:`
+requires: ["ecom"] # buy flow uses currentCart.addToCurrentCart
 
 features:
   - name: "Gift cards (when enabled in dashboard)"
     description: "Customers buy preset-amount gift cards on a dedicated page. Wix issues redeemable codes after payment and emails the recipient. The page, nav link, and home teaser only appear once the Wix Gift Card app is enabled in the dashboard — no rebuild needed."
 
-apps: []   # do NOT auto-install; the user opts in via Catalog → Gift Cards in the dashboard
+apps: [] # do NOT auto-install; the user opts in via Catalog → Gift Cards in the dashboard
 
 routes:
   - route: "/gift-cards"

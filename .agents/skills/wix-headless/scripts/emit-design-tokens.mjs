@@ -27,7 +27,8 @@ let designMdPath = null;
 const positional = [];
 for (let i = 0; i < argv.length; i++) {
   if (argv[i] === "--design-md") designMdPath = argv[++i];
-  else if (argv[i].startsWith("--design-md=")) designMdPath = argv[i].slice("--design-md=".length);
+  else if (argv[i].startsWith("--design-md="))
+    designMdPath = argv[i].slice("--design-md=".length);
   else positional.push(argv[i]);
 }
 const projectDir = positional[0] ?? process.cwd();
@@ -45,7 +46,10 @@ function unquote(v) {
     let out = "";
     for (let i = 1; i < v.length; i++) {
       const c = v[i];
-      if (qc === '"' && c === "\\" && i + 1 < v.length) { out += v[++i]; continue; }
+      if (qc === '"' && c === "\\" && i + 1 < v.length) {
+        out += v[++i];
+        continue;
+      }
       if (c === qc) break;
       out += c;
     }
@@ -58,12 +62,25 @@ function unquote(v) {
 function parseInlineObject(s) {
   const inner = s.trim().replace(/^\{/, "").replace(/\}$/, "");
   const obj = {};
-  let buf = "", inq = null;
+  let buf = "",
+    inq = null;
   const parts = [];
   for (const ch of inner) {
-    if (inq) { if (ch === inq) inq = null; buf += ch; continue; }
-    if (ch === '"' || ch === "'") { inq = ch; buf += ch; continue; }
-    if (ch === ",") { parts.push(buf); buf = ""; continue; }
+    if (inq) {
+      if (ch === inq) inq = null;
+      buf += ch;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      inq = ch;
+      buf += ch;
+      continue;
+    }
+    if (ch === ",") {
+      parts.push(buf);
+      buf = "";
+      continue;
+    }
     buf += ch;
   }
   if (buf.trim()) parts.push(buf);
@@ -78,7 +95,8 @@ function parseFrontmatter(text) {
   const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!m) return null;
   const root = {};
-  let group = null, sub = null;
+  let group = null,
+    sub = null;
   for (const raw of m[1].split(/\r?\n/)) {
     if (!raw.trim() || /^\s*#/.test(raw)) continue;
     const indent = raw.match(/^ */)[0].length;
@@ -87,13 +105,30 @@ function parseFrontmatter(text) {
     const key = raw.slice(0, ci).trim();
     const rest = raw.slice(ci + 1).trim();
     if (indent === 0) {
-      if (rest === "") { root[key] = {}; group = key; sub = null; }
-      else if (rest.startsWith("{")) { root[key] = parseInlineObject(rest); group = null; sub = null; }
-      else { root[key] = unquote(rest); group = null; sub = null; }
+      if (rest === "") {
+        root[key] = {};
+        group = key;
+        sub = null;
+      } else if (rest.startsWith("{")) {
+        root[key] = parseInlineObject(rest);
+        group = null;
+        sub = null;
+      } else {
+        root[key] = unquote(rest);
+        group = null;
+        sub = null;
+      }
     } else if (indent === 2 && group) {
-      if (rest === "") { root[group][key] = {}; sub = key; }
-      else if (rest.startsWith("{")) { root[group][key] = parseInlineObject(rest); sub = null; }
-      else { root[group][key] = unquote(rest); sub = null; }
+      if (rest === "") {
+        root[group][key] = {};
+        sub = key;
+      } else if (rest.startsWith("{")) {
+        root[group][key] = parseInlineObject(rest);
+        sub = null;
+      } else {
+        root[group][key] = unquote(rest);
+        sub = null;
+      }
     } else if (indent >= 4 && group && sub) {
       if (typeof root[group][sub] !== "object") root[group][sub] = {};
       root[group][sub][key] = unquote(rest);
@@ -104,12 +139,16 @@ function parseFrontmatter(text) {
 
 // ── read + validate the Designer's DESIGN.md ──────────────────────────────────
 if (!existsSync(designMd)) {
-  console.error(`emit-design-tokens: no DESIGN.md at ${designMd} — the Designer must author it first`);
+  console.error(
+    `emit-design-tokens: no DESIGN.md at ${designMd} — the Designer must author it first`,
+  );
   process.exit(2);
 }
 const design = parseFrontmatter(readFileSync(designMd, "utf8"));
 if (!design || typeof design !== "object" || Object.keys(design).length === 0) {
-  console.error(`emit-design-tokens: could not parse YAML frontmatter from ${designMd} (check it starts with '---', values are quoted, 2-space indent)`);
+  console.error(
+    `emit-design-tokens: could not parse YAML frontmatter from ${designMd} (check it starts with '---', values are quoted, 2-space indent)`,
+  );
   process.exit(2);
 }
 
@@ -118,10 +157,15 @@ const typography = design.typography ?? {};
 const spacing = design.spacing ?? {};
 const rounded = design.rounded ?? {};
 const containers = design.containers ?? {};
-const fontFamilyOf = (lvl) => (typography[lvl] && typeof typography[lvl] === "object" ? typography[lvl].fontFamily : typography[lvl]);
+const fontFamilyOf = (lvl) =>
+  typography[lvl] && typeof typography[lvl] === "object"
+    ? typography[lvl].fontFamily
+    : typography[lvl];
 
 if (Object.keys(colors).length === 0) {
-  console.error(`emit-design-tokens: DESIGN.md frontmatter has no 'colors' group — cannot project tokens (${designMd})`);
+  console.error(
+    `emit-design-tokens: DESIGN.md frontmatter has no 'colors' group — cannot project tokens (${designMd})`,
+  );
   process.exit(2);
 }
 
@@ -129,15 +173,22 @@ const wixDir = join(projectDir, ".wix");
 mkdirSync(wixDir, { recursive: true });
 
 // ── .wix/design-tokens.css ────────────────────────────────────────────────────
-const cssLines = ["/* Generated by emit-design-tokens.mjs. Do not edit. */", ":root {"];
-for (const [k, v] of Object.entries(colors)) cssLines.push(`  --color-${k}: ${v};`);
+const cssLines = [
+  "/* Generated by emit-design-tokens.mjs. Do not edit. */",
+  ":root {",
+];
+for (const [k, v] of Object.entries(colors))
+  cssLines.push(`  --color-${k}: ${v};`);
 for (const lvl of Object.keys(typography)) {
   const fam = fontFamilyOf(lvl);
   if (fam) cssLines.push(`  --font-${lvl}: ${fam};`);
 }
-for (const [k, v] of Object.entries(rounded)) cssLines.push(`  --radius-${k}: ${v};`);
-for (const [k, v] of Object.entries(spacing)) cssLines.push(`  --spacing-${k}: ${v};`);
-for (const [k, v] of Object.entries(containers)) cssLines.push(`  --container-${k}: ${v};`);
+for (const [k, v] of Object.entries(rounded))
+  cssLines.push(`  --radius-${k}: ${v};`);
+for (const [k, v] of Object.entries(spacing))
+  cssLines.push(`  --spacing-${k}: ${v};`);
+for (const [k, v] of Object.entries(containers))
+  cssLines.push(`  --container-${k}: ${v};`);
 cssLines.push("}", "");
 writeFileSync(join(wixDir, "design-tokens.css"), cssLines.join("\n"));
 
@@ -157,4 +208,6 @@ export type DesignTokens = {
 `;
 writeFileSync(join(wixDir, "site.d.ts"), dts);
 
-console.log(`emit-design-tokens: projected ${join(wixDir, "design-tokens.css")} and ${join(wixDir, "site.d.ts")} from ${designMd}`);
+console.log(
+  `emit-design-tokens: projected ${join(wixDir, "design-tokens.css")} and ${join(wixDir, "site.d.ts")} from ${designMd}`,
+);

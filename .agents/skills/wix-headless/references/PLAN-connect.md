@@ -9,10 +9,11 @@ The pre-approval funnel when `operation === "connect"` (the user brought a finis
 **The funnel dispatches nothing.** Its only job is to parse the site, present the plan, and get approval. Same three-step shape as the create funnel, planning content aside:
 
 1. **Parse + infer** — apply `DISCOVERY-connect.md` §§ 1–2: read the brought-in site (markup, copy, tokens; opportunistically a Claude-Design bundle), infer the domain → Wix capability (the universal floor is a Wix Forms contact/lead form), and infer the brand.
-2. **Compose and PRESENT the light plan — as a standalone assistant message.** Render the connect plan (`DISCOVERY-connect.md` § 3): *what I found* (site type + detected regions) and *what I'll connect* (regions to **wire** + the component to **add** + apps to install). The user sees the plan before being asked to approve — do not fold the plan into the approval question.
-3. **Approval gate** — *only after* the plan message has been sent, ask the approval question (`AskUserQuestion`).
+2. **Compose and PRESENT the light plan — as a standalone assistant message.** Render the connect plan (`DISCOVERY-connect.md` § 3): _what I found_ (site type + detected regions) and _what I'll connect_ (regions to **wire** + the component to **add** + apps to install). The user sees the plan before being asked to approve — do not fold the plan into the approval question.
+3. **Approval gate** — _only after_ the plan message has been sent, ask the approval question (`AskUserQuestion`).
 
 **On approval** — hold the contract in scratch (`frontend: custom` + inferred capabilities + brand + `frontendBuild`), then **open `BUILD.md`** — it routes Build on `frontendBuild` to `BUILD-own-build.md`:
+
 - **`none` (static HTML):** bootstrap cell (`init` + connection plan) → shared Setup (app installs only; **no `env pull`, no per-pack `npm install`**) → shared Seed → wiring cell (inject `<script>`) → **inline no-build release** (`npx @wix/cli@latest release` — no `wix build`).
 - **`own` (framework SPA):** bootstrap cell (`init` over the SPA + connection plan reading source) → shared Setup + **bundled `npm install @wix/sdk`** → shared Seed (incl. the CMS collection a persistence swap targets) → wiring cell (rewrite the source data layer → `@wix/data`) → **the project's own `npm run build`** → release. Never `wix build`.
 

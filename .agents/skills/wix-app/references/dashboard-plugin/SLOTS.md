@@ -5,6 +5,7 @@ Slots are UI placeholders on dashboard pages of Wix first-party business apps. E
 > **Authoritative slot list**: run `wix schema generate --type DASHBOARD_PLUGIN` for the live, complete `extendsSlotId` enum (each `anyOf` entry has the slot's human-readable title). This file documents per-slot parameters, dashboard paths, and use cases — content the schema does not carry.
 
 **Key behaviors:**
+
 - Some slots with the same ID appear on different pages. A plugin targeting such a slot is displayed on all pages containing it.
 - Slots can host multiple plugins. Ordering varies by slot (see each entry).
 
