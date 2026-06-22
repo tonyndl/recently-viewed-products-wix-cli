@@ -1,4 +1,5 @@
 import { extensions } from "@wix/astro/builders";
+import { WIDGET_DEFAULT_WIDTH } from "./constants";
 
 // Site-facing "Recently Viewed Products" widget. `presets` is required for the
 // widget to appear in the editor's Add Elements → App Widgets list.
@@ -24,7 +25,7 @@ export default extensions.customElement({
   // isn't shipped in any published @wix/astro version yet — 2.55.0 still uses
   // `autoAdd`. Switch to `staticContainer` once the SDK types support it.)
   installation: { autoAdd: true },
-  width: { defaultWidth: 720, allowStretch: true },
+  width: { defaultWidth: WIDGET_DEFAULT_WIDTH, allowStretch: true },
   // `defaultHeight` is tuned to the default STRIP layout (the layout a fresh
   // widget shows), so a newly added widget starts at the right height with no
   // empty space below. The strip is: heading (~44px) + caption above the image

@@ -41,7 +41,7 @@ The merchant wants to reduce the percentage of customers who abandon checkout, s
 | Delivery step CVR                | Customers completing delivery step / customers reaching delivery step | Site metrics: delivery_step_cvr               | 65%               |
 | Cart abandonment rate            | Carts created but not converted to orders / total carts               | 1 - (orders / carts)                          | Industry avg ~70% |
 | Free shipping qualification rate | Orders qualifying for free shipping / total orders                    | Track orders meeting free shipping threshold  | Higher is better  |
-| Revenue from recovered checkouts | Incremental revenue from improved conversion                          | (new_cvr - old_cvr) _ checkout_sessions _ AOV | -                 |
+| Revenue from recovered checkouts | Incremental revenue from improved conversion                          | (new*cvr - old_cvr) * checkout*sessions * AOV | -                 |
 
 ---
 

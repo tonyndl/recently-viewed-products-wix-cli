@@ -125,6 +125,10 @@ export const LAYOUTS_WITH_COLUMNS: readonly LayoutKind[] = ["grid", "masonry"];
 // Width of each item in the horizontally-scrolling Strip layout.
 export const STRIP_ITEM_WIDTH = 170;
 
+// Default widget width (px). Used for the widget's editor box AND as the width of
+// the review popup window, so the popup matches the widget's width.
+export const WIDGET_DEFAULT_WIDTH = 720;
+
 // Layouts available on the free plan. Every other layout is premium; the first
 // free layout is the fallback for free users.
 export const FREE_LAYOUTS: readonly LayoutKind[] = ["strip", "grid"];

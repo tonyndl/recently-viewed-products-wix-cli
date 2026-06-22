@@ -34,3 +34,7 @@ yarn-error.log*
 .DS_Store
 .idea/
 out
+
+# secrets / backend integration
+src/backend/_shared/supabase-client.ts
+src/backend/_shared/sync-billing.ts

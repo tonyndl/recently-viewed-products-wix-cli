@@ -1,0 +1,11 @@
+/* Make the SkeletonGroup fill the panel's content area so the grid inside can
+   stretch its rows to the full height (flex:1 covers a flex parent, height:100%
+   covers a definite-height parent — one of them always applies). */
+.rv-skeleton-fill {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}

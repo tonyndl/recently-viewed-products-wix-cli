@@ -17,6 +17,12 @@ export const REVIEW_URL = `https://www.wix.com/app-market/add-review/${APP_ID}`;
 // dashboard's How to Use tab.
 export const DASHBOARD_APP_SLUG = "purple-recently-viewed-store-prod-pro";
 
+// Shared Purple icon used by the "More apps by us" cards. (The footer watermark
+// reuses the widget's canonical WATERMARK_LOGO/WATERMARK_URL instead, so it stays
+// identical to the watermark shown on the live widget.)
+export const PURPLE_LOGO_URL =
+  "https://static.wixstatic.com/media/1fff64_8e60357c0b134468a6c6f4c7e4570de5~mv2.png";
+
 // localStorage key the visitor's browsing history is stored under.
 // Kept identical to the original Wix Blocks app for a seamless migration.
 export const TRACKING_STORAGE_KEY = "pagesplugin";

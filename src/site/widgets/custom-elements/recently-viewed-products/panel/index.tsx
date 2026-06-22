@@ -5,7 +5,6 @@ import {
   Dropdown,
   FormField,
   Input,
-  Loader,
   Slider,
   SidePanel,
   Text,
@@ -24,9 +23,11 @@ import {
   LAYOUT_KINDS,
   LAYOUTS_WITH_COLUMNS,
   FREE_LAYOUTS,
+  WIDGET_DEFAULT_WIDTH,
 } from "../constants";
 import type { WidgetProps } from "../types";
 import TabBar, { type TabItem } from "./ui/TabBar";
+import { LayoutSkeleton } from "./ui/LayoutSkeleton";
 import { LayoutPicker } from "./ui/LayoutPicker";
 import { ImageRatioPicker } from "./ui/ImageRatioPicker";
 import { PremiumNudge } from "./ui/premiumNudge";
@@ -336,18 +337,20 @@ const Panel: FC = () => {
     try {
       localStorage.setItem(REVIEW_SHOWN_KEY, "1");
     } catch {}
-    // Show the review popup ON TOP OF THE EDITOR. A panel popup is trapped in the
-    // 300px panel iframe, so we open our dashboard page as a full-editor overlay
-    // via openDashboardModal; the page detects `rvtab=review` (see
-    // recently-viewed.tsx) and calls openRatePopup, which renders the App Market
-    // review page over the editor. Falls back to a new browser tab if the overlay
-    // can't open.
-    void modals
-      .openDashboardModal({
-        url: `/${DASHBOARD_APP_SLUG}?rvtab=review`,
-        closeOtherPanels: true,
-      })
-      .catch(() => window.open(REVIEW_URL, "_blank", "noopener,noreferrer"));
+    // Open the App Market review page as its own popup window, sized to the
+    // widget's width and ~70% of the screen height, centred. A real top-level
+    // window is authenticated (the review page loads) and sits on top of the
+    // editor. `width=`/`height=` make the browser open a window rather than a
+    // background tab; a named target reuses it if reopened.
+    const w = WIDGET_DEFAULT_WIDTH;
+    const h = Math.max(480, Math.round(window.screen.availHeight * 0.7));
+    const left = Math.max(0, Math.round((window.screen.width - w) / 2));
+    const top = Math.max(0, Math.round((window.screen.availHeight - h) / 2));
+    window.open(
+      REVIEW_URL,
+      "rvReview",
+      `popup=yes,width=${w},height=${h},left=${left},top=${top}`,
+    );
   };
 
   // "Need Help" on the More tab — open the app's dashboard How to Use tab as an
@@ -534,9 +537,10 @@ const Panel: FC = () => {
       <SidePanel width="300" height="100vh">
         <SidePanel.Content noPadding stretchVertically>
           {loading ? (
-            <Box align="center" verticalAlign="middle" height="160px">
-              <Loader size="small" />
-            </Box>
+            // Skeleton that mirrors the panel's first paint (tab bar + Layout
+            // tab's Style boxes), so the structure is in place immediately
+            // instead of a bare spinner.
+            <LayoutSkeleton />
           ) : (
             <>
               <TabBar
