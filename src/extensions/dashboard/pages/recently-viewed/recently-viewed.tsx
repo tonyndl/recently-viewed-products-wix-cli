@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FC } from "react";
 import { dashboard } from "@wix/dashboard";
+import { embeddedScripts } from "@wix/app-management";
 import {
   Box,
   Button,
@@ -46,6 +47,17 @@ const DashboardPage: FC = () => {
     void loadAppPlans().then(setPlanPricing);
     void fetchStoreProductCount().then(setProductCount);
   }, [loadPlan]);
+
+  // Ensure the Recently Viewed tracker embedded script is injected on this site.
+  // Defining the embeddedScript extension does NOT inject it — Wix only runs the
+  // script once embedScript() has been called. The app-install handler does this
+  // for new installs; calling it here (idempotent) covers sites that were already
+  // installed before that handler existed. No dynamic parameters → empty object.
+  useEffect(() => {
+    embeddedScripts
+      .embedScript({ parameters: {} })
+      .catch((err) => console.error("[embedScript] failed:", err));
+  }, []);
 
   // Deep-link support. The panel opens this page (via openDashboardModal) with an
   // `rvtab=…` query that tells us what to do:

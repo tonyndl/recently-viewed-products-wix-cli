@@ -89,7 +89,9 @@ class RecentlyViewedElement extends HTMLElement {
       behavior:
         this.getAttribute(PROP.behavior) === "text"
           ? "text"
-          : DEFAULTS.behavior,
+          : this.getAttribute(PROP.behavior) === "hide"
+            ? "hide"
+            : DEFAULTS.behavior,
       emptyText: this.getAttribute(PROP.emptyText) ?? DEFAULTS.emptyText,
       isPremium: this.getAttribute(PROP.isPremium) === "true",
       headingText: this.getAttribute(PROP.headingText) ?? DEFAULTS.headingText,

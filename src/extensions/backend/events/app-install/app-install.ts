@@ -1,12 +1,24 @@
 import { auth } from "@wix/essentials";
-import { appInstances } from "@wix/app-management";
+import { appInstances, embeddedScripts } from "@wix/app-management";
 import { siteProperties } from "@wix/business-tools";
 import { getSupabase } from "../../../../backend/_shared/supabase-client";
 
 const elevatedGetAppInstance = auth.elevate(appInstances.getAppInstance);
 const elevatedGetSiteProps = auth.elevate(siteProperties.getSiteProperties);
+const elevatedEmbedScript = auth.elevate(embeddedScripts.embedScript);
 
 export default appInstances.onAppInstanceInstalled(async (event) => {
+  // Inject the Recently Viewed tracker onto the site. Defining the embeddedScript
+  // extension is NOT enough — Wix only injects it once embedScript() is called.
+  // Our tracker has no dynamic parameters, so pass an empty `parameters` object;
+  // it's the only embedded script, so we don't pass a componentId.
+  try {
+    await elevatedEmbedScript({ parameters: {} });
+    console.log("[app-installed] tracker embedded script injected");
+  } catch (err) {
+    console.error("[app-installed] embedScript failed:", err);
+  }
+
   try {
     const instanceId = event.metadata?.instanceId;
     if (!instanceId) {

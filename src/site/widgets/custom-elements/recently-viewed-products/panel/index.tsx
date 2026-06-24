@@ -462,7 +462,12 @@ const Panel: FC = () => {
           ? (hoverEffect as WidgetProps["hoverEffect"])
           : DEFAULTS.hoverEffect,
         bgColor: bgColor || DEFAULTS.bgColor,
-        behavior: behavior === "text" ? "text" : DEFAULTS.behavior,
+        behavior:
+          behavior === "text"
+            ? "text"
+            : behavior === "hide"
+              ? "hide"
+              : DEFAULTS.behavior,
         emptyText: emptyText ?? DEFAULTS.emptyText,
         isPremium: false,
         headingText: headingText || DEFAULTS.headingText,

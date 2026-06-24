@@ -61,6 +61,11 @@ export const LAYOUT_OPTIONS: {
     description: "Products show in a single horizontal row that scrolls.",
   },
   {
+    id: "thumbnails",
+    value: "Thumbnails",
+    description: "One large product with a thumbnail strip.",
+  },
+  {
     id: "grid",
     value: "Grid",
     description: "Equal-sized products arranged in a clean grid.",
@@ -75,11 +80,7 @@ export const LAYOUT_OPTIONS: {
     value: "Collage",
     description: "Mixed sizes arranged in a dynamic collage.",
   },
-  {
-    id: "thumbnails",
-    value: "Thumbnails",
-    description: "One large product with a thumbnail strip.",
-  },
+
   {
     id: "slider",
     value: "Slider",
@@ -131,7 +132,7 @@ export const WIDGET_DEFAULT_WIDTH = 720;
 
 // Layouts available on the free plan. Every other layout is premium; the first
 // free layout is the fallback for free users.
-export const FREE_LAYOUTS: readonly LayoutKind[] = ["strip", "grid"];
+export const FREE_LAYOUTS: readonly LayoutKind[] = ["strip", "thumbnails"];
 
 // Image ratios available on the free plan (in display order). Square & Landscape
 // are premium. Order matters — the first free ratio is the fallback for free
@@ -162,7 +163,7 @@ export const DEFAULTS = {
   imageBorder: false,
   hoverEffect: "zoom" as HoverEffect,
   bgColor: "", // empty = transparent (use the widget's native Fill)
-  behavior: "hide" as EmptyBehavior,
+  behavior: "text" as EmptyBehavior,
   emptyText: EMPTY_MESSAGE,
   isPremium: false,
   // Text settings — empty color string means "use the theme/default color".
