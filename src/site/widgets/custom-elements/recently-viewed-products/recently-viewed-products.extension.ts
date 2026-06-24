@@ -38,8 +38,10 @@ export default extensions.customElement({
     {
       id: "5634ef5e-2594-45d4-8d1b-65eb0a6a2953",
       name: "Recently Viewed Products",
-      // Direct image URL (imgur page https://imgur.com/4jTbYwc → i.imgur.com asset).
-      thumbnailUrl: "https://i.imgur.com/4jTbYwc.png",
+      // Full-bleed landscape thumbnail (1200x800, 1.5:1 to match the App
+      // Widgets preset card) so it fills the card edge-to-edge with no
+      // light-blue card background showing. Served from /public via base URL.
+      thumbnailUrl: "{{BASE_URL}}/public/recently-viewed-thumbnail.png",
     },
   ],
 });
