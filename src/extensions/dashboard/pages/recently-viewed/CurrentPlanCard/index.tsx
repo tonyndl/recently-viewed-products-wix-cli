@@ -27,7 +27,7 @@ const CurrentPlanCard: FC<Props> = ({
     <div style={styles.card}>
       <div>
         <div style={styles.infoRow}>
-          <Text weight="bold">Your Current Plannnn:</Text>
+          <Text weight="bold">Your Current Plan:</Text>
           {onFreeTrial && typeof freeTrialDaysLeft === "number" ? (
             <Badge skin="success" size="tiny">
               {freeTrialLabel(freeTrialDaysLeft)}

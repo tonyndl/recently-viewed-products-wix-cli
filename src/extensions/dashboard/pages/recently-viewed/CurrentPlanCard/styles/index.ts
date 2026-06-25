@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 
 export const styles = {
   card: {
+    background: "#FFFFFF",
     border: "1px solid #E5E5E5",
     borderRadius: "8px",
     padding: "20px 24px",
