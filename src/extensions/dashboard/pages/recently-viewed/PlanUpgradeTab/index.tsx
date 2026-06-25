@@ -10,12 +10,18 @@ type Props = {
   isPremium: boolean;
   upgradeUrl: string | undefined;
   planPricing: PlanPricing | null;
+  freeTrialAvailable?: boolean;
+  onFreeTrial?: boolean;
+  freeTrialDaysLeft?: number;
 };
 
 export const PlanUpgradeTab: FC<Props> = ({
   isPremium,
   upgradeUrl,
   planPricing,
+  freeTrialAvailable,
+  onFreeTrial,
+  freeTrialDaysLeft,
 }) => {
   const [isYearly, setIsYearly] = useState(false);
   const plansLoading = planPricing === null;
@@ -38,6 +44,9 @@ export const PlanUpgradeTab: FC<Props> = ({
           isPremium={isPremium}
           currentTier={currentTier}
           upgradeUrl={resolvedUpgradeUrl}
+          freeTrialAvailable={freeTrialAvailable}
+          onFreeTrial={onFreeTrial}
+          freeTrialDaysLeft={freeTrialDaysLeft}
         />
       </div>
       <div>
@@ -65,6 +74,7 @@ export const PlanUpgradeTab: FC<Props> = ({
                     isYearly={isYearly}
                     currency={currency}
                     resolvedUpgradeUrl={resolvedUpgradeUrl}
+                    freeTrialAvailable={freeTrialAvailable}
                   />
                 ))}
               </div>

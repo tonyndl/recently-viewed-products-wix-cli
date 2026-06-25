@@ -10,6 +10,11 @@ export const FALLBACK_UPGRADE_URL = `https://www.wix.com/apps/upgrade/${APP_ID}`
 // In-app review popup target.
 export const REVIEW_URL = `https://www.wix.com/app-market/add-review/${APP_ID}`;
 
+// Free-trial length, in days. Must match the value configured on the recurring
+// plan in the Wix Dev Center → Pricing → Free Trial (Wix runs the actual trial;
+// this is only used for in-app copy like "Start your 7-day free trial").
+export const FREE_TRIAL_DAYS = 7;
+
 // Slug of this app's dashboard page, taken from the live dashboard URL
 // (manage.wix.com/dashboard/{metaSiteId}/{slug}). The slug is fixed per app —
 // only the metaSiteId varies per site — so the help-url API route just prepends

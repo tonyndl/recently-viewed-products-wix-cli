@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type FC } from "react";
 import { dashboard } from "@wix/dashboard";
 import { embeddedScripts } from "@wix/app-management";
 import {
+  Badge,
   Box,
   Button,
   Page,
@@ -20,6 +21,8 @@ import { OverviewTab } from "./OverviewTab";
 import { PlanUpgradeTab } from "./PlanUpgradeTab";
 import { HowToUseTab } from "./HowToUseTab";
 import { MoreAppsByUs } from "./MoreAppsByUs";
+import { FreeTrialBanner } from "./FreeTrialBanner";
+import { freeTrialLabel } from "./upgradeUtils";
 import { openRatePopup } from "../../_shared/rate-popup";
 import { REVIEW_URL } from "../../../../constants";
 
@@ -27,6 +30,12 @@ const DashboardPage: FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [isPremium, setIsPremium] = useState(false);
   const [upgradeUrl, setUpgradeUrl] = useState<string | undefined>();
+  const [freeTrialAvailable, setFreeTrialAvailable] = useState(false);
+  const [onFreeTrial, setOnFreeTrial] = useState(false);
+  const [freeTrialDaysLeft, setFreeTrialDaysLeft] = useState<
+    number | undefined
+  >();
+  const [planLoaded, setPlanLoaded] = useState(false);
   const [planPricing, setPlanPricing] = useState<PlanPricing | null>(null);
   const [productCount, setProductCount] = useState<number | null>(null);
 
@@ -37,8 +46,13 @@ const DashboardPage: FC = () => {
       const plan = await fetchPlan();
       setIsPremium(plan.isPremium);
       setUpgradeUrl(plan.upgradeUrl);
+      setFreeTrialAvailable(plan.freeTrialAvailable ?? false);
+      setOnFreeTrial(plan.onFreeTrial ?? false);
+      setFreeTrialDaysLeft(plan.freeTrialDaysLeft);
     } catch (err) {
       console.error("[loadPlan] failed:", err);
+    } finally {
+      setPlanLoaded(true);
     }
   }, []);
 
@@ -107,14 +121,21 @@ const DashboardPage: FC = () => {
           title="Recently Viewed Products"
           subtitle="Show shoppers the products they recently viewed — automatically."
           actionsBar={
-            <Box gap="12px" align="center">
+            <Box gap="12px" align="center" verticalAlign="middle">
+              {onFreeTrial && typeof freeTrialDaysLeft === "number" && (
+                <Badge skin="success">
+                  {freeTrialLabel(freeTrialDaysLeft)}
+                </Badge>
+              )}
               {!isPremium && upgradeUrl && (
                 <Button
                   skin="premium"
                   prefixIcon={<Icons.PremiumFilled />}
                   onClick={() => window.open(upgradeUrl, "_blank")}
                 >
-                  Upgrade to Premium
+                  {freeTrialAvailable
+                    ? "Start Free Trial"
+                    : "Upgrade to Premium"}
                 </Button>
               )}
               <Button
@@ -140,12 +161,22 @@ const DashboardPage: FC = () => {
               ]}
             />
 
+            {planLoaded && freeTrialAvailable && upgradeUrl && (
+              <FreeTrialBanner
+                onStart={() => window.open(upgradeUrl, "_blank")}
+              />
+            )}
+
             {activeTab === 0 && (
               <OverviewTab
                 isPremium={isPremium}
                 upgradeUrl={upgradeUrl}
                 editorUrl={editorUrl}
                 productCount={productCount}
+                freeTrialAvailable={freeTrialAvailable}
+                onFreeTrial={onFreeTrial}
+                freeTrialDaysLeft={freeTrialDaysLeft}
+                planLoaded={planLoaded}
               />
             )}
 
@@ -154,6 +185,9 @@ const DashboardPage: FC = () => {
                 isPremium={isPremium}
                 upgradeUrl={upgradeUrl}
                 planPricing={planPricing}
+                freeTrialAvailable={freeTrialAvailable}
+                onFreeTrial={onFreeTrial}
+                freeTrialDaysLeft={freeTrialDaysLeft}
               />
             )}
 

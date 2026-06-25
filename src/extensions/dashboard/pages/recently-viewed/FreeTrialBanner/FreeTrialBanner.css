@@ -1,0 +1,5 @@
+/* WDS Text controls its own line-height and doesn't accept a `style` prop, so
+   loosen the banner body text via a class (override its tight default). */
+.rv-trial-body {
+  line-height: 1.6 !important;
+}

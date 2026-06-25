@@ -16,7 +16,11 @@ import "@wix/design-system/styles.global.css";
 import * as Icons from "@wix/wix-ui-icons-common";
 import { widget, inputs, modals } from "@wix/editor";
 import { httpClient } from "@wix/essentials";
-import { REVIEW_URL, DASHBOARD_APP_SLUG } from "../../../../../constants";
+import {
+  REVIEW_URL,
+  DASHBOARD_APP_SLUG,
+  FREE_TRIAL_DAYS,
+} from "../../../../../constants";
 import {
   PROP,
   DEFAULTS,
@@ -279,7 +283,8 @@ const LockedColorSwatch: FC<{
   label: string;
   onUpgrade: () => void;
   disabled?: boolean;
-}> = ({ label, onUpgrade, disabled }) => (
+  freeTrialAvailable?: boolean;
+}> = ({ label, onUpgrade, disabled, freeTrialAvailable }) => (
   <Box gap="8px" verticalAlign="middle">
     <button
       type="button"
@@ -302,7 +307,7 @@ const LockedColorSwatch: FC<{
       <Icons.PremiumFilled size="16px" />
     </button>
     <TextButton size="tiny" disabled={disabled} onClick={onUpgrade}>
-      Upgrade to unlock
+      {freeTrialAvailable ? "Start free trial" : "Upgrade to unlock"}
     </TextButton>
   </Box>
 );
@@ -312,6 +317,7 @@ const Panel: FC = () => {
   const [values, setValues] = useState<WidgetProps>({ ...DEFAULTS });
   const [isPremium, setIsPremium] = useState(false);
   const [upgradeUrl, setUpgradeUrl] = useState<string | undefined>();
+  const [freeTrialAvailable, setFreeTrialAvailable] = useState(false);
   const [helpUrl, setHelpUrl] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
 
@@ -495,6 +501,7 @@ const Panel: FC = () => {
         .catch(() => ({ isPremium: false, upgradeUrl: undefined }));
       setIsPremium(plan.isPremium);
       setUpgradeUrl(plan.upgradeUrl);
+      setFreeTrialAvailable(plan.freeTrialAvailable ?? false);
       void widget.setProp(PROP.isPremium, String(plan.isPremium));
       setLoading(false);
 
@@ -590,6 +597,7 @@ const Panel: FC = () => {
                           upgradeUrl && window.open(upgradeUrl, "_blank")
                         }
                         disabled={!upgradeUrl}
+                        freeTrialAvailable={freeTrialAvailable}
                       />
                     )}
                   </Box>
@@ -698,6 +706,7 @@ const Panel: FC = () => {
                         <LockedColorSwatch
                           label="Heading color"
                           disabled={!upgradeUrl}
+                          freeTrialAvailable={freeTrialAvailable}
                           onUpgrade={() =>
                             upgradeUrl && window.open(upgradeUrl, "_blank")
                           }
@@ -729,6 +738,7 @@ const Panel: FC = () => {
                         <LockedColorSwatch
                           label="Product text color"
                           disabled={!upgradeUrl}
+                          freeTrialAvailable={freeTrialAvailable}
                           onUpgrade={() =>
                             upgradeUrl && window.open(upgradeUrl, "_blank")
                           }
@@ -828,7 +838,9 @@ const Panel: FC = () => {
                               upgradeUrl && window.open(upgradeUrl, "_blank")
                             }
                           >
-                            Upgrade to unlock
+                            {freeTrialAvailable
+                              ? "Start free trial"
+                              : "Upgrade to unlock"}
                           </TextButton>
                         </Box>
                       )}
@@ -888,11 +900,14 @@ const Panel: FC = () => {
                   >
                     <Box direction="vertical" gap="8px">
                       <Text size="small" weight="bold">
-                        Remove the watermark
+                        {freeTrialAvailable
+                          ? `Start your ${FREE_TRIAL_DAYS}-day free trial`
+                          : "Remove the watermark"}
                       </Text>
                       <Text size="tiny" secondary>
-                        Upgrade to Premium to hide the "Powered by PURPLE"
-                        badge.
+                        {freeTrialAvailable
+                          ? `Try every Premium feature free for ${FREE_TRIAL_DAYS} days — every layout, full design control, and no "Powered by PURPLE" badge.`
+                          : 'Upgrade to Premium to hide the "Powered by PURPLE" badge.'}
                       </Text>
                       <Button
                         size="small"
@@ -903,7 +918,9 @@ const Panel: FC = () => {
                           upgradeUrl && window.open(upgradeUrl, "_blank")
                         }
                       >
-                        Remove Watermark
+                        {freeTrialAvailable
+                          ? "Start Free Trial"
+                          : "Remove Watermark"}
                       </Button>
                     </Box>
                   </div>

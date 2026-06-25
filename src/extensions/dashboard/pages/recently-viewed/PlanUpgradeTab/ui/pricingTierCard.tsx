@@ -10,6 +10,7 @@ type Props = {
   isYearly: boolean;
   currency: string;
   resolvedUpgradeUrl: string;
+  freeTrialAvailable?: boolean;
 };
 
 const PricingTierCard: FC<Props> = ({
@@ -18,6 +19,7 @@ const PricingTierCard: FC<Props> = ({
   isYearly,
   currency,
   resolvedUpgradeUrl,
+  freeTrialAvailable,
 }) => {
   const isFree = tier.name.toLowerCase() === "free";
   const isCurrentPlan = isFree ? !isPremium : isPremium;
@@ -82,7 +84,7 @@ const PricingTierCard: FC<Props> = ({
           prefixIcon={<Icons.PremiumFilled />}
           onClick={() => openUpgradeUrl(resolvedUpgradeUrl)}
         >
-          Upgrade
+          {freeTrialAvailable ? "Start Free Trial" : "Upgrade"}
         </Button>
       )}
     </div>

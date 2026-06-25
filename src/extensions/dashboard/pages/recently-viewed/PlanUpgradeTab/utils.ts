@@ -53,7 +53,10 @@ export const buildPricingTiers = (
       monthlyPrice: monthly,
       yearlyPrice: yearly,
       savingsPercent,
-      features: plan.benefits.length ? plan.benefits : PREMIUM_FEATURES,
+      // Always our curated list (not the raw Wix plan benefits) so the dashboard
+      // is consistent. Mirror this list in Dev Center → Pricing so the App Market
+      // upgrade page shows the same benefits.
+      features: PREMIUM_FEATURES,
       popular: true,
     };
   });

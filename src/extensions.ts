@@ -11,6 +11,8 @@ import planPurchased from "./extensions/backend/events/plan-purchased/plan-purch
 
 import planChange from "./extensions/backend/events/plan-change/plan-change.extension.ts";
 
+import planAutoRenewalCancelled from "./extensions/backend/events/plan-auto-renewal-cancelled/plan-auto-renewal-cancelled.extension.ts";
+
 export default app()
   .use(recentlyViewedPage)
   .use(recentlyViewedWidget)
@@ -18,4 +20,5 @@ export default app()
   .use(appInstall)
   .use(appRemove)
   .use(planPurchased)
-  .use(planChange);
+  .use(planChange)
+  .use(planAutoRenewalCancelled);

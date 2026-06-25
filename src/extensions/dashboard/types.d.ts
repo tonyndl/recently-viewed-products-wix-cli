@@ -38,6 +38,12 @@ interface PlanStatus {
   isPremium: boolean;
   packageName?: string;
   upgradeUrl?: string;
+  // Free trial. `freeTrialAvailable` = eligible to start one (never used before);
+  // `onFreeTrial` = currently in the trial window; `freeTrialDaysLeft` = days
+  // remaining while on trial. During a trial `isPremium` is already true.
+  freeTrialAvailable?: boolean;
+  onFreeTrial?: boolean;
+  freeTrialDaysLeft?: number;
 }
 
 // Global default appearance for the site widget, edited in the dashboard.

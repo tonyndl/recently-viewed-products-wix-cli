@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { Card, TextButton } from "@wix/design-system";
+import { ExternalLinkSmall } from "@wix/wix-ui-icons-common";
 import { PURPLE_LOGO_URL } from "../../../../../constants";
 // Reuse the live widget's canonical watermark so the dashboard footer mark is
 // identical to the one shown on the site (same Purple logo + App Market link).
@@ -48,7 +49,13 @@ export const MoreAppsByUs: FC = () => (
         ))}
       </div>
       <div style={styles.footer}>
-        <TextButton as="a" href={WATERMARK_URL} target="_blank" size="small">
+        <TextButton
+          as="a"
+          href={WATERMARK_URL}
+          target="_blank"
+          size="small"
+          suffixIcon={<ExternalLinkSmall />}
+        >
           Explore more apps
         </TextButton>
         <a
