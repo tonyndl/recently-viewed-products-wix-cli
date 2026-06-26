@@ -141,12 +141,34 @@ const fromV3 = (p: V3Product): OutItem => {
   };
 };
 
+// Fetch a single V3 product by slug. We use the dedicated `getProductBySlug`
+// endpoint rather than a `queryProducts().hasSome("slug", …)` filter — the
+// `hasSome` operator is rejected for the slug field (INVALID_ARGUMENT), whereas
+// the by-slug endpoint is the supported way to resolve a slug.
+const getV3BySlug = async (slug: string): Promise<OutItem | null> => {
+  try {
+    const elevated = auth.elevate(productsV3.getProductBySlug);
+    const res = await elevated(slug, {
+      fields: ["URL", "CURRENCY", "PLAIN_DESCRIPTION"],
+    });
+    const p = (res as { product?: V3Product }).product;
+    return p ? fromV3(p) : null;
+  } catch {
+    return null; // not found / not a V3 store — caller falls back to V1
+  }
+};
+
 const queryV3 = async (slugs: string[], limit: number): Promise<OutItem[]> => {
+  if (slugs.length) {
+    const results = await Promise.all(slugs.map(getV3BySlug));
+    return results.filter((i): i is OutItem => i != null);
+  }
+  // No slugs → editor-preview path: return up to `limit` products.
   const elevated = auth.elevate(productsV3.queryProducts);
-  let q = elevated({ fields: ["URL", "CURRENCY", "PLAIN_DESCRIPTION"] });
-  if (slugs.length) q = q.hasSome("slug", slugs);
-  const res = await q
-    .limit(slugs.length ? Math.min(slugs.length, 100) : limit)
+  const res = await elevated({
+    fields: ["URL", "CURRENCY", "PLAIN_DESCRIPTION"],
+  })
+    .limit(limit)
     .find();
   return (res.items as V3Product[]).map(fromV3);
 };
@@ -198,13 +220,26 @@ const fromV1 = (p: V1Product): OutItem => {
   };
 };
 
+// V1 has no by-slug endpoint, and `hasSome("slug", …)` is rejected here too
+// ("Invalid string"). Resolve each slug with an exact-match `.eq("slug", …)`.
+const getV1BySlug = async (slug: string): Promise<OutItem | null> => {
+  try {
+    const elevated = auth.elevate(products.queryProducts);
+    const res = await elevated().eq("slug", slug).limit(1).find();
+    const p = (res.items as V1Product[])[0];
+    return p ? fromV1(p) : null;
+  } catch {
+    return null;
+  }
+};
+
 const queryV1 = async (slugs: string[], limit: number): Promise<OutItem[]> => {
+  if (slugs.length) {
+    const results = await Promise.all(slugs.map(getV1BySlug));
+    return results.filter((i): i is OutItem => i != null);
+  }
   const elevated = auth.elevate(products.queryProducts);
-  let q = elevated();
-  if (slugs.length) q = q.hasSome("slug", slugs);
-  const res = await q
-    .limit(slugs.length ? Math.min(slugs.length, 100) : limit)
-    .find();
+  const res = await elevated().limit(limit).find();
   return (res.items as V1Product[]).map(fromV1);
 };
 

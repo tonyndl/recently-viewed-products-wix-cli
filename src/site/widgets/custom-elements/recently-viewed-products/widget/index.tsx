@@ -5,6 +5,8 @@ import {
   readTrackedSlugs,
   fetchRecentlyViewed,
   fetchDefaultProducts,
+  recordCurrentProduct,
+  onSiteLocationChange,
 } from "./products";
 import { ProGalleryView } from "./proGalleryView";
 import { StripView } from "./ui/stripView";
@@ -92,7 +94,7 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
       setIsEditor(editor);
 
       try {
-        let result = await fetchRecentlyViewed(readTrackedSlugs());
+        let result = await fetchRecentlyViewed(await readTrackedSlugs());
         if (result.length === 0 && editor) {
           result = await fetchDefaultProducts();
         }
@@ -104,12 +106,23 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
       }
     };
 
-    void load();
-    const onNav = () => void load();
-    window.addEventListener("popstate", onNav);
+    // Self-tracking: record the current product BEFORE the first load so it's
+    // included, then re-record + reload whenever the visitor navigates to a new
+    // product page (Wix navigates client-side, so no full reload fires).
+    void (async () => {
+      await recordCurrentProduct();
+      if (cancelled) return;
+      await load();
+      void onSiteLocationChange(() => {
+        void (async () => {
+          await recordCurrentProduct();
+          if (!cancelled) await load();
+        })();
+      });
+    })();
+
     return () => {
       cancelled = true;
-      window.removeEventListener("popstate", onNav);
     };
   }, []);
 

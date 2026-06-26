@@ -15,6 +15,7 @@ import {
 import "@wix/design-system/styles.global.css";
 import * as Icons from "@wix/wix-ui-icons-common";
 import { widget, inputs, modals } from "@wix/editor";
+import { embeddedScripts } from "@wix/app-management";
 import { httpClient } from "@wix/essentials";
 import {
   REVIEW_URL,
@@ -385,6 +386,16 @@ const Panel: FC = () => {
     isPremium || FREE_LAYOUTS.includes(values.layout)
       ? values.layout
       : FREE_LAYOUTS[0];
+
+  // Re-embed the tracker for existing installs. The merchant opens this settings
+  // panel whenever they add/configure the widget, so it's a high-coverage place
+  // to (idempotently) ensure the embedded script is injected — no reinstall and
+  // no dashboard visit needed. New installs are covered by the app-install event.
+  useEffect(() => {
+    embeddedScripts
+      .embedScript({ parameters: {} })
+      .catch((err) => console.error("[embedScript] panel failed:", err));
+  }, []);
 
   useEffect(() => {
     const init = async () => {

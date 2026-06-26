@@ -8,10 +8,12 @@ const elevatedGetSiteProps = auth.elevate(siteProperties.getSiteProperties);
 const elevatedEmbedScript = auth.elevate(embeddedScripts.embedScript);
 
 export default appInstances.onAppInstanceInstalled(async (event) => {
-  // Inject the Recently Viewed tracker onto the site. Defining the embeddedScript
-  // extension is NOT enough — Wix only injects it once embedScript() is called.
-  // Our tracker has no dynamic parameters, so pass an empty `parameters` object;
-  // it's the only embedded script, so we don't pass a componentId.
+  // Inject the Recently Viewed tracker onto the site automatically on install —
+  // NO dashboard visit required. Defining the embeddedScript extension only
+  // registers it; Wix injects it only once embedScript() is called. Running it
+  // here means every new install gets the tracker with no manual step. (Sites
+  // installed before this code existed need a reinstall or a one-off re-embed.)
+  // No dynamic parameters → empty object; single script → no componentId.
   try {
     await elevatedEmbedScript({ parameters: {} });
     console.log("[app-installed] tracker embedded script injected");

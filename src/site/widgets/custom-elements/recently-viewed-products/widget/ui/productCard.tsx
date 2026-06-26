@@ -105,7 +105,7 @@ export const ProductCard: FC<ProductCardProps> = ({
     >
       {above && <div style={styles.aboveText}>{captions}</div>}
 
-      <div style={imageWrapStyle}>
+      <div style={imageWrapStyle} data-rv-image="">
         {item.imageUrl ? (
           <img
             src={item.imageUrl}

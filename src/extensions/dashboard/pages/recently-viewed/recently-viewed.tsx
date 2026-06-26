@@ -62,15 +62,15 @@ const DashboardPage: FC = () => {
     void fetchStoreProductCount().then(setProductCount);
   }, [loadPlan]);
 
-  // Ensure the Recently Viewed tracker embedded script is injected on this site.
-  // Defining the embeddedScript extension does NOT inject it — Wix only runs the
-  // script once embedScript() has been called. The app-install handler does this
-  // for new installs; calling it here (idempotent) covers sites that were already
-  // installed before that handler existed. No dynamic parameters → empty object.
+  // Re-embed the tracker for EXISTING installs (those installed before the
+  // app-install handler embedded it). A backend loop over all sites isn't
+  // possible — embedScript() targets the current site's auth context only — so
+  // we (idempotently) re-embed whenever the merchant opens the dashboard. New
+  // installs are already covered automatically by the app-install handler.
   useEffect(() => {
     embeddedScripts
       .embedScript({ parameters: {} })
-      .catch((err) => console.error("[embedScript] failed:", err));
+      .catch((err) => console.error("[embedScript] dashboard failed:", err));
   }, []);
 
   // Deep-link support. The panel opens this page (via openDashboardModal) with an

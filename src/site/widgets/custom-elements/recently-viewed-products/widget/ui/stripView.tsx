@@ -4,19 +4,6 @@ import { STRIP_ITEM_WIDTH } from "../../constants";
 import { ProductCard } from "./productCard";
 import { styles, STRIP_CSS } from "./styles/stripView";
 
-// Vertical center of the card's image (cards are STRIP_ITEM_WIDTH wide, image on
-// top) so the arrows sit on the image, not on the title/price below it.
-const imageHeight = (ratio: WidgetProps["ratio"]): number => {
-  switch (ratio) {
-    case "portrait":
-      return Math.round((STRIP_ITEM_WIDTH * 4) / 3);
-    case "landscape":
-      return Math.round((STRIP_ITEM_WIDTH * 3) / 4);
-    default:
-      return STRIP_ITEM_WIDTH; // square + original fallback
-  }
-};
-
 const Chevron: FC<{ dir: "left" | "right" }> = ({ dir }) => (
   <svg
     width="22"
@@ -48,9 +35,14 @@ interface StripViewProps {
 // instead: a real overflow-scroll track (every item reachable) with faint
 // chevrons that hide once their end is reached.
 export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
+  const wrapRef = useRef<HTMLDivElement>(null);
   const ref = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
+  // Measured vertical center of a card's image, relative to the wrap top. The
+  // arrows sit here so they're centered on the image regardless of caption
+  // position/height or image ratio (estimating these from pixels drifts).
+  const [arrowTop, setArrowTop] = useState<number | null>(null);
 
   const update = useCallback(() => {
     const el = ref.current;
@@ -58,6 +50,14 @@ export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
     const max = el.scrollWidth - el.clientWidth;
     setShowLeft(el.scrollLeft > 1);
     setShowRight(max > 1 && el.scrollLeft < max - 1);
+
+    const wrap = wrapRef.current;
+    const img = wrap?.querySelector<HTMLElement>("[data-rv-image]");
+    if (wrap && img) {
+      const wrapRect = wrap.getBoundingClientRect();
+      const imgRect = img.getBoundingClientRect();
+      setArrowTop(imgRect.top - wrapRect.top + imgRect.height / 2);
+    }
   }, []);
 
   useEffect(() => {
@@ -75,16 +75,11 @@ export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
     el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: "smooth" });
   };
 
-  // Center the arrows on the image. When the caption sits above the image
-  // ('top'), offset by its approximate height so the arrows stay on the image.
-  const captionAbove =
-    props.textPosition === "top"
-      ? (props.showTitle ? 20 : 0) + (props.showPrice ? 17 : 0) + 8
-      : 0;
-  const arrowTop = captionAbove + imageHeight(props.ratio) / 2;
+  // Until the first measurement lands, fall back to the wrap's vertical center.
+  const arrowTopStyle = arrowTop != null ? `${arrowTop}px` : "50%";
 
   return (
-    <div style={styles.wrap}>
+    <div ref={wrapRef} style={styles.wrap}>
       <style>{STRIP_CSS}</style>
       <div
         ref={ref}
@@ -120,7 +115,7 @@ export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
           aria-label="Previous"
           className="rv-strip-arrow"
           onClick={() => scrollByPage(-1)}
-          style={{ ...styles.arrow, left: "6px", top: arrowTop }}
+          style={{ ...styles.arrow, left: "6px", top: arrowTopStyle }}
         >
           <Chevron dir="left" />
         </button>
@@ -131,7 +126,7 @@ export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
           aria-label="Next"
           className="rv-strip-arrow"
           onClick={() => scrollByPage(1)}
-          style={{ ...styles.arrow, right: "6px", top: arrowTop }}
+          style={{ ...styles.arrow, right: "6px", top: arrowTopStyle }}
         >
           <Chevron dir="right" />
         </button>

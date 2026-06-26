@@ -5042,6 +5042,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@wix/site-storage@npm:^1.23.0":
+  version: 1.23.0
+  resolution: "@wix/site-storage@npm:1.23.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.0.0"
+    "@wix/sdk-runtime": "npm:^0.3.11"
+    "@wix/sdk-types": "npm:^1.13.3"
+  checksum: 10c0/b0c462bd156e05273021efb96dc68bbf477fc910248d3068814e9f8f7a1b583e3c57641cb6bfd8f48cf2faa5a6ab8c93d1cf76fc6538bf1bceda5265ce6e94ca
+  languageName: node
+  linkType: hard
+
 "@wix/site-window@npm:^1.59.0":
   version: 1.59.0
   resolution: "@wix/site-window@npm:1.59.0"
@@ -10486,6 +10497,7 @@ __metadata:
     "@wix/essentials": "npm:^0.1.23"
     "@wix/sdk-types": "npm:^1.0.0"
     "@wix/site-location": "npm:^1.34.0"
+    "@wix/site-storage": "npm:^1.23.0"
     "@wix/site-window": "npm:^1.59.0"
     "@wix/stores": "npm:^1.0.810"
     astro: "npm:^5.8.0"
