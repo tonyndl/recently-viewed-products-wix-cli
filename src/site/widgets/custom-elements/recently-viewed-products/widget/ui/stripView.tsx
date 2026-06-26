@@ -51,12 +51,20 @@ export const StripView: FC<StripViewProps> = ({ items, props, onNavigate }) => {
     setShowLeft(el.scrollLeft > 1);
     setShowRight(max > 1 && el.scrollLeft < max - 1);
 
+    // Use offsetTop/offsetHeight (layout space), NOT getBoundingClientRect:
+    // the Wix editor renders the canvas at a zoom transform, which scales
+    // getBoundingClientRect values and would push the arrow off-center. Offset
+    // properties ignore ancestor transforms, so they match the live site.
     const wrap = wrapRef.current;
     const img = wrap?.querySelector<HTMLElement>("[data-rv-image]");
     if (wrap && img) {
-      const wrapRect = wrap.getBoundingClientRect();
-      const imgRect = img.getBoundingClientRect();
-      setArrowTop(imgRect.top - wrapRect.top + imgRect.height / 2);
+      let top = 0;
+      let node: HTMLElement | null = img;
+      while (node && node !== wrap) {
+        top += node.offsetTop;
+        node = node.offsetParent as HTMLElement | null;
+      }
+      setArrowTop(top + img.offsetHeight / 2);
     }
   }, []);
 
