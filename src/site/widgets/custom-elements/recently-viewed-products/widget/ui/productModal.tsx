@@ -53,6 +53,9 @@ export const ProductDetail: FC<ProductDetailProps> = ({
         {item.formattedPrice ? (
           <p style={styles.price}>{item.formattedPrice}</p>
         ) : null}
+        {item.description ? (
+          <p style={styles.description}>{item.description}</p>
+        ) : null}
 
         {onViewProduct && (
           <button

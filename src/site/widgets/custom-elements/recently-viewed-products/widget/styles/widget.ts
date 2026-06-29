@@ -27,6 +27,14 @@ export const styles = {
     color: "var(--wix-color-text-secondary, #888)",
     fontSize: "14px",
   } as CSSProperties,
+  // Caption shown above the featured products in the "Show Store Products" empty
+  // state — lighter and tighter than `message` so it reads as a subtitle.
+  caption: {
+    margin: "0 0 12px 0",
+    textAlign: "center",
+    color: "var(--wix-color-text-secondary, #888)",
+    fontSize: "13px",
+  } as CSSProperties,
 } as const;
 
 // Heading style driven by the Text settings (size / color / alignment). An empty

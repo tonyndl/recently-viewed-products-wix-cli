@@ -39,27 +39,27 @@ trial ends.
 
 ```jsonc
 {
-  "isFree": false,                 // ← trial counts as PAID → isPremium = true
+  "isFree": false, // ← trial counts as PAID → isPremium = true
   "billing": {
     "packageName": "premium",
     "freeTrialInfo": {
       "status": "IN_PROGRESS",
-      "endDate": "2026-07-03T10:43:34.278Z"   // ← days-left is computed from this
-    }
+      "endDate": "2026-07-03T10:43:34.278Z", // ← days-left is computed from this
+    },
   },
-  "freeTrialAvailable": false      // already using a trial → not eligible to start
+  "freeTrialAvailable": false, // already using a trial → not eligible to start
 }
 ```
 
 `check-plan` derives and returns:
 
-| Field                | Meaning                                                        |
-| -------------------- | ------------------------------------------------------------- |
-| `isPremium`          | `!instance.isFree` — **true during a trial** (features unlock) |
-| `freeTrialAvailable` | Eligible to **start** a trial (never used; one per account)    |
+| Field                | Meaning                                                          |
+| -------------------- | ---------------------------------------------------------------- |
+| `isPremium`          | `!instance.isFree` — **true during a trial** (features unlock)   |
+| `freeTrialAvailable` | Eligible to **start** a trial (never used; one per account)      |
 | `onFreeTrial`        | Currently in the trial window (`freeTrialInfo` + endDate future) |
-| `freeTrialDaysLeft`  | `ceil((endDate − now) / 1 day)` while `onFreeTrial`           |
-| `upgradeUrl`         | Set only when not premium                                     |
+| `freeTrialDaysLeft`  | `ceil((endDate − now) / 1 day)` while `onFreeTrial`              |
+| `upgradeUrl`         | Set only when not premium                                        |
 
 ```ts
 const trial = inst?.billing?.freeTrialInfo;
@@ -89,11 +89,11 @@ colours, etc.). Because **`isFree` is `false` during a trial**, `isPremium` is
 All copy/badges derive from `check-plan`. Nothing renders until `planLoaded`
 (set in `loadPlan`'s `finally`) to avoid a Free→Premium flash.
 
-| State | Condition | What the UI shows |
-| --- | --- | --- |
-| **Eligible** | `freeTrialAvailable` | Yellow `FreeTrialBanner` under the tabs + every "Upgrade" CTA becomes **"Start Free Trial"** |
-| **On trial** | `onFreeTrial` | Green **"TRIAL · N DAYS LEFT"** badges (header, Your Plan card, Plan & Settings card); the eligibility banner/CTAs disappear |
-| **Paid / free** | else | Normal "Upgrade" / "✓ Active" / "Free" |
+| State           | Condition            | What the UI shows                                                                                                            |
+| --------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Eligible**    | `freeTrialAvailable` | Yellow `FreeTrialBanner` under the tabs + every "Upgrade" CTA becomes **"Start Free Trial"**                                 |
+| **On trial**    | `onFreeTrial`        | Green **"TRIAL · N DAYS LEFT"** badges (header, Your Plan card, Plan & Settings card); the eligibility banner/CTAs disappear |
+| **Paid / free** | else                 | Normal "Upgrade" / "✓ Active" / "Free"                                                                                       |
 
 ### State flow
 
@@ -114,7 +114,7 @@ tab refreshes the state.
 ### `freeTrialLabel(daysLeft)` — `upgradeUtils.ts`
 
 ```ts
-freeTrialLabel(8) // "Trial · 8 days left"  → WDS Badge uppercases to "TRIAL · 8 DAYS LEFT"
+freeTrialLabel(8); // "Trial · 8 days left"  → WDS Badge uppercases to "TRIAL · 8 DAYS LEFT"
 ```
 
 Used wherever the days-left badge appears. WDS `Badge skin="success"` renders it
@@ -138,9 +138,11 @@ with a tailored body and a purple "Start {FREE_TRIAL_DAYS}-Day Free Trial"
 button. Rendered only while eligible:
 
 ```tsx
-{planLoaded && freeTrialAvailable && upgradeUrl && (
-  <FreeTrialBanner onStart={() => window.open(upgradeUrl, "_blank")} />
-)}
+{
+  planLoaded && freeTrialAvailable && upgradeUrl && (
+    <FreeTrialBanner onStart={() => window.open(upgradeUrl, "_blank")} />
+  );
+}
 ```
 
 > WDS `Text` ignores `style` but accepts `className` — the banner's body
@@ -166,9 +168,9 @@ card):
 
 - **Header** (`recently-viewed.tsx`) — green badge before the action buttons.
 - **PlanCard** status (Overview).
-- **CurrentPlanCard** (Plan & Settings) — badge + the line *"You're on a free
+- **CurrentPlanCard** (Plan & Settings) — badge + the line _"You're on a free
   trial with full Premium access. Your subscription begins when the trial ends,
-  unless you cancel."*
+  unless you cancel."_
 
 <a id="benefits-single-source"></a>
 
@@ -183,11 +185,11 @@ Center → Pricing → plan benefits** so the App Market upgrade page matches.
 
 ## 6. Webhooks — `src/extensions/backend/events/`
 
-| Event handler | Fires when | Why |
-| --- | --- | --- |
-| `plan-purchased` (`onAppInstancePaidPlanPurchased`) | A trial **starts** (Wix treats it as a purchase) | Sync billing to Supabase |
-| `plan-auto-renewal-cancelled` (`onAppInstancePaidPlanAutoRenewalCancelled`) | User cancels before the card is charged | Track trials that **won't** convert |
-| `plan-change` (`onAppInstancePaidPlanChanged`) | Plan changes | Sync billing |
+| Event handler                                                               | Fires when                                       | Why                                 |
+| --------------------------------------------------------------------------- | ------------------------------------------------ | ----------------------------------- |
+| `plan-purchased` (`onAppInstancePaidPlanPurchased`)                         | A trial **starts** (Wix treats it as a purchase) | Sync billing to Supabase            |
+| `plan-auto-renewal-cancelled` (`onAppInstancePaidPlanAutoRenewalCancelled`) | User cancels before the card is charged          | Track trials that **won't** convert |
+| `plan-change` (`onAppInstancePaidPlanChanged`)                              | Plan changes                                     | Sync billing                        |
 
 > Wix sends **no** event when a trial silently converts to paid; the
 > auto-renewal-cancelled event is how you learn a trial was abandoned.
@@ -215,21 +217,21 @@ All are registered in `src/extensions.ts` and only take effect after
 
 ## 8. File map
 
-| File | Role |
-| --- | --- |
-| `src/constants/index.ts` | `FREE_TRIAL_DAYS` |
-| `src/pages/api/check-plan.ts` | Detects trial → `freeTrialAvailable` / `onFreeTrial` / `freeTrialDaysLeft` |
-| `src/extensions/dashboard/types.d.ts` | `PlanStatus` fields |
-| `…/recently-viewed.tsx` | Plan state, header badge, FreeTrialBanner, threading |
-| `…/upgradeUtils.ts` | `freeTrialLabel()`, `PREMIUM_FEATURES` |
-| `…/FreeTrialBanner/` | Eligible-state promo banner |
-| `…/OverviewTab/ui/planCard.tsx` | Purple "Your Plan" benefits card (paid/trial) |
-| `…/OverviewTab/index.tsx` | Free vs paid/trial layout switch |
-| `…/CurrentPlanCard/index.tsx` | Plan & Settings status + days-left |
-| `…/PlanUpgradeTab/ui/pricingTierCard.tsx` | Trial-aware pricing CTAs |
-| `…/PlanUpgradeTab/utils.ts` | Builds tiers from `PREMIUM_FEATURES` |
-| `site/.../panel/index.tsx` + `ui/premiumNudge.tsx` | Trial-aware editor-panel CTAs |
-| `src/extensions/backend/events/plan-*` | Purchase / cancel / change webhooks |
+| File                                               | Role                                                                       |
+| -------------------------------------------------- | -------------------------------------------------------------------------- |
+| `src/constants/index.ts`                           | `FREE_TRIAL_DAYS`                                                          |
+| `src/pages/api/check-plan.ts`                      | Detects trial → `freeTrialAvailable` / `onFreeTrial` / `freeTrialDaysLeft` |
+| `src/extensions/dashboard/types.d.ts`              | `PlanStatus` fields                                                        |
+| `…/recently-viewed.tsx`                            | Plan state, header badge, FreeTrialBanner, threading                       |
+| `…/upgradeUtils.ts`                                | `freeTrialLabel()`, `PREMIUM_FEATURES`                                     |
+| `…/FreeTrialBanner/`                               | Eligible-state promo banner                                                |
+| `…/OverviewTab/ui/planCard.tsx`                    | Purple "Your Plan" benefits card (paid/trial)                              |
+| `…/OverviewTab/index.tsx`                          | Free vs paid/trial layout switch                                           |
+| `…/CurrentPlanCard/index.tsx`                      | Plan & Settings status + days-left                                         |
+| `…/PlanUpgradeTab/ui/pricingTierCard.tsx`          | Trial-aware pricing CTAs                                                   |
+| `…/PlanUpgradeTab/utils.ts`                        | Builds tiers from `PREMIUM_FEATURES`                                       |
+| `site/.../panel/index.tsx` + `ui/premiumNudge.tsx` | Trial-aware editor-panel CTAs                                              |
+| `src/extensions/backend/events/plan-*`             | Purchase / cancel / change webhooks                                        |
 
 ## Related docs
 

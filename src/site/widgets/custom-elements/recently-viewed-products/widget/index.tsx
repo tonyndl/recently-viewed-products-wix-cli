@@ -7,11 +7,16 @@ import {
   fetchDefaultProducts,
   recordCurrentProduct,
   onSiteLocationChange,
+  clearTrackedSlugs,
+  SAMPLE_PRODUCTS,
+  readCachedItems,
+  writeCachedItems,
 } from "./products";
 import { ProGalleryView } from "./proGalleryView";
 import { StripView } from "./ui/stripView";
 import { Watermark } from "./ui/watermark";
 import { ProductDetail } from "./ui/productModal";
+import { Skeleton } from "./ui/skeleton";
 import {
   EMPTY_MESSAGE,
   FREE_LAYOUTS,
@@ -20,14 +25,36 @@ import {
 } from "../constants";
 import { styles, headingStyle } from "./styles/widget";
 
+// Detect the Editor DESIGN CANVAS (where Wix does not run real data fetches).
+// `viewMode()` is the documented signal, but the editor2 renderer can report
+// "Site" for a custom element, so we also check the top frame's URL — the canvas
+// carries `isEditor=true`, while Preview and the live site do not.
+const detectEditorCanvas = (mode: string): boolean => {
+  if (mode === "Editor") return true;
+  try {
+    const href = window.top?.location?.href ?? "";
+    const query = href.includes("?") ? href.slice(href.indexOf("?") + 1) : "";
+    return new URLSearchParams(query).get("isEditor") === "true";
+  } catch {
+    return false; // cross-origin top — can't inspect; treat as live
+  }
+};
+
 // Site-facing widget — renders the visitor's recently-viewed products with the
-// real Wix Pro Gallery. `behavior` controls the empty state; in the
-// editor/preview it falls back to sample products (the original showDefault()).
+// real Wix Pro Gallery. When the visitor has no history the widget shows featured
+// store products (samples in the editor) with an editable caption.
 export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
-  const { behavior, isPremium, bgColor } = props;
-  const [items, setItems] = useState<RecentlyViewedItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { isPremium, bgColor } = props;
+  // Hydrate from the stale-while-revalidate cache so repeat views paint the last
+  // products INSTANTLY (no skeleton) while fresh data is fetched in the background.
+  const cacheRef = useRef<RecentlyViewedItem[] | null>(null);
+  if (cacheRef.current === null) cacheRef.current = readCachedItems();
+  const [items, setItems] = useState<RecentlyViewedItem[]>(cacheRef.current);
+  const [loading, setLoading] = useState(cacheRef.current.length === 0);
   const [isEditor, setIsEditor] = useState(false);
+  // True when `items` are featured store products shown because the visitor has
+  // no history yet (drives the "Show Store Products" caption).
+  const [isFallback, setIsFallback] = useState(false);
   const [previewItem, setPreviewItem] = useState<RecentlyViewedItem | null>(
     null,
   );
@@ -84,39 +111,83 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
     }
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
+  // Load history first; fall back to featured store products when empty (samples
+  // in the editor) — mirrors the original Blocks app's empty state.
+  const load = useCallback(async (isCancelled: () => boolean) => {
+    const mode = await siteWindow.viewMode().catch(() => "Site");
+    // "Editor" is the design canvas; "Preview" renders like the live site.
+    const editorCanvas = detectEditorCanvas(mode);
+    if (isCancelled()) return;
+    // isEditor hides the "View Product" navigation in both Editor and Preview,
+    // where the sandbox blocks it.
+    setIsEditor(editorCanvas || mode === "Preview");
 
-    const load = async () => {
-      const mode = await siteWindow.viewMode().catch(() => "Site");
-      const editor = mode === "Editor" || mode === "Preview";
-      if (cancelled) return;
-      setIsEditor(editor);
-
-      try {
-        let result = await fetchRecentlyViewed(await readTrackedSlugs());
-        if (result.length === 0 && editor) {
-          result = await fetchDefaultProducts();
-        }
-        if (!cancelled) setItems(result);
-      } catch {
-        if (!cancelled) setItems([]);
-      } finally {
-        if (!cancelled) setLoading(false);
+    // Editor design canvas: Wix does not run real data fetches here, so the
+    // backend query would come back empty. Show static sample products instead
+    // so the merchant always has a populated widget to design against.
+    if (editorCanvas) {
+      if (!isCancelled()) {
+        setItems(SAMPLE_PRODUCTS);
+        setIsFallback(true);
+        setLoading(false);
       }
-    };
+      return;
+    }
 
-    // Self-tracking: record the current product BEFORE the first load so it's
-    // included, then re-record + reload whenever the visitor navigates to a new
-    // product page (Wix navigates client-side, so no full reload fires).
+    try {
+      const slugs = await readTrackedSlugs();
+      let result = await fetchRecentlyViewed(slugs);
+      let fallback = false;
+      // No history yet → show featured store products as a browsing nudge.
+      if (result.length === 0) {
+        result = await fetchDefaultProducts();
+        fallback = result.length > 0;
+      }
+      // Refresh the cache with the freshly resolved products so the next page
+      // load paints them instantly. Only on success — a failed fetch (catch)
+      // keeps the previous cache rather than wiping it.
+      writeCachedItems(result);
+      if (!isCancelled()) {
+        setItems(result);
+        setIsFallback(fallback);
+      }
+    } catch {
+      if (!isCancelled()) {
+        setItems([]);
+        setIsFallback(false);
+      }
+    } finally {
+      if (!isCancelled()) setLoading(false);
+    }
+  }, []);
+
+  // The navigation subscription is wired up once; route the reload through a ref
+  // so it always calls the current `load`.
+  const loadRef = useRef(load);
+  loadRef.current = load;
+
+  // Mount once: expose the dev clear, record the current product BEFORE the first
+  // load (so it's included when the widget sits on a product page — it reads the
+  // slug from the URL and writes its own localStorage synchronously), then
+  // re-record + reload on every client-side navigation (Wix navigates without a
+  // full reload). Same-frame localStorage means the just-viewed product is
+  // available instantly on the next page — no polling, no cross-frame wait.
+  useEffect(() => {
+    (
+      window as unknown as { __rvClearHistory?: () => Promise<void> }
+    ).__rvClearHistory = clearTrackedSlugs;
+
+    let cancelled = false;
+    const isCancelled = () => cancelled;
+
     void (async () => {
       await recordCurrentProduct();
       if (cancelled) return;
-      await load();
+      await loadRef.current(isCancelled);
       void onSiteLocationChange(() => {
         void (async () => {
           await recordCurrentProduct();
-          if (!cancelled) await load();
+          if (!cancelled) await loadRef.current(isCancelled);
         })();
       });
     })();
@@ -125,8 +196,6 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
       cancelled = true;
     };
   }, []);
-
-  if (loading) return null;
 
   // Strip & Grid are the only free layouts; Square/Landscape ratios and
   // Below/On-image text positions are premium — enforce them at render time so a
@@ -151,18 +220,6 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
     <h2 style={headingStyle(effectiveProps)}>{effectiveProps.headingText}</h2>
   ) : null;
 
-  if (items.length === 0) {
-    if (!isEditor && behavior !== "text") return null;
-    return (
-      <div style={styles.root}>
-        {heading}
-        <p style={styles.message}>
-          {effectiveProps.emptyText || EMPTY_MESSAGE}
-        </p>
-      </div>
-    );
-  }
-
   // Background color is premium — free plans render transparent.
   const effectiveBgColor = isPremium ? bgColor : "";
   const rootStyle = effectiveBgColor
@@ -174,9 +231,47 @@ export const RecentlyViewedWidget: FC<WidgetProps> = (props) => {
       }
     : styles.root;
 
+  // While loading, render the heading (instant — no data needed) plus shimmering
+  // card placeholders so the widget reserves its space instead of showing an
+  // empty gap until the products arrive.
+  if (loading) {
+    return (
+      <div style={rootStyle}>
+        {heading}
+        <Skeleton props={effectiveProps} />
+        {!isPremium && (
+          <div style={styles.watermarkWrap}>
+            <Watermark />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // No history AND no featured products (store has none) — show just the caption.
+  if (items.length === 0) {
+    return (
+      <div style={styles.root}>
+        {heading}
+        <p style={styles.message}>
+          {effectiveProps.emptyText || EMPTY_MESSAGE}
+        </p>
+      </div>
+    );
+  }
+
+  // When showing featured products (not real history), show the editable caption
+  // above them as a nudge.
+  const showFallbackCaption = isFallback;
+
   return (
     <div style={rootStyle}>
       {heading}
+      {showFallbackCaption && !previewItem && (
+        <p style={styles.caption}>
+          {effectiveProps.emptyText || EMPTY_MESSAGE}
+        </p>
+      )}
       {previewItem ? (
         // Inline detail view replaces the grid until the visitor clicks Back.
         // In the editor preview navigation is impossible, so the "View Product"

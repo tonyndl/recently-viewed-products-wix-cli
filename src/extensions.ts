@@ -13,6 +13,10 @@ import planChange from "./extensions/backend/events/plan-change/plan-change.exte
 
 import planAutoRenewalCancelled from "./extensions/backend/events/plan-auto-renewal-cancelled/plan-auto-renewal-cancelled.extension.ts";
 
+// Tracking runs via the embedded script (BODY_END, every storefront page): it
+// records the product slug to localStorage SYNCHRONOUSLY the moment the page
+// loads, before the widget mounts — so a fast click-through is never missed. The
+// widget shares the same site-origin localStorage and just reads it.
 export default app()
   .use(recentlyViewedPage)
   .use(recentlyViewedWidget)

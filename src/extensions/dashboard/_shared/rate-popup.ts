@@ -1,4 +1,3 @@
-// Ported from the original Blocks app's public/custom-elements/popup.js.
 // Defines a shadow-DOM <rate-popup> dialog that embeds the App Market review
 // page in an iframe, and exposes openRatePopup() to show it on demand.
 //

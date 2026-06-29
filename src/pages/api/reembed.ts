@@ -8,8 +8,7 @@ import {
 } from "../../backend/_shared/reembed-config";
 
 // One-off backend pass that injects the Recently Viewed tracker into every
-// EXISTING install — no merchant interaction, no reinstall. This is the
-// Blocks-style approach (see wix-blocks-app/src/backend/embed-utils.jsw):
+// EXISTING install — no merchant interaction, no reinstall:
 //
 //   for each installed instance:
 //     1. POST /oauth2/token (client_credentials + instance_id) → access_token

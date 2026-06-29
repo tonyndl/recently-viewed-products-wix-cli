@@ -86,12 +86,6 @@ class RecentlyViewedElement extends HTMLElement {
         DEFAULTS.hoverEffect,
       ),
       bgColor: this.getAttribute(PROP.bgColor) ?? DEFAULTS.bgColor,
-      behavior:
-        this.getAttribute(PROP.behavior) === "text"
-          ? "text"
-          : this.getAttribute(PROP.behavior) === "hide"
-            ? "hide"
-            : DEFAULTS.behavior,
       emptyText: this.getAttribute(PROP.emptyText) ?? DEFAULTS.emptyText,
       isPremium: this.getAttribute(PROP.isPremium) === "true",
       headingText: this.getAttribute(PROP.headingText) ?? DEFAULTS.headingText,

@@ -165,7 +165,10 @@ const buildOptions = (p: WidgetProps): Record<string, unknown> => {
       ? C.layoutParams_structure_scrollDirection.HORIZONTAL
       : C.layoutParams_structure_scrollDirection.VERTICAL,
     layoutParams_structure_itemSpacing: p.spacing,
-    layoutParams_crop_enable: p.ratio !== "original",
+    // Always crop to a fixed cell so image boxes have a uniform height in every
+    // layout. "original" crops to square (RATIO_VAL.original = 1) instead of the
+    // image's natural ratio, which produced ragged/variable heights.
+    layoutParams_crop_enable: true,
     // Images always crop (FILL) to fill their cell.
     layoutParams_crop_method: C.layoutParams_crop_method.FILL,
     layoutParams_crop_ratios: [RATIO_VAL[p.ratio]],

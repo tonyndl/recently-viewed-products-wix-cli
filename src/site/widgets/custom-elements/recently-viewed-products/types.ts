@@ -3,7 +3,6 @@ import type {
   RatioKind,
   TextPosition,
   HoverEffect,
-  EmptyBehavior,
   TextAlign,
 } from "./constants";
 
@@ -36,8 +35,7 @@ export interface WidgetProps {
   imageBorder: boolean;
   hoverEffect: HoverEffect;
   bgColor: string;
-  behavior: EmptyBehavior;
-  emptyText: string; // message shown when behavior === 'text' and there are no items
+  emptyText: string; // empty-state caption text
   isPremium: boolean;
   // Text settings — heading typography + product name/price typography.
   headingText: string;

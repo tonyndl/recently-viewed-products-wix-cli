@@ -82,10 +82,6 @@ const ALIGN_OPTIONS = [
   { id: "center", value: "Center" },
   { id: "right", value: "Right" },
 ];
-const BEHAVIOR_OPTIONS = [
-  { id: "text", value: "Show Text" },
-  { id: "hide", value: "Hide Widget" },
-];
 
 // By default Dropdown appends its options list to the parent element — i.e.
 // inside the scrollable settings panel — so scrolling the panel to reveal the
@@ -412,7 +408,6 @@ const Panel: FC = () => {
         imageBorder,
         hoverEffect,
         bgColor,
-        behavior,
         emptyText,
         headingText,
         headingShow,
@@ -433,7 +428,6 @@ const Panel: FC = () => {
         get(PROP.imageBorder),
         get(PROP.hoverEffect),
         get(PROP.bgColor),
-        get(PROP.behavior),
         get(PROP.emptyText),
         get(PROP.headingText),
         get(PROP.headingShow),
@@ -479,12 +473,6 @@ const Panel: FC = () => {
           ? (hoverEffect as WidgetProps["hoverEffect"])
           : DEFAULTS.hoverEffect,
         bgColor: bgColor || DEFAULTS.bgColor,
-        behavior:
-          behavior === "text"
-            ? "text"
-            : behavior === "hide"
-              ? "hide"
-              : DEFAULTS.behavior,
         emptyText: emptyText ?? DEFAULTS.emptyText,
         isPremium: false,
         headingText: headingText || DEFAULTS.headingText,
@@ -873,27 +861,35 @@ const Panel: FC = () => {
               {activeTab === "more" && (
                 <div style={sectionStyle}>
                   <FormField
-                    label="When no items to display"
-                    infoContent="What to show when the visitor hasn't viewed any products yet."
+                    label="No products text"
+                    infoContent="The caption shown above suggested products when the visitor hasn't viewed any yet (and on its own if the store has no products)."
                   >
-                    <Dropdown
-                      selectedId={values.behavior}
-                      options={BEHAVIOR_OPTIONS}
-                      popoverProps={DROPDOWN_POPOVER_PROPS}
-                      onSelect={(o) =>
-                        set("behavior", o.id as WidgetProps["behavior"])
-                      }
+                    <Input
+                      value={values.emptyText}
+                      placeholder={DEFAULTS.emptyText}
+                      onChange={(e) => set("emptyText", e.target.value)}
                     />
                   </FormField>
-                  {values.behavior === "text" && (
-                    <Box marginTop="SP3">
-                      <FormField label="Text to show">
-                        <Input
-                          value={values.emptyText}
-                          placeholder={DEFAULTS.emptyText}
-                          onChange={(e) => set("emptyText", e.target.value)}
-                        />
-                      </FormField>
+                  {/* Premium-only upsell — hidden entirely once the merchant is
+                      premium (the watermark is already removed for them). */}
+                  {!isPremium && (
+                    <Box verticalAlign="middle" marginTop="SP4">
+                      <Box flex="1">
+                        <Text size="small">Remove watermark</Text>
+                      </Box>
+                      <ToggleSwitch
+                        size="small"
+                        checked={false}
+                        disabled={!upgradeUrl}
+                        onChange={() => {
+                          if (upgradeUrl)
+                            window.open(
+                              upgradeUrl,
+                              "_blank",
+                              "noopener,noreferrer",
+                            );
+                        }}
+                      />
                     </Box>
                   )}
                 </div>

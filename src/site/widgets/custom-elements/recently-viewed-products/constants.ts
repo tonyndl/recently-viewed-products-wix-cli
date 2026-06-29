@@ -3,7 +3,7 @@
 export const TAG_NAME = "recently-viewed-products";
 
 // Gallery-customization props (recreating the ProGallery Layout/Items controls)
-// plus `behavior` (empty state) and the premium flag (watermark).
+// plus the empty-state caption text and the premium flag (watermark).
 export const PROP = {
   layout: "layout",
   columns: "columns",
@@ -16,7 +16,6 @@ export const PROP = {
   imageBorder: "imageborder",
   hoverEffect: "hovereffect",
   bgColor: "bgcolor",
-  behavior: "behavior",
   emptyText: "emptytext",
   isPremium: "ispremium",
   // Text settings
@@ -44,7 +43,8 @@ export type LayoutKind =
 export type RatioKind = "square" | "portrait" | "landscape" | "original";
 export type TextPosition = "below" | "top" | "onimage";
 export type HoverEffect = "none" | "zoom" | "fade";
-export type EmptyBehavior = "hide" | "text";
+// "products" mirrors the original Blocks app: when the visitor has no history,
+// show featured store products (a browsing nudge) with an editable caption.
 export type TextAlign = "left" | "center" | "right";
 
 // Every layout the Style picker offers, with the copy shown beneath it. Order
@@ -147,8 +147,9 @@ export const FREE_TEXT_POSITIONS: readonly TextPosition[] = ["top"];
 // when the user hasn't customized the heading text.
 export const HEADING = "Recently Viewed Products";
 
-// Default empty-state message shown when behavior === 'text' (editable per widget
-// via the `emptyText` prop).
+// Empty-state caption (editable per widget via the `emptyText` prop). Shown above
+// the featured products when the visitor has no history, and on its own if the
+// store has no products at all.
 export const EMPTY_MESSAGE = "No recently viewed products yet.";
 
 export const DEFAULTS = {
@@ -163,7 +164,6 @@ export const DEFAULTS = {
   imageBorder: false,
   hoverEffect: "zoom" as HoverEffect,
   bgColor: "", // empty = transparent (use the widget's native Fill)
-  behavior: "text" as EmptyBehavior,
   emptyText: EMPTY_MESSAGE,
   isPremium: false,
   // Text settings — empty color string means "use the theme/default color".

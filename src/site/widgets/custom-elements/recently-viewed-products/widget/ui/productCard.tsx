@@ -17,11 +17,14 @@ interface ProductCardProps {
   onNavigate?: (item: RecentlyViewedItem) => void;
 }
 
-const RATIO: Record<RatioKind, string | undefined> = {
+// Every ratio maps to a FIXED aspect ratio so image boxes are uniform height in
+// every layout. "original" falls back to square rather than the image's natural
+// (variable) height, which produced ragged rows in the Strip layout.
+const RATIO: Record<RatioKind, string> = {
   square: "1 / 1",
   portrait: "3 / 4",
   landscape: "4 / 3",
-  original: undefined,
+  original: "1 / 1",
 };
 
 const HOVER_CLASS: Record<HoverEffect, string | undefined> = {
@@ -43,7 +46,6 @@ export const ProductCard: FC<ProductCardProps> = ({
   textColor,
   onNavigate,
 }) => {
-  const isOriginal = ratio === "original";
   const onImage = textPosition === "onimage";
   const above = textPosition === "top";
   const hasPrice = showPrice && !!item.formattedPrice;
@@ -72,11 +74,11 @@ export const ProductCard: FC<ProductCardProps> = ({
     ...styles.imageWrap,
     borderRadius: `${cornerRadius}px`,
     ...(imageBorder ? { border: "1px solid #e3e3e3" } : {}),
-    ...(isOriginal ? {} : { aspectRatio: RATIO[ratio] }),
+    aspectRatio: RATIO[ratio],
   };
   const imageStyle: CSSProperties = {
     ...styles.image,
-    height: isOriginal ? "auto" : "100%",
+    height: "100%",
     objectFit: "cover", // images always crop to fill
   };
 

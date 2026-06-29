@@ -11,14 +11,35 @@ export default appInstances.onAppInstanceInstalled(async (event) => {
   // Inject the Recently Viewed tracker onto the site automatically on install —
   // NO dashboard visit required. Defining the embeddedScript extension only
   // registers it; Wix injects it only once embedScript() is called. Running it
-  // here means every new install gets the tracker with no manual step. (Sites
-  // installed before this code existed need a reinstall or a one-off re-embed.)
+  // here means every new install gets the tracker with no manual step.
   // No dynamic parameters → empty object; single script → no componentId.
-  try {
-    await elevatedEmbedScript({ parameters: {} });
-    console.log("[app-installed] tracker embedded script injected");
-  } catch (err) {
-    console.error("[app-installed] embedScript failed:", err);
+  //
+  // On a brand-new install the app's components may not be fully provisioned at
+  // the instant this event fires, so embedScript() can fail with a transient
+  // "not found / not ready" error. We retry with a short backoff so the very
+  // FIRST install reliably gets the script (not only updates/reinstalls).
+  const EMBED_MAX_ATTEMPTS = 5;
+  const EMBED_RETRY_MS = 2000;
+  for (let attempt = 1; attempt <= EMBED_MAX_ATTEMPTS; attempt++) {
+    try {
+      await elevatedEmbedScript({ parameters: {} });
+      console.log(
+        `[app-installed] tracker embedded script injected (attempt ${attempt})`,
+      );
+      break;
+    } catch (err) {
+      if (attempt === EMBED_MAX_ATTEMPTS) {
+        console.error(
+          `[app-installed] embedScript failed after ${EMBED_MAX_ATTEMPTS} attempts:`,
+          err,
+        );
+      } else {
+        console.warn(
+          `[app-installed] embedScript attempt ${attempt} failed, retrying in ${EMBED_RETRY_MS}ms`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, EMBED_RETRY_MS));
+      }
+    }
   }
 
   try {
